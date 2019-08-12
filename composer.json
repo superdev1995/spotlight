@@ -1,0 +1,23 @@
+{
+    "require": {
+        "slim/slim": "^3.0",
+        "nesbot/carbon": "^1.22",
+        "monolog/monolog": "^1.22",
+        "slim/twig-view": "^1.2.0",
+        "slim/flash": "^0.2.0",
+        "slim/csrf": "^0.8.1",
+        "phpmailer/phpmailer": "^5.2",
+        "uploadcare/uploadcare-php": ">=v2.0,<3.0",
+        "stripe/stripe-php": "^5.0",
+        "dompdf/dompdf": "^0.8.2",
+        "illuminate/database": "^5.5",
+        "curl/curl": "^2.2"
+
+    },
+    "autoload": {
+        "classmap" : [
+            "src/Helpers",
+            "src/Models"
+        ]
+    }
+}
