@@ -1,0 +1,64 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-0">{{ title }}</h4>
+<h6 class="mb-5 text-muted">Introduction</h6>
+
+{% if school.country_id == 'GB'
+   or school.country_id == 'IE'
+   or school.country_id == 'AE'
+   or school.country_subdivision_id == 'US-VA' %}
+    {% if school.stripe_id %}
+        <div class="card">
+            <img width="100%" src="/images/compliance.jpg">
+            <div class="card-block">
+                <p class="lead">Welcome to TeachKloud's compliance self-audit. We are excited to simplify your regular audits and compliance requirements.</p>
+                <p>This audit is <strong>divided into several sections</strong>. Your answers are saved automatically and you can restart the audit at any time. Before we continue, please ensure that you have completed the following because the questions will change depending on the number of children attending:</p>
+                <ul>
+                    <li><a href="{{ path_for('school') }}">Select the accurate type and operation</a> of your preschool</li>
+                    <li><a href="{{ path_for('child') }}">Create a profile</a> for every child attending your preschool</li>
+                </ul>
+                <p>When you have completed the audit, TeachKloud provides you with an <strong>overall score and tailor-made recommendations</strong> just for your preschool. We aim to help you provide quality and safe learning experiences for children in your preschool. Please remember that TeachKloud is not a legal entity and the information given to you on TeachKloud is not legal advice.</p>
+                <p class="small">I understand that this does not constitute as legal advice or mean that I will pass inspections. I understand that this is for my guidance only. Some material on TeachKloud may be out of date at any given time. However, we endeavour to keep all information updated and relevant.</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" href="{{ path_for('complianceDetails', { question_id: first_question.question_id }) }}">Let's Start</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning mb-4">
+            This feature is only available for providers who have a TeachKloud subscription.
+        </div>
+        <div class="card">
+            {% if school.country_id == 'GB'
+               or school.country_id == 'IE'
+               or school.country_id == 'AE' %}
+                <div class="card-header">
+                    Health and Safety Self-Assessment tool based on the Early Years Regulations 2016
+                </div>
+            {% elseif school.country_subdivision_id == 'US-VA' %}
+                <div class="card-header">
+                    Health and Safety Self-Assessment tool based on the Standards for Licensed Child Day Centers
+                </div>
+            {% endif %}
+            <div class="card-block">
+                <p>This Self-Assessment tool acts as an interactive checklist for your service regarding health and safety. You may upload pictures, documentary evidence and review areas for improvement upon completion.</p>
+                <p>This self-assessment covers 5 main areas:</p>
+                <ol>
+                    {% for category in categories %}
+                        <li>{{ category.category_name }}</li>
+                    {% endfor %}
+                </ol>
+                <p>Based on your self-assessment areas in which you may improve on are identified. This self-assessment does not act as legal advice nor does its completion ensure regulatory compliance.</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" href="{{ path_for('billing') }}">Billing Settings</a>
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="alert alert-warning mb-4">
+        This feature is not available in your country yet. You may email us at info@teachkloud.com if you would like to request this feature.
+    </div>
+{% endif %}
+{% endblock %}

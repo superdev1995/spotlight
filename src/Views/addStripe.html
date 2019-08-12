@@ -1,0 +1,117 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<form action="{{ path_for('stripeAdd') }}" enctype="multipart/form-data" method="post">
+    <div>
+    <h4 class="mb-5">{{ title }}</h4>
+    <span>We charge 2.2% + 25 cent on every transaction. Customers outside of Europe may incur more charges.</span>
+    </div>
+    <div class="alert alert-danger text-center" role="alert"><strong>Warning!</strong> All fields are <strong>mandatory</strong></div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Information
+        </div>
+        <div class="card-block">
+             <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="email">School Name :</label>
+                <div class="col-md-8">
+                    {# dump(admin)#}
+                    <input class="form-control" type="text" id="business_name" name="business_name" value="{{ school.school_name }}" maxlength="32" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="email">Email :</label>
+                <div class="col-md-8">
+                    {# dump(admin)#}
+                    <input class="form-control" type="text" id="email" name="email" value="{{ admin.user_email }}" maxlength="32" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="first_name">First Name:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="first_name" name="first_name" value="{{ admin.user_first_name }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="last_name">Last Name:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="last_name" name="last_name" value="{{ admin.user_last_name }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="dob">Date of Birth:</label>
+                <div class="col-md-2">
+                    <input class="form-control" type="text" id="dob_year" name="dob_year" value="" maxlength="4" placeholder="Year" required>
+                </div>
+                 <div class="col-md-2">
+                    <input class="form-control" type="text" id="dob_month" name="dob_month" value="" maxlength="2" placeholder="Month" required>
+                </div>
+                 <div class="col-md-2">
+                    <input class="form-control" type="text" id="dob_day" name="dob_day" value="" maxlength="2" placeholder="Day" required>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            School Address
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="street">Street Address:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="street" name="street" value="{{ school.school_street }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="city">City or Town:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="city" name="city" value="{{ school.school_city }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="postal_code">Postal Code:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="postal_code" name="postal_code" value="{{ school.school_postal_code }}" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Bank information
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="country">Country :</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="country_bank" name="country_bank" value="{{ school.country_id}}" maxlength="64" disabled>
+                    <input type="hidden" id="country" name="country" value="{{ school.country_id}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="account_name">Account Full name:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="account_name" name="account_name" value="{{ admin.user_last_name ~ ' ' ~ admin.user_first_name }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="account_number">Account IBAN number: <i class="fa fa-question-circle" title="The IBAN must match the country"></i></label>
+                <div class="col-md-8">
+                    <input class="form-control" placeholder="IE89370400440532013000" type="text" id="account_number" name="account_number" value="" maxlength="64" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" name="stripe_connect_id" value="{{ school.stripe_connect_id }}">
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    <button class="btn btn-primary" type="submit">Add Stripe Account</button>
+</form>
+{% endblock %}

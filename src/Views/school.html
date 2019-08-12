@@ -1,0 +1,138 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-header">
+        General Information
+    </div>
+    {% if school_user.role == 0 %}
+        <div class="alert alert-warning">
+            Is this information correct? Please contact your administrator to amend.
+        </div>
+    {% endif %}
+    <div class="card-block">
+        <dl class="row">
+            <dd class="col-md-8 offset-md-4">
+                <div class="media">
+                    <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ school.school_avatar_url|default('/images/school.png') }}" alt="School image">
+                    <div class="media-body">
+                        <h4>{{ school.school_name }}</h4>
+                        <small>
+                            {% if school.school_type == 'P' %}Private Setting{% endif %}
+                            {% if school.school_type == 'C' %}Community Setting{% endif %}
+                        </small>
+                    </div>
+                </div>
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">Type of Pre-School:</dt>
+            <dd class="col-md-8">
+                {% if school.country_id == 'US' or schoo.country_id=='UV' %}
+                    {{ schoolUS.category }}
+                    {% else %}
+                    {% for category in categories %}
+                        {% if school.category_id == category.category_id %}
+                            {{ category.category_name }}<br>
+                            <small>{{ category.category_description }}</small>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </dd>
+        </dl>
+        {% if school.country_id == 'US' or school.country_id == 'UV' %}
+        <dl class="row">
+            <dt class="col-md-4">Hours:</dt>
+            {% if schoolUS.hours == 'FD' %}
+                <dd class="col-md-8">Full Day</dd>
+            {% else %}
+                <dd class="col-md-8">Part Day</dd>
+            {% endif %}
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">Curriculum:</dt>
+            <dd class="col-md-8">{{ schoolUS.curriculum }}</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">Age Range:</dt>
+            <dd class="col-md-8">{{ schoolUS.age_range }}</dd>
+        </dl>
+        {% endif %}
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        Address
+    </div>
+    <div class="card-block">
+        <dl class="row">
+            <dt class="col-md-4">Phone:</dt>
+            <dd class="col-md-8">
+                {{ school.school_phone }}
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">Street Address:</dt>
+            <dd class="col-md-8">
+                {{ school.school_street }}
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">City/Town:</dt>
+            <dd class="col-md-8">
+                {{ school.school_city }}
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">Postal Code:</dt>
+            <dd class="col-md-8">
+                {{ school.school_postal_code }}
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">Country:</dt>
+            <dd class="col-md-8">
+                {% for country in countries %}
+                    {% if school.country_id == country.country_id %}
+                        {{ country.country_name }}
+                    {% endif %}
+                {% endfor %}
+            </dd>
+        </dl>
+    </div>
+</div>
+
+{% if school_user.role == 1 %}
+    <a class="btn btn-primary mb-2" role="button" href="{{ path_for('schoolEdit') }}">Edit Profile</a>
+{% if school.stripe_connect_id %}
+    <a class="btn btn-primary mb-2" role="button" href="{{ path_for('stripeEdit') }}">Edit Stripe Account</a>
+    <a class="btn btn-info mb-2" role="button" href="https://teachkloud.kayako.com/article/68-what-is-stripe" target="_blank"><i class="fa fa-info-circle"></i> What is Stripe ?</a>
+{% else %}
+    <a class="btn btn-primary mb-2" role="button" href="{{ path_for('stripeAdd') }}">Add Stripe Account</a>
+    <a class="btn btn-info mb-2" role="button" href="https://teachkloud.kayako.com/article/68-what-is-stripe" target="_blank"><i class="fa fa-info-circle"></i> What is Stripe ?</a>
+{% endif %}
+
+<button class="btn btn-warning" data-toggle="modal" data-target="#adminFee"><i class="fa fa-info-circle"></i> Learn more about the admin fee</button>
+
+<div class="modal fade" id="adminFee" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Learn more about the admin fee</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Stripe will charge <strong>2.9% + .30 cents</strong> for every successful charge to parents.</p>
+                <p>TeachKloud will charge <strong>1%</strong> for every successful charge to parents.</p>
+                <span class="payment-errors text-danger"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

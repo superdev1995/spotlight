@@ -1,0 +1,270 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script src="/javascripts/pdfdownload.js"></script> 
+
+<div id="accident-header" class="noprint">
+    <div class="row">
+        <div class="col-7 col-sm-5">
+            <h4 class="mb-3">{{ title }}</h4>
+        </div>
+        <div class="col-5 col-sm-3 mb-2 ml-auto text-right noprint">
+            <div class="btn-group dropdown">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Options
+                    <i class="fa fa-caret-down mr-2"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                    <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        Child Involved
+    </div>
+    <div class="card-block text-center">
+        <a href="{{ path_for('childDetails', { child_id: child.child_id }) }}"><img class="rounded-circle" width="100" height="100" src="{{ accident.user_avatar_url|default('/images/avatar.png') }}" alt="Child image"></a><br>
+        <span class="custom-control-description">{{ child.child_name }}</span>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        Accident Details
+    </div>
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <td>Reported by</td>
+                <td>{{ teacher.user_first_name }} {{ teacher.user_last_name }}</td>
+            </tr>
+            <tr>
+                <td>When it happened</td>
+                <td>{{ accident.accident_date_time }}</td>
+            </tr>
+            <tr>
+                <td>Location</td>
+                <td><span class="badge badge-default">{{ accident.accident_location }}</span></td>
+            </tr>
+            <tr>
+                <td>What happened</td>
+                <td>{{ accident.accident_description }}</td>
+            </tr>
+            <tr>
+                <td>What caused it</td>
+                <td>{{ accident.accident_cause }}</td>
+            </tr>
+            <tr>
+                <td>Body Parts</td>
+                <td>
+                    {% set body_parts = accident.accident_body_parts | split(',') %}
+                    {% for body_part in body_parts %}
+                        <span class="badge badge-default">{{ body_part }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td>Witnesses</td>
+                <td>
+                    {% set witnesses = accident.accident_witnesses | split(',') %}
+                    {% for witness in witnesses %}
+                        <span class="badge badge-default">{{ witness }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% if user.user_type == 'T' %}
+    <div class="card mb-4 noprint">
+        <div class="card-header danger">
+            People informed after the accident
+        </div>
+        <table class="table">
+            <thead class="thead-default">
+                <tr>
+                    <th>Date and Time</th>
+                    <th>Recipients</th>
+                    <th>Who Reported</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs|length > 0 %}
+                    {% for log in logs %}
+                        <tr>
+                            <td>
+                                <span style="font-size: 13px;">{{ log.logged_at }}</span>
+                            </td>
+                            <td>
+                                {% if log.recipient == 'P' %}
+                                    Child’s parents
+                                {% endif %}
+                                {% if log.recipient == 'T' %}
+                                    All teachers
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ log.user_first_name }} {{ log.user_last_name }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="table-warning">
+                        <td colspan="3"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> No one has been informed. Please use the button below to send out an email notification.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% if child.child_status == 'A' %}
+            <div class="card-footer">
+                <button class="btn btn-primary" role="button" data-toggle="modal" data-target="#announceModal">Inform Teachers or Parents</button>
+                <form method="post" action="{{ path_for('accidentAnnounce', { accident_id: accident.accident_id }) }}">
+                    <div class="modal fade" id="announceModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Inform Teachers or Parents</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>You can send an email to all teachers of your school or all parents of the child notifying them about this accident. Please read more about your preschool’s <a href="{{ path_for('policyDetails', {policy_id: 10}) }}">Accidents and Incidents Policy</a> to know how you should proceed.</p>
+                                    <div class="form-group">
+                                        <div class="custom-controls-stacked">
+                                            <label class="custom-control custom-radio">
+                                                <input name="recipient" type="radio" value="T" class="custom-control-input" required>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description">Inform all teachers of the preschool</span>
+                                            </label>
+                                            <label class="custom-control custom-radio">
+                                                <input name="recipient" type="radio" value="P" class="custom-control-input" required>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description">Inform all parents of the child</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea class="form-control" name="message" id="message" rows="5" maxlength="255" required>Despite our utmost priority in the safety of our children, we need to inform you about an incidence linked in this email.</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Confirm</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% if user.user_type == 'P' and signed == false %}
+<div class="card mb-4">
+    <div class="card-header text-white bg-warning">
+        Signature 
+    </div>
+    <div class="card-body mx-4 my-2">
+        <p class="card-text">Why does this require my signature 
+            <i class="fa fa-question-circle text-muted" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="Please sign if you have read, understood and consent to the information displayed in the accident and emergency form"></i>
+        </p>
+        <form id="signature" method="POST" action="{{ path_for('accidentSignature', {accident_id: accident.accident_id}) }}">
+            <div class="form-group row">
+                <label class="col-3 col-form-label">Signature</label>
+                <div class="col-9">
+                    <canvas id="signature-pad" class="signature-pad"></canvas>
+                    <br>
+                    <button class="btn btn-outline-primary" id="clear">Clear</button>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-3 col-form-label">Signed by</label>
+                <div class="col-6">
+                    <input class="form-control" type="text" name="signature_name" required>
+                </div>
+            </div>
+            <input id="signature_data" type="hidden" name="signature_data">
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            <button type="submit" class="btn btn-primary text-right">Send</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if signed == true %}
+<div class="card mb-4">
+    <div class="card-header text-white bg-warning">
+            Parental Consent
+    </div>
+    <div class="card-body mx-4 my-2">
+            <div class="row">
+                <label class="col-3 col-form-label">Signature</label>
+                <div class="col-9">
+                    <img src="{{accident.signature}}">
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-3 col-form-label">Signed by</label>
+                <div class="col-6">
+                    {{accident.signed_by}}
+                </div>
+            </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .signature-pad {
+        border: 1px solid;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+<script>
+    var canvas = document.getElementById('signature-pad');
+
+// Adjust canvas coordinate space taking into account pixel ratio,
+// to make it look crisp on mobile devices.
+// This also causes canvas to be cleared.
+function resizeCanvas() {
+    // When zoomed out to less than 100%, for some very strange reason,
+    // some browsers report devicePixelRatio as less than 1
+    // and only part of the canvas is cleared then.
+    var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+}
+
+window.onresize = resizeCanvas;
+resizeCanvas();
+
+var signaturePad = new SignaturePad(canvas, {
+    backgroundColor: 'rgb(255, 255, 255)' // necessary for saving image as JPEG; can be removed is only saving as PNG or SVG
+});
+
+document.getElementById('clear').addEventListener('click', function (e) {
+    e.preventDefault();
+    signaturePad.clear();
+});
+
+
+document.getElementById("signature").onsubmit = function(e) {
+    if (signaturePad.isEmpty()) {
+        e.preventDefault();
+        alert('Signature form is empty !');
+    }
+    else {
+        var data = signaturePad.toDataURL('image/png');
+        document.getElementById("signature_data").value = data;
+    }
+};
+
+</script>
+{% endblock %}

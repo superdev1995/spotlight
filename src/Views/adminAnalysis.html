@@ -1,0 +1,282 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="/javascripts/bootstrap-multiselect.js"></script>
+
+<link rel="stylesheet" href="/stylesheets/bootstrap-multiselect.css">
+
+<h3 class="mb-3">{{ title }}</h3>
+<h4 class="mb-3">{{ sub_title }}</h4>
+<div class="card">
+    <div class="card-block">
+        <form method="GET">
+            <div class="row mb-2">
+                <div class="col-12 col-sm-4 col-md-3">
+                    <label for="start-date-input">Start Date</label>
+                    <input id="start-date-input" class="form-control" type="date" name="start_date" value="{{ start_date }}">
+                </div>
+                <div class="col-12 col-sm-4 col-md-3">
+                    <label for="end-date-input">End Date</label>
+                    <input id="end-date-input" class="form-control" type="date" name="end_date" value="{{ end_date }}">
+                </div>
+        </div>
+            <select name="frameworks[]" id="filter-frameworks" multiple="multiple">
+            {% for framework in frameworks %}
+                <option value="{{framework.framework_name}}">{{framework.framework_name}}</option>
+            {% endfor %}
+            </select>
+            <select name="rooms[]" id="filter-rooms" multiple="multiple">
+            {% for room in rooms %}
+                <option value="{{room.room_id}}">{{room.room_name}}</option>
+            {% endfor %}
+            </select>
+            <select name="children[]" id="filter-children" multiple="multiple">
+            {% for child in children %}
+                <option value="{{child.child_id}}">{{child.child_name}}</option>
+            {% endfor %}
+            </select>
+            <input type="submit" role="button" class="btn btn-primary pull-right" value="Submit">
+        </form>
+    </div>
+</div>
+<div class="card">
+    <div class="card-block">
+        {% for name, frameworkGoals in goals %}
+            <h3 class="my-3">{{name}} Framework</h3>
+            <div id="accordion">
+                    <div class="card" id="card_div_school_{{name}}">
+                            <div class="card-header" id="heading_div_school_{{name}}">
+                              <h5 class="mb-0">
+                                <b>{{frameworkGoals['school']['school_name']}}</b>
+                                <div class="d-inline pull-right">
+                                    <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#collapse_div_school_{{name}}" aria-expanded="false" aria-controls="collapse_div_school_{{name}}">
+                                    Show/Hide
+                                    </button>
+                                </div>
+                              </h5>
+                            </div>
+                            <div id="collapse_div_school_{{name}}" class="collapse" aria-labelledby="heading_div_school_{{name}}" data-parent="#accordion">
+                              <div class="card-body">
+                                <div id="chart_div_school_{{name}}"></div>
+                              </div>
+                            </div>
+                          </div>
+                <h4 class="my-2">Rooms</h4>
+                {% for id, room in frameworkGoals['room'] %}
+                <div class="card" id="card_div_room_{{name}}_{{id}}">
+                        <div class="card-header" id="heading_div_room_{{name}}_{{id}}">
+                          <h5 class="mb-0">
+                            <b>{{room['room_name']}}</b>
+                            <div class="d-inline pull-right">
+                                <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#collapse_div_room_{{name}}_{{id}}" aria-expanded="false" aria-controls="collapse_div_room_{{name}}_{{id}}">
+                                Show/Hide
+                                </button>
+                            </div>
+                          </h5>
+                        </div>
+                        <div id="collapse_div_room_{{name}}_{{id}}" class="collapse" aria-labelledby="heading_div_room_{{name}}_{{id}}" data-parent="#accordion">
+                          <div class="card-body">
+                            <div id="chart_div_room_{{name}}_{{id}}"></div>
+                          </div>
+                        </div>
+                      </div>
+                {% endfor %}
+                <h4 class="my-2">Children</h4>
+                {% for id, child in frameworkGoals['child'] %}
+                    <div class="card" id="card_div_child_{{name}}_{{id}}">
+                        <div class="card-header" id="heading_div_child_{{name}}_{{id}}">
+                          <h5 class="mb-0">
+                            <b>{{child['child_name']}}</b>
+                            <div class="d-inline pull-right">
+                                <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#collapse_div_child_{{name}}_{{id}}" aria-expanded="false" aria-controls="collapse_div_child_{{name}}_{{id}}">
+                                Show/Hide
+                                </button>
+                            </div>
+                          </h5>
+                        </div>
+                        <div id="collapse_div_child_{{name}}_{{id}}" class="collapse" aria-labelledby="heading_div_child_{{name}}_{{id}}" data-parent="#accordion">
+                          <div class="card-body">
+                            <div id="chart_div_child_{{name}}_{{id}}"></div>
+                          </div>
+                        </div>
+                      </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% for name, frameworkGoals in goals %}
+    <script type="text/javascript">
+        
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', {'packages':['corechart', 'bar']});
+        
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart_div_school_{{name}});
+        
+        // Callback that creates and populates a data table,
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+        function drawChart_div_school_{{name}}() {
+            
+            // Create the data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Goal');
+            data.addColumn('number', 'Count');
+            data.addRows([
+                {% for schoolGoal in frameworkGoals['school']['goals'] %}
+                ['{{schoolGoal['goal_description']}}', {{schoolGoal['count']}}],
+                {% endfor %}
+                ]);
+            data.sort([{column: 1, desc: true}]);
+
+                // set inner height to 30 pixels per row
+        var chartAreaHeight = data.getNumberOfRows() * 20;
+        // add padding to outer height to accomodate title, axis labels, etc
+        var chartHeight = chartAreaHeight + 80;
+                
+                // Set chart options
+                var options = {
+                vAxis: { textPosition: 'none' },
+                hAxis: { format: '0'},
+                legend: { position: 'none' },
+                height: chartHeight,
+                width: $('#card_div_school_{{name}}').width(),
+                chartArea: {
+                    height: chartAreaHeight,
+                },
+                tooltip: {
+                    isHtml: true
+                }
+            };
+
+            // Instantiate and draw our chart, passing in some options.
+            var chart = new google.visualization.BarChart(document.getElementById('chart_div_school_{{name}}'));
+            chart.draw(data, options);
+        }
+
+    </script>
+    {% for id, room in frameworkGoals['room'] %}
+        <script type="text/javascript">
+            
+            // Load the Visualization API and the corechart package.
+            google.charts.load('current', {'packages':['corechart', 'bar']});
+            
+            // Set a callback to run when the Google Visualization API is loaded.
+            google.charts.setOnLoadCallback(drawChart_room_{{name}}_{{id}});
+            
+            // Callback that creates and populates a data table,
+            // instantiates the pie chart, passes in the data and
+            // draws it.
+            function drawChart_room_{{name}}_{{id}}() {
+                
+                // Create the data table.
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Goal');
+                data.addColumn('number', 'Count');
+                data.addRows([
+                    {% for roomGoal in room['goals'] %}
+                    ['{{roomGoal['goal_description']}}', {{roomGoal['count']}}],
+                    {% endfor %}
+                    ]);
+                data.sort([{column: 1, desc: true}]);
+
+                    // set inner height to 30 pixels per row
+            var chartAreaHeight = data.getNumberOfRows() * 20;
+            // add padding to outer height to accomodate title, axis labels, etc
+            var chartHeight = chartAreaHeight + 80;
+                    
+                    // Set chart options
+                    var options = {
+                    vAxis: { textPosition: 'none' },
+                    hAxis: { format: '0'},
+                    legend: { position: 'none' },
+                    height: chartHeight,
+                    width: $('#card_div_room_{{name}}_{{id}}').width(),
+                    chartArea: {
+                        height: chartAreaHeight
+                    },
+                    tooltip: {
+                        isHtml: true
+                    }
+                };
+
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.BarChart(document.getElementById('chart_div_room_{{name}}_{{id}}'));
+                chart.draw(data, options);
+            }
+        </script>
+    {% endfor %}
+    {% for id, child in frameworkGoals['child'] %}
+        <script type="text/javascript">
+            
+            // Load the Visualization API and the corechart package.
+            google.charts.load('current', {'packages':['corechart', 'bar']});
+            
+            // Set a callback to run when the Google Visualization API is loaded.
+            google.charts.setOnLoadCallback(drawChart_child_{{name}}_{{id}});
+            
+            // Callback that creates and populates a data table,
+            // instantiates the pie chart, passes in the data and
+            // draws it.
+            function drawChart_child_{{name}}_{{id}}() {
+                
+                // Create the data table.
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Goal');
+                data.addColumn('number', 'Count');
+                data.addRows([
+                    {% for childGoal in child['goals'] %}
+                    ['{{childGoal['goal_description']}}', {{childGoal['count']}}],
+                    {% endfor %}
+                    ]);
+                data.sort([{column: 1, desc: true}]);
+
+                    // set inner height to 30 pixels per row
+            var chartAreaHeight = data.getNumberOfRows() * 20;
+            // add padding to outer height to accomodate title, axis labels, etc
+            var chartHeight = chartAreaHeight + 80;
+                    
+                    // Set chart options
+                    var options = {
+                    vAxis: { textPosition: 'none' },
+                    hAxis: { format: '0'},
+                    legend: { position: 'none' },
+                    height: chartHeight,
+                    width: $('#card_div_child_{{name}}_{{id}}').width(),
+                    chartArea: {
+                        height: chartAreaHeight
+                    },
+                    tooltip: {
+                        isHtml: true
+                    }
+                };
+
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.BarChart(document.getElementById('chart_div_child_{{name}}_{{id}}'));
+                chart.draw(data, options);
+            }
+        </script>
+    {% endfor %}
+{% endfor %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#filter-frameworks').multiselect({
+            nonSelectedText: 'Select Frameworks',
+            includeSelectAllOption: true
+        });
+        $('#filter-rooms').multiselect({
+            nonSelectedText: 'Select Rooms',
+            includeSelectAllOption: true
+        });
+        $('#filter-children').multiselect({
+            nonSelectedText: 'Select Children',
+            includeSelectAllOption: true
+        });
+    });
+</script>
+<style>
+    .google-visualization-tooltip { max-width:300px; }
+</style>
+{% endblock %}

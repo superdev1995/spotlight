@@ -1,0 +1,132 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<h5>Schools</h5>
+<div class="card-group">
+    <div class="card mb-4">
+        <div class="card-header">
+            Schools
+        </div>
+        <div class="card-block text-center">
+            <h1><a href="{{ path_for('adminSchool') }}">{{ school_count }}</a></h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Subscribing Schools
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ subscriber_count }}</h1>
+        </div>
+    </div>
+</div>
+<h5>Children</h5>
+<div class="card-group">
+    <div class="card mb-4">
+        <div class="card-header">
+            Profiles
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ child_count }}</h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Records
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ record_count }}</h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Stories
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ story_count }}</h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Checklists
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ checklist_count }}</h1>
+        </div>
+    </div>
+</div>
+<h5>Users</h5>
+<div class="card-group">
+    <div class="card mb-4">
+        <div class="card-header">
+            Users
+        </div>
+        <div class="card-block text-center">
+            <h1><a href="{{ path_for('adminUser') }}">{{ user_count }}</a></h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Teachers
+        </div>
+        <div class="card-block text-center">
+            <h1><a href="{{ path_for('adminTeachers') }}">{{ teacher_count }}</a></h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Parents
+        </div>
+        <div class="card-block text-center">
+            <h1><a href="{{ path_for('adminParents') }}">{{ parent_count }}</a></h1>
+        </div>
+    </div>
+</div>
+<h5>Compliance</h5>
+<div class="card-group">
+    <div class="card mb-4">
+        <div class="card-header">
+            Self-Audits
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ compliance_count }}</h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Policies
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ policy_count }}</h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Accidents
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ accident_count }}</h1>
+        </div>
+    </div>
+</div>
+<h5>Resources</h5>
+<div class="card-group">
+    <div class="card mb-4">
+        <div class="card-header">
+            Resources
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ resource_count }}</h1>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Total Downloads
+        </div>
+        <div class="card-block text-center">
+            <h1>{{ resource_download_count }}</h1>
+        </div>
+    </div>
+</div>
+{% endblock %}

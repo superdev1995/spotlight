@@ -1,0 +1,75 @@
+
+.center {
+    text-align: center;
+}
+.form-group{
+    position: relative; /* So we can have absolute search containers */
+}
+.search-container {
+    position: relative;
+    /*position: absolute;*/
+    /*margin-left: -120px;*/
+    /*top: 120px;*/
+    /*left: 50%;*/
+}
+.autosuggestTextBar, .result, .search-bar {
+    /*text-rendering: optimizelegibility;*/
+    /*width: 240px;*/
+    /*font-size: 20px;*/
+    /*padding: 6px;*/
+    /*border-radius: 2px;*/
+    /*outline: none;*/
+    /*letter-spacing: 0.6px;*/
+}
+
+.search-bar {
+    border: 1px solid transparent;
+    position: absolute;
+    top: 0;
+    background: transparent;
+}
+
+.result {
+    border: 1px solid #999;
+    color: #bebebe;
+}
+
+.autosuggestTextBar {
+    border: 1px solid #999;
+    color: #bebebe;
+}
+
+.autocomplete-box{
+    direction: ltr;
+    letter-spacing: normal;
+    overflow: auto;
+}
+.suggestion{
+    color: #bebebe;
+}
+.suggestion-value{
+    background-color: #fff;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+}
+.suggestion:not(.active) img{
+    display: none;
+}
+.suggestion:not(.active) .sugtip{
+    display: none;
+}
+.suggestion.active img{
+    width: 18px;
+    height: auto;
+    display: inline-block;
+    margin-left: 3px;
+}
+.suggestion.active .sugtip{
+    display: inline-block;
+    margin-left: 10px;
+    color: black;
+}
+.autocomplete-box div{
+    /* display: inline-block; */
+}

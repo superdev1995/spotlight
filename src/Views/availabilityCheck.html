@@ -1,0 +1,213 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}  
+    {% if role == '1' %}
+
+    
+<div style="margin:auto;position:relative;text-align:center">
+    <h2 style="position: absolute; left: 25%;">Approve or Deny Absences</h2><br/><br/><br/>
+    
+    <h3><span class="badge badge-primary">Administrator</span>&nbsp;&nbsp; <i class="fa fa-forward"></i>&nbsp;&nbsp; {{TeacherAdminName}}&nbsp;&nbsp;<span class="badge badge-primary">School name   </span>&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa fa-forward"></i>&nbsp;&nbsp; {{schoolName.school_name}}  </h3>
+</div>
+
+
+    <div class="row">
+            <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th align="middle" scope="col"><strong>Name</strong></th>
+                            <th align="middle" scope="col">Place</th>
+                            <th align="middle" scope="col">Start Date</th>
+                            <th align="middle" scope="col">Start <br/>Time</th>
+                            <th align="middle" scope="col">End</th>
+                            <th align="middle" scope="col">End Time</th>
+                            <th align="middle" scope="col">Reason</th>
+                            <th align="middle" scope="col">Decision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%set i=1 %}
+                        {% for teachReasons_id,teachReasons in teacherReasons %}  
+                          {%if teachReasons.status == "Approved" %}
+                        <tr  {% if  i is divisible by(2) %} style="background-color:#86c2e0;color:#ffffff;" {% else %} style="background-color:#119ce1; color:#ffffff;"{% endif %}>
+                            <td align="middle"><strong>{{teachReasons.teacherName}}</strong></td>
+                            <td align="middle"><strong>{{ teachReasons.schoolName }}</strong></td>
+                            <td align="middle"><strong>{{ teachReasons.start}}</strong></td>
+                            <td align="middle"><strong>{{ teachReasons.start_hour}}</strong></td>
+                            <td align="middle"><strong>{{ teachReasons.end}}</strong></td>
+                            <td align="middle"><strong>{{ teachReasons.end_hour}}</strong></td>
+                            <td align="middle"><strong>{{ teachReasons.title }}</strong></td>
+                            <td align="middle" style="width:100px">
+                                 <strong>{{ teachReasons.status }}</strong>
+                                 <button type="button" class="btn btn-warning" name="edit" type="submit" data-toggle="modal" data-target="#exampleModal3-{{ teachReasons.id }}">Edit</button>
+                            </td>      
+                            {% set i=i+1 %}
+                           {% elseif teachReasons.status == "Denied" %}
+                           <tr  style="background-color:#f70000; color:#ffffff;"> 
+                                <td align="middle"><strong>{{teachReasons.teacherName}}</strong></td>
+                                <td align="middle"><strong>{{ teachReasons.schoolName }}</strong></td>
+                                <td align="middle"><strong>{{ teachReasons.start}}</strong></td>
+                                <td align="middle"><strong>{{ teachReasons.start_hour}}</strong></td>
+                                <td align="middle"><strong>{{ teachReasons.end}}</strong></td>
+                                <td align="middle"><strong>{{ teachReasons.end_hour}}</strong></td>
+                                <td align="middle"><strong>{{ teachReasons.title }}</strong></td>
+                                <td align="middle">
+                                    <strong>{{ teachReasons.status }}</strong>
+                                    <button type="button" class="btn btn-warning" name="edit" type="submit" data-toggle="modal" data-target="#exampleModal3-{{ teachReasons.id }}">Edit</button>
+                                </td>   
+                                {% set i=i+1 %}
+                            {% else %}
+                            <tr> 
+
+                                    <td>{{teachReasons.teacherName}}</td>
+                                    <td> {{ teachReasons.schoolName }}</td>
+                                    <td>{{ teachReasons.start}}</td>
+                                    <td>{{ teachReasons.start_hour}}</td>
+                                    <td>{{ teachReasons.end}}</td>
+                                    <td>{{ teachReasons.end_hour}}</td>
+                                    <td> {{ teachReasons.title }}</td> 
+                                    <td>    
+                                        <strong>{{ teachReasons.status }}</strong>
+                                        <button class="btn btn-outline-success" name="approve" type="submit" data-toggle="modal" data-target="#exampleModal-{{ teachReasons.id }}">Approve</button>
+                                        <button class="btn btn-outline-danger" name="deny" type="submit" data-toggle="modal" data-target="#exampleModal2-{{ teachReasons.id }}">Deny</button>
+                                    </td>     
+                                    {% set i=i+1 %}       
+                            {% endif %}
+                            
+                        </tr>
+                        {% endfor %}
+                 </tbody>
+            </table>
+        </font>
+    </div>
+ 
+
+
+        <div class="btn-group dropdown">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Year Absences
+                <i class="fa fa-caret-down mr-1"></i>
+            </button>
+
+            <!--For redirect in the print-->
+            <iframe src="{{ path_for('availabilityYear') }}" style="display:none;" name="frame"></iframe> 
+
+            <div class="dropdown-menu">
+                    <form action="{{ path_for('availabilityYear') }}" method="">
+                        <button class="dropdown-item" type="submit" style="float: left;"  >View</button>
+                        <script>
+                            $(function () {
+                                var date = new Date();
+                                var month = date.getMonth()+1;
+                                var day = date.getDate();
+                
+                                var actualDate = date.getFullYear();
+                                $('.actualDate input').val(actualDate);
+                                });
+                        </script>
+                        <input type="hidden"  id="school" name="school" value={{schoolName.school_name}}/>
+                        <div class="actualDate"><input type="hidden"  id="actualDate" name="actualDate"/> <!--send the actual date--></div>           
+                    </form>
+                <button class="dropdown-item" onclick="frames['frame'].print()" value="availabilityYear" role="button">Print</button>
+            </div>
+         </div>
+   
+    
+           <a href="{{ path_for('availability') }}" style="float: right;"  type="button" class="btn btn-primary btn-lg">Return</a>
+   <br/>
+ 
+    {% else %}
+        You SHALL NOT PASS
+    {% endif %}
+
+{% for teachReasons_id,teachReasons in teacherReasons %}  
+<!-----------------------------------Modal for approve------------------------------------>
+<form action="{{ path_for('availabilityApproveorDeny') }}" method="POST">    
+    <div class="modal fade" id="exampleModal-{{ teachReasons.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Continue?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <strong>APPROVE</strong> the absence for <strong>{{ teachReasons.teacherName }}</strong> for  {% for reason_id,reason in ReasonOfAbsence %}{% if reason_id ==  teachReasons.reason %}<strong>{{reason}}</strong>  {% endif %} {% endfor %}
+               <br/>
+                <strong>You can't change it later</strong>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" name="reason_id" value={{teachReasons.id }} />
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button> 
+                <button type="submit" name="approve" type="submit" class="btn btn-primary" >Approve</button>
+            </form>
+            </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-----------------------------------Modal for deny------------------------------------>
+<form action="{{ path_for('availabilityApproveorDeny') }}" method="POST">
+    <div class="modal fade" id="exampleModal2-{{ teachReasons.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Continue?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to <strong>DENY</strong> the absence for <strong>{{ teachReasons.teacherName }}</strong> for  {% for reason_id,reason in ReasonOfAbsence %}{% if reason_id ==  teachReasons.reason %}<strong>{{reason}}</strong>  {% endif %} {% endfor %}<br/>
+                    <strong>You can't change it later</strong>
+                </div>
+                <div class="modal-footer">                  
+                        <input type="hidden" name="reason_id" value={{teachReasons.id }} >
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button> 
+                        <button type="submit" name="deny" type="submit" class="btn btn-danger" >Deny</button> 
+                </div>
+                </div>
+            </div>
+        </div>
+</form>
+
+<!-----------------------------------Modal for edit------------------------------------>
+<form action="{{ path_for('availabilityApproveorDeny') }}" method="POST">
+    <div class="modal fade" id="exampleModal3-{{ teachReasons.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Continue?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% if teachReasons.status == "Approved" %}
+                        Are you sure you want to <strong>DENY</strong> the absence for <strong>{{ teachReasons.teacherName }}</strong> for  {% for reason_id,reason in ReasonOfAbsence %}{% if reason_id ==  teachReasons.reason %}<strong>{{reason}}</strong>  {% endif %} {% endfor %}<br/>
+                        <strong>You can't change it later</strong>
+                    </div>
+                    <div class="modal-footer">                  
+                        <input type="hidden" name="reason_id" value={{teachReasons.id }} >
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button> 
+                        <button type="submit" name="deny" type="submit" class="btn btn-danger" >Deny</button> 
+                    </div>
+                    {% elseif teachReasons.status == "Denied" %}
+                        Are you sure you want to <strong>APPROVE</strong> the absence for <strong>{{ teachReasons.teacherName }}</strong> for  {% for reason_id,reason in ReasonOfAbsence %}{% if reason_id ==  teachReasons.reason %}<strong>{{reason}}</strong>  {% endif %} {% endfor %}<br/>
+                        <strong>You can't change it later</strong>
+                    </div>
+                        <div class="modal-footer">                  
+                            <input type="hidden" name="reason_id" value={{teachReasons.id }} >
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button> 
+                            <button type="submit" name="approve" type="submit" class="btn btn-success" >Approve</button> 
+                        </div>
+                    {% endif %}
+            </div>
+        </div>                
+     </div>
+</form>
+{% endfor %}
+
+{% endblock %}

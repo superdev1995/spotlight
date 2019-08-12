@@ -1,0 +1,43 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<form action="{{ path_for('policyEdit', { policy_id: policy.policy_id }) }}" method="post">
+    <h4 class="mb-0">{{ title }}</h4>
+    <h6 class="mb-5 text-muted">{{ policy.policy_name }} {% if policy.policy_required == 1 %}<span class="badge badge-warning">Required</span>{% endif %}</h6>
+    {% if policy.policy_description !=""  %}
+    <div class="card mb-4">
+        <div class="card-header">
+            Suggestions on what to include in this policy
+        </div>
+        <div class="card-block">
+            <div class="media">
+                <span class="d-flex mr-3"><i class="fa fa-lightbulb-o fa-3x text-warning" aria-hidden="true"></i></span>
+                <div class="media-body">
+                    {{ policy.policy_description | raw }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="card">
+        <div class="card-header">
+            Write your pre-school's policy here. You can also upload a PDF to share with your staff or use the PDF in place of a written out text.
+        </div>
+        <div class="card-block">
+            <div class="form-group">
+                <label for="description">{{ policy.policy_name }}</label>
+                <textarea class="form-control" id="description" name="description" rows="18">{{ formdata.description|default(policy.body) }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="file">Upload a PDF</label>
+                <input type="hidden" role="uploadcare-uploader" name="file" data-images-only="false" data-file-types="pdf" value="{{ policy.file_url }}">
+            </div>
+        </div>
+    </div>
+    <div class="my-3">
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endblock %}

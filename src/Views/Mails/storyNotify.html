@@ -1,0 +1,8 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>{{ user.user_first_name }} {{ user.user_last_name }} has created a new learning story for <strong>{{ child.child_name }}</strong>.</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('storyDetails', { story_id: story_id }) }}">View Learning Story</a>
+{% endblock %}

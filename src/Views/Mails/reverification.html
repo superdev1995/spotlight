@@ -1,0 +1,8 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>Please confirm your TeachKloud account using the link below</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('registerConfirm', { token_id: token_id }) }}">Activate My Account</a>
+{% endblock %}

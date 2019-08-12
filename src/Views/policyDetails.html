@@ -1,0 +1,158 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script src="/javascripts/pdfdownload.js"></script> 
+<style href="/stylesheets/custom.css"></style>
+
+<h4 class="mb-0">{{ policy.policy_name }}</h4>
+<h6 class="mb-5 text-muted">This policy was last updated: {{ policy.updated_at }}</h6>
+<div class="card">
+    {% if school_user.role == 1 %}
+    <div class="card-header noprint">
+        <div class="row">
+            <div class="col-6">
+                <button class="btn btn-sm btn-primary" role="button" data-toggle="modal" data-target="#announceModal"><i class="fa fa-bullhorn mr-2" aria-hidden="true"></i> Announce Update</button>
+            </div>
+            <div class="col-6 text-right">
+                <div class="btn-group dropdown">
+                    <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-caret-down mr-1"></i>
+                        Options
+                    </button>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                        <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+                        <a class="dropdown-item" href="{{ path_for('policyEdit', { policy_id: policy.policy_id }) }}"> Edit</a>
+                        <button class="dropdown-item" role="button" data-toggle="modal" data-target="#deleteModal"> Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form class="noprint" method="post" action="{{ path_for('policyAnnounce', { policy_id: policy.policy_id }) }}">
+        <div class="modal fade" id="announceModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Announce Policy Updates</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You can send an email to all teachers of your school notifying them about changes to this policy. This ensures that everyone has a chance to stay up-to-date. Feel free to customize the announcement if you want to highlight specific changes:</p>
+                        <div class="form-group">
+                            <textarea class="form-control" name="message" id="message" rows="5" maxlength="255" required>Please take a few moments to read this updated policy.</textarea>
+                        </div>
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" name="parents" id="parentsCheckbox" value="1">
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">
+                                Send an email to all parents too.
+                            </span>
+                        </label>
+                        <div class="form-group" id="messageForParents" style="display: none;">
+                            Message for parents
+                            <textarea class="form-control" name="messageParents" rows="5" maxlength="255" required>Please take a few moments to read this updated policy.</textarea>
+                        </div>
+                        <script>
+                            $("#parentsCheckbox").change(function(){
+                                $("#messageForParents").toggle();
+                            });
+                        </script>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Confirm</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    <form class="noprint" method="post" action="{{ path_for('policyDelete', {policy_id: policy.policy_id}) }}">
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Policy</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You are about to delete this policy. Please be advised that deleting this policy is permanent and all changes will be lost.</p>
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">I understand that this cannot be undone</span>
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    {% endif %}
+    {% if user.user_type == 'T' and parents and policy.policy_public == 1 %}
+    <div class="row">      
+        <div class="col-xl-8 col-lg-7 col-12"  id="div-body-container">
+            <div class="card-block"  id="div-body">
+                <span class="line-break">{{ policy.body }}</span>
+                {% if policy.file_url %}
+                    <p class="mt-5"><a href="{{ policy.file_url }}"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Download Attached Document</a></p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-5 col-12">
+            <div class="card-block"  id="div-parents" style="overflow: auto;">
+                <h5 class="ml-3">
+                    Parents
+                </h5>
+                <ul class="list-group">
+                    {% for parent in parents %}
+                        <li class="list-group-item">      
+                            <img class="rounded-circle mr-2" width="30" height="30" src="{{ parent.user_avatar_url|default(parent.user_email|gravatar) }}" alt="Parent image">
+                            <span class="mr-3">{{ parent.user_first_name }} {{ parent.user_last_name }}</span>
+                            {% if parent.consulted %}
+                            <span class="text-primary"><i class="fas fa-check-double"></i></span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card-block">
+        <p class="line-break">{{ policy.body }}</p>
+        {% if policy.file_url %}
+            <p class="mt-5"><a href="{{ policy.file_url }}"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Download Attached Document</a></p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function resize(){
+        console.log($("#div-body-container").css("max-width"));
+        if($("#div-body-container").css("max-width") != "100%" ){           
+            var divBodyHeight = $("#div-body").height();
+            var maxHeight = divBodyHeight > 200 ? divBodyHeight : 200;
+            $("#div-parents").css("max-height", maxHeight);
+        }
+        else {
+            $("#div-parents").css("max-height", 500);
+        }
+    }
+
+    $(window).resize(resize);
+
+    $(document).ready(function(){
+        resize();
+    });
+</script>
+
+{% endblock %}

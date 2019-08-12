@@ -1,0 +1,108 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<form method="POST" action="{{ path_for('adminEditActivities', { framework_name: framework_name }) }}">
+<div class="row">
+    <div class="col-6 col-sm-6 mb-3">
+        <h4>{{ title }}</h4>
+    </div>
+    <div class="col-6 col-sm-6 text-right ml-auto mb-3">
+        <input type="submit" role="button" class="btn btn-primary" value="Save"/>
+    </div>
+</div>
+    <div class="card">
+        <div class="card-block">
+            <div class="table-responsive">
+                <table class="table">
+                      <thead>
+                          <th style="min-width: 20px">
+                              Goal ID
+                            </th>
+                            <th style="width: 45%">
+                              Goal description
+                            </th>
+                            <th style="min-width: 200px">Link</th>
+                        </thead>
+                        <tbody>
+                        {% for goal in goals %}
+                        <tr>
+                            <td>{{goal.goal_id}}</td>
+                            <td>{{goal.goal_description}}</td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm mb-2" type="button" data-toggle="collapse" data-target="#activity-links-goal-{{goal.goal_id}}" aria-expanded="false" aria-controls="activity-links-goal-{{goal.goal_id}}">
+                                    Show/Hide Links
+                                </button>
+                                <br>
+                                <div class="collapse" id="activity-links-goal-{{goal.goal_id}}">
+                                    {% if goal.activities %}
+                                        {% for ext_goal in goal.activities %}
+                                            <div class="input-group mb-2">
+                                                <input type="text" class="form-control {% if ext_goal.activity_id %} goal-exists {% endif %}" {% if ext_goal.activity_id %} name="goals[{{ext_goal.activity_id}}][{{goal.goal_id}}]" {% else %} name="goals[empty][{{goal.goal_id}}]" {% endif %} placeholder="Enter link" aria-describedby="basic-addon2" {% if ext_goal.activity_url %} value="{{ext_goal.activity_url}}"{% endif %}/>
+                                                <div class="input-group-append">
+                                                    <a href="#" role="button" activity-id="{{ext_goal.activity_id}}" class="btn btn-outline-danger delete-link">Delete</a>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <button goal-id="{{goal.goal_id}}" class="btn btn-primary btn-sm add-link">Add New Link</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-12 text-right ml-auto my-2">
+                    <input type="submit" role="button" class="btn btn-primary" value="Save"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+
+<script>
+    $(document).ready(function(){
+        $('.add-link').click(function(e){
+            e.preventDefault();
+            var goal_id = $(this).attr('goal-id');
+            //$('#activity-links-goal-'+goal_id).after('<div class="input-group mb-2">\
+            $(this).before('<div class="input-group mb-2">\
+                            <input type="text" class="form-control" name="new['+goal_id+'][]" placeholder="Enter link" aria-describedby="basic-addon2"/>\
+                            <div class="input-group-append">\
+                                <a href="#" role="button" class="btn btn-outline-danger delete-new-link">Delete</a>\
+                            </div>\
+                        </div>');
+        });
+
+        $(document).on('click', '.delete-link', function(e){
+            e.preventDefault();
+            var button = $(this);
+            var activity_id = $(this).attr('activity-id');
+            $.post( "/admin/activities/delete", { 
+                activity_id: activity_id, 
+                {{ csrf.keys.name }}: "{{ csrf.name }}", 
+                {{ csrf.keys.value }}: "{{ csrf.value }}", 
+            })
+                .done(function( data ) {
+                    button.parent().parent().remove();
+                });
+        });
+
+        $(document).on('click', '.delete-new-link', function(e){
+            e.preventDefault();
+            $(this).parent().parent().remove();
+        });
+
+        $(document).on('change keydown', '.goal-exists', function(e){
+            var current_name = $(this).attr('name');
+            var new_name = current_name.replace('goals', 'edited');
+            $(this).attr('name', new_name);
+        });
+
+    });
+
+</script>
+{% endblock %}

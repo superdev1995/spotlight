@@ -1,0 +1,10 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>We’re so happy you’re here. TeachKloud was created by <strong>early years educators</strong>. TeachKloud supports and empowers early years educators to do more of what they love (educate and care for young children), and spend less time on paperwork!</p>
+<p>We also support <strong>parents</strong> who never have to miss a special moment or important information about their child’s development. Our goal is for every child to succeed.</p>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('login') }}">Visit Dashboard</a>
+<h3>Knowledge Base</h3>
+<p>For instant support and how-to articles on TeachKloud, visit our <a href="https://teachkloud.kayako.com/">help desk</a>.</p>
+{% endblock %}

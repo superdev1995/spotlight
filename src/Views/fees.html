@@ -1,0 +1,548 @@
+{% extends 'master.dashboard.html' %} {% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="tab-pane card-block plan-details active">
+        <form action="{{ path_for('fees') }}{{ child.child_id }}" method="post">
+            <div class="form-group">
+                <div class="card col-md-12 pb-3 mb-3">
+                    <div class="card-header success row mb-3">
+                        Bill From
+                    </div>
+                    <!--
+                    - Looking for a previous bill and show if it found something
+                    -->
+                    {% if previous is not empty %}
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="type">Busines Logo:</label>
+                        <div class="col-md-8">
+                            <div class="media">
+                                <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ previous_data.url_logo|default(user.user_email|gravatar) }}" alt="User image">
+                                <div class="media-body hidden-print ">
+                                    <input type="hidden" role="uploadcare-uploader" name="avatar" data-crop="200x200 upscale" data-images-only="true">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Full Name</label>
+                        <input type="text" name="business_name" value="{{ previous_data.nameT }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">City</label>
+                        <input type="text" name="business_city" value="{{ previous_data.cityT }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Eircode</label>
+                        <input type="text" name="business_PC" value="{{ previous_data.postalCodeT }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Business Phone number</label>
+                        <input type="text" name="business_phone" value="{{ previous_data.phoneT }}" class="col-8 form-control"  pattern="(((\+|00)|)(.\d{1,12}))">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Email</label>
+                        <input type="text" name="business_email" value="{{ previous_data.emailT }}" class="col-8 form-control">
+                    </div>
+                </div>
+                <div class="card col-md-12 pb-3 mb-3">
+                    <div class="card-header success row mb-3">
+                        Bill to
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Full Name</label>
+                        <input type="text" name="client" value="{{ previous_data.nameC }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Addess</label>
+                        <input type="text" name="client_address" value="{{ previous_data.streetC }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">City</label>
+                        <input type="text" name="client_city" value="{{ previous_data.cityC }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Eircode</label>
+                        <input type="text" name="client_PC" value="{{ previous_data.postalCodeC }}" class="col-8 form-control">
+                    </div>
+                </div>
+                <div class="card col-md-12 pb-3 mb-3">
+                    <div class="card-header success row mb-3">
+                        Bill Information
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Invoice Number</label>
+                        <input type="number" name="invoice_number" value="{{ previous_data.invoiceNumber }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Date</label>
+                        <input type="date" name="date" value="{{ date }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">VAT Reg No.</label>
+                        <input type="number" name="reg_no" value="{{ previous_data.vatRegNo }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Currency</label>
+                        <select name="currency" title="Please choose your currency" class="col-8 form-control">
+                                {% if previous_data.currency == "€" %}
+                                <option selected value="€">€</option>
+                                {% else %}
+                                <option value="€">€</option>
+                                {% endif %}
+                                {% if previous_data.currency == "$" %}
+                                <option selected value="$">$</option>
+                                {% else %}
+                                <option value="$">$</option>
+                                {% endif %}
+                                {% if previous_data.currency == "£" %}
+                                <option selected value="£">£</option>
+                                {% else %}
+                                <option value="£">£</option>
+                                {% endif %}
+                                {% if previous_data.currency == "¥" %}
+                                <option selected value="¥">¥</option>
+                                {% else %}
+                                <option value="¥">¥</option>
+                                {% endif %}
+                            </select>
+                    </div>
+                    <div id="table0">
+                        <p class="text-right">
+                            <span id="add" style="cursor: pointer; color: #10A05B" class="fa-stack fa-lg noprint">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                </span>
+                        </p>
+                    </div>
+                    {% for data in previous %}
+                    <div id="table{{ data.id }}">
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label" id="fee{{ data.id }}">Your Fee {{ previous_data.currency }} (per hour)</label>
+                            <input type="number" value="{{data.fee}}" name="fee{{ data.id }}" class="col-8 form-control" min="0" title="What is your hourly fee rate?">
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Hours</label>
+                            <input type="number" value="{{data.hours}}" name="hours{{ data.id }}" class="col-8 form-control" min="0" title="Please put in the total number of hours the child spent in your setting (including hours spent under the ECCE Scheme)">
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">ECCE</label>
+                            <select name="ecce{{ data.id }}" class="col-8 form-control" title="3 hours is free for this child if participating in the ECCE Scheme">
+                                         {% if data.ecce == "yes" %}
+                                        <option selected value="yes">YES</option>
+                                        {% else %}
+                                        <option value="yes">YES</option>
+                                        {% endif %}
+                                        {% if data.ecce == "no" %}
+                                        <option selected value="no">NO</option>
+                                        {% else %}
+                                        <option value="no">NO</option>
+                                        {% endif %}   
+                                        </select>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Type (ACS)</label>
+                            <select name="tec{{ data.id }}" class="col-8 form-control" title="Please choose what scheme, if any, are applicable">
+                                            {% if data.tec == " " %}
+                                            <option selected value=" "> </option>
+                                            {% else %}
+                                            <option value=" "> </option>
+                                            {% endif %}
+                                            {% if data.tec == "FT" %}
+                                            <option selected value="FT">Full Day</option>
+                                            {% else %}
+                                            <option value="FT">Full Day</option>
+                                            {% endif %}
+                                            {% if data.tec == "PT" %}
+                                            <option selected value="PT">Part Time</option>
+                                            {% else %}
+                                            <option value="PT">Part Time</option>
+                                            {% endif %}
+                                            {% if data.tec == "SP" %}
+                                            <option selected value="SP">Sessional</option>
+                                            {% else %}
+                                            <option value="SP">Sessional</option>
+                                            {% endif %}
+                                            {% if data.tec == "HFP" %}
+                                            <option selected value="HSP">Half Sesion</option>
+                                            {% else %}
+                                            <option value="HSP">Half Sesion</option>
+                                            {% endif %}
+                                        </select>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Band (ACS)</label>
+                            <select name="acsz{{ data.id }}" class="col-8 form-control" title="Please select the Band which this childs parent falls under">
+                                            {% if data.childCareScheme == " " %}
+                                            <option selected value=" "> </option>
+                                            {% else %}
+                                            <option value=" "> </option>
+                                            {% endif %}
+                                            {% if data.childCareScheme == "A" %}
+                                            <option selected value="A">Band A</option>
+                                            {% else %}
+                                            <option value="A">Band A</option>
+                                            {% endif %}
+                                            {% if data.childCareScheme == "B" %}
+                                            <option selected value="B">Band B</option>
+                                            {% else %}
+                                            <option value="B">Band B</option>
+                                            {% endif %}
+                                            {% if data.childCareScheme == "D" %}
+                                            <option selected value="D">Band BB</option>
+                                            {% else %}
+                                            <option value="D">Band D</option>
+                                            {% endif %}
+                                        </select>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label" id="extras{{ data.id }}">Extras {{ previous_data.currency }}</label>
+                            <input type="number" value="{{ data.extras }}" name="extras{{ data.id }}" class="col-8 form-control" title="Did you organise an After School Club or Drama Class? You can put in any extra fees here in €">
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Discount</label>
+                            <input type="number" value="{{ data.discount }}" name="discount{{ data.id }}" class="col-6 form-control" min="0" title="Leave this area blank if you do not wish to give a discount, % or an amount €">
+                            <select name="type{{ data.id }}" class="col-2 form-control">
+                                            {% if data.discountType == "%" %}
+                                            <option selected value="%">%</option>
+                                            {% else %}
+                                            <option value="%">%</option>
+                                            {% endif %}
+                                            {% if data.discountType == "€" %}
+                                            <option selected value="€">€</option>
+                                            {% else %}
+                                            <option value="€">€</option>
+                                            {% endif %}
+                                        </select>
+                        </div>
+                        <div class="form-group row">
+                            <span id="delete{{ data.id }}" class="ml-3 noprint" style="color: #fff;background-color:#ff5050;border-radius: 5px;border:#ff5050 solid 5px  ; cursor: pointer" title="delete">Delete</span>
+                            <!--
+                                        - script for delete the line
+                                        -->
+                            <script>
+                                $("#delete{{ data.id }}").click(function() {
+                                    $("div").remove("#table{{ data.id }}");
+                                    arrai_total['{{ data.id }}'] = 0;
+                                    var total_mos = 0;
+                                    for (var i = 0; i < arrai_total.length; i++) {
+                                        if (arrai_total[i] != null) {
+                                            var sum = parseFloat(arrai_total[i]);
+                                            total_mos = total_mos + sum;
+                                        }
+                                    };
+                                    if (total_mos < 0) {
+                                        $("#total").attr("value", "0");
+                                    } else {
+                                        total_mos = total_mos.toFixed(2);
+                                        $("#total").attr("value", total_mos + currency);
+                                    }
+                                });
+
+                            </script>
+                            <script>
+                                function fn_total{{ data.id }}() {
+                                    var fee = $("input[name=fee{{ data.id }}]").val();
+                                    var hours = $("input[name=hours{{ data.id }}]").val();
+                                    var extra = $("input[name=extras{{ data.id }}]").val();
+                                    var discount = $("input[name=discount{{ data.id }}]").val();
+                                    var tec = $("select[name=tec{{ data.id }}]").val();
+                                    var band = $("select[name=acsz{{ data.id }}]").val();
+                                    var total_mos = 0;
+                                    extra = parseFloat(extra);
+                                    discount = parseFloat(discount);
+                                    if ($("select[name=ecce{{ data.id }}]").val() == "yes") {
+                                        hours -= 3;
+                                    };
+                                    total = hours * fee;
+                                    if ((tec != " ") && (band != " ")) {
+                                        switch (tec) {
+                                            case "FT":
+                                                switch (band) {
+                                                    case "A":
+                                                        total -= 145;
+                                                        break;
+                                                    case "AJ":
+                                                        total -= 80;
+                                                        break;
+                                                    case "B":
+                                                        total -= 70;
+                                                        break;
+                                                    case "D":
+                                                        total -= 50;
+                                                        break;
+                                                }
+                                                break;
+                                            case "PT":
+                                                switch (band) {
+                                                    case "A":
+                                                        total -= 80;
+                                                        break;
+                                                    case "AJ":
+                                                        total -= 80;
+                                                        break;
+                                                    case "B":
+                                                        total -= 35;
+                                                        break;
+                                                    case "D":
+                                                        total -= 25;
+                                                        break;
+                                                }
+                                                break;
+                                            case "SP":
+                                                switch (band) {
+                                                    case "A":
+                                                        total -= 45;
+                                                        break;
+                                                    case "AJ":
+                                                        total -= 45;
+                                                        break;
+                                                    case "B":
+                                                        total -= 25;
+                                                        break;
+                                                    case "D":
+                                                        total -= 17;
+                                                        break;
+                                                }
+                                                break;
+                                            case "HSP":
+                                                switch (band) {
+                                                    case "A":
+                                                        total -= 22.50;
+                                                        break;
+                                                    case "AJ":
+                                                        total -= 22.50;
+                                                        break;
+                                                    case "B":
+                                                        total -= 12.50;
+                                                        break;
+                                                    case "D":
+                                                        total -= 8.50;
+                                                        break;
+                                                }
+                                                break;
+                                        }
+                                    }
+                                    total = total + extra;
+                                    if ($("select[name=type{{ data.id }}]").val() == "%") {
+                                        discount = total * (discount / 100);
+                                        total = total - discount;
+                                    } else {
+                                        total = total - discount;
+                                    };
+                                    arrai_total[{{ data.id }}] = total;
+                                    for (var i = 0; i < arrai_total.length; i++) {
+                                        if (arrai_total[i] != null) {
+                                            var sum = parseFloat(arrai_total[i]);
+                                            total_mos = total_mos + sum;
+                                        }
+                                    }
+                                    currency = $("select[name=currency]").val();
+                                    if (total_mos < 0) {
+                                        $("#total").attr("value", "0");
+                                    } else {
+                                        total_mos = total_mos.toFixed(2);
+                                        $("#total").attr("value", total_mos + currency);
+                                    };
+                                }
+                                $("input[name=fee{{ data.id }}]").change(fn_total{{ data.id }});
+                                $("input[name=hours{{ data.id }}]").change(fn_total{{ data.id }});
+                                $("select[name=ecce{{ data.id }}]").change(fn_total{{ data.id}});
+                                $("input[name=extras{{ data.id }}]").change(fn_total{{data.id}});
+                                $("input[name=discount{{ data.id }}]").change(fn_total{{ data.id }});
+                                $("select[name=type{{ data.id }}]").change(fn_total{{ data.id }});
+                                $("select[name=tec{{ data.id }}]").change(fn_total{{ data.id }});
+                                $("select[name=acsz{{ data.id }}]").change(fn_total{{ data.id }});
+                                $(document).ready(fn_total{{ data.id }});
+
+                            </script>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Total</label>
+                        <input type="text" name="total" id="total" value="" readonly="readonly" class="col-8 form-control">
+                    </div>
+                    <!--
+                                    - script for do the sum of the total
+                                    -->
+                    <script>
+                        var total = 0;
+                        var currency = $("select[name=currency]").val();
+                        var arrai_total = new Array();
+                        arrai_total[0] = 0;
+
+                        function fn_total() {
+                            currency = $("select[name=currency]").val();
+                            var total_mos = 0;
+                            for (var i = 0; i < arrai_total.length; i++) {
+                                if (arrai_total[i] != null) {
+                                    var sum = parseFloat(arrai_total[i]);
+                                    total_mos = total_mos + sum;
+                                }
+                                if($("input[name=fee"+i+"]").text()!= null){
+                                   $("#fee"+i).text("Your Fee " + currency + " (per hour)");
+                                    $("#extras"+i).text("Extras " + currency);
+                                   }
+                                
+                            };
+                            if (total_mos < 0) {
+                                $("#total").attr("value", "0");
+                            } else {
+                                total_mos = total_mos.toFixed(2);
+                                $("#total").attr("value", total_mos + currency);
+                            }
+                        }
+                        $("select[name=currency]").change(fn_total);
+
+                    </script>
+                </div>
+                {% else %}
+                <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="type">Busines Logo:</label>
+                        <div class="col-md-8">
+                            <div class="media">
+                                <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ previous_data.url_logo|default(user.user_email|gravatar) }}" alt="User image">
+                                <div class="media-body">
+                                    <input type="hidden" role="uploadcare-uploader" name="avatar" data-crop="200x200 upscale" data-images-only="true">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Full Name</label>
+                    <input type="text" name="business_name" value="{{ user.user_first_name }} {{ user.user_last_name }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">City</label>
+                    <input type="text" name="business_city" value="" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Eircode</label>
+                    <input type="text" name="business_PC" value="" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Business Phone number</label>
+                    <input type="text" name="business_phone" value="" class="col-8 form-control" pattern="(((\+|00)|)(.\d{1,12}))">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Email</label>
+                    <input type="text" name="business_email" value="{{ user.user_email }}" class="col-8 form-control">
+                </div>
+            </div>
+            <div class="card col-md-12 pb-3 mb-3">
+                <div class="card-header success row mb-3">
+                    Bill to
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Full Name</label>
+                    <input type="text" name="client" value="{{ child.child_name }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Addess</label>
+                    <input type="text" name="client_address" value="{{ child.child_street }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">City</label>
+                    <input type="text" name="client_city" value="{{ child.child_city }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Eircode</label>
+                    <input type="text" name="client_PC" value="{{ child.child_postal_code }}" class="col-8 form-control">
+                </div>
+            </div>
+            <div class="card col-md-12 pb-3 mb-3">
+                <div class="card-header success row mb-3">
+                    Bill Information
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Invoice Number</label>
+                    <input type="number" name="invoice_number" value="000000000" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Date</label>
+                    <input type="date" name="date" value="{{ date }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">VAT Reg No.</label>
+                    <input type="text" name="reg_no" value="" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Currency</label>
+                    <select name="currency" title="Please choose your currency" class="col-8 form-control">
+                                        <option selected value="€">€</option>
+                                        <option value="$">$</option>
+                                        <option value="£">£</option>
+                                        <option value="¥">¥</option>
+                                    </select>
+                </div>
+                <div id="table0">
+                    <p class="text-right">
+                        <span id="add" style="cursor: pointer; color: #10A05B" class="fa-stack fa-lg noprint">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                    </span>
+                    </p>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Total</label>
+                    <input type="text" name="total" id="total" value="0.00€" readonly="readonly" class="col-8 form-control">
+                </div>
+                <script>
+                    var total = 0;
+                    var currency = "";
+                    var arrai_total = new Array();
+                    arrai_total[0] = 0;
+
+                    function fn_total() {
+                        currency = $("select[name=currency]").val();
+                        var total_mos = 0;
+                        for (var i = 0; i < arrai_total.length; i++) {
+                            if (arrai_total[i] != null) {
+                                var sum = parseFloat(arrai_total[i]);
+                                total_mos = total_mos + sum;
+                            }
+                            if($("input[name=fee"+i+"]").text()!= null){
+                                   $("#fee"+i).text("Your Fee " + currency + " (per hour)");
+                                    $("#extras"+i).text("Extras " + currency);
+                                   }
+                        };
+                        if (total_mos < 0) {
+                            $("#total").attr("value", "0");
+                        } else {
+                            total_mos = total_mos.toFixed(2);
+                            $("#total").attr("value", total_mos + currency);
+                        }
+                    }
+                    $("select[name=currency]").change(fn_total);
+
+                </script>
+            </div>
+            {% endif %}
+            <p class="text-right"><button class="btn btn-primary hidden-print" type="submit" id="save">Save</button> <input name="print" type="button" id="print" onClick="parent.print()" value="Print" class="btn btn-primary hidden-print"></p>
+            <script>
+                var cont = 0;
+                var id = 0;
+                var text = "script";
+                currency = $("select[name=currency]").val();
+                $("#add").click(function() {
+                    id++;
+                    var exist = false
+                    do {
+                        if ($("#table" + cont).length > 0) {
+                            exist = true;
+                        } else {
+                            exist = false;
+                            cont--;
+                        }
+                    } while (exist != true)
+                    $("#table" + cont).after('<div id="table' + id + '"><div class="form-group row"><label class="col-4 col-form-label" id="fee' + id + '">Your Fee ' + currency + ' (per hour)</label><input type="number" value="00" name="fee' + id + '" class="col-8 form-control"class="col-8 form-control" min="0" title="What is your hourly fee rate?"></div><div class="form-group row"><label class="col-4 col-form-label">Hours</label><input type="number" value="00" name="hours' + id + '" class="col-8 form-control"class="col-8 form-control" min="0" title="Please put in the total number of hours the child spent in your setting (including hours spent under the ECCE Scheme)"></div><div class="form-group row"><label class="col-4 col-form-label">ECCE</label><select name="ecce' + id + '" class="col-8 form-control"title="3 hours is free for this child if participating in the ECCE Scheme"><option value="yes">YES</option><option value="no" selected>NO</option></select></div><div class="form-group row"><label class="col-4 col-form-label">Type (ACS)</label><select name="tec' + id + '" class="col-8 form-control"title="Please choose what scheme, if any, are applicable"><option selected value=" "> </option><option value="FT">Full Day</option><option value="PT">Part Time</option><option value="SP">Sessional</option><option value="HSP">Half Sesion</option></select></div><div class="form-group row"><label class="col-4 col-form-label">Band (ACS)</label><select name="acsz' + id + '" class="col-8 form-control"title="Please select the Band which this childs parent falls under"><option selected value=" "> </option><option value="A">Band A</option><option value="B">Band B</option><option value="D">Band D</option></select></div><div class="form-group row"><label class="col-4 col-form-label" id="extras' + id + '">Extras ' + currency + '</label><input type="number" value="00" name="extras' + id + '" class="col-8 form-control"class="col-8 form-control" title="Did you organise an After School Club or Drama Class? You can put in any extra fees here in €"></div><div class="form-group row"><label class="col-4 col-form-label">Discount</label><input type="text" value="00" name="discount' + id + '" class="col-6 form-control"class="font-weight-bold col-md-7" min="0" title="Leave this area blank if you do not wish to give a discount, % or an amount €"><select name="type' + id + '" class="col-2 form-control"><option value="%" selected>%</option><option value="€">€</option></select></div><div class="form-group row"><span id="delete' + id + '" class="ml-3 noprint" style="color: #fff;background-color:#ff5050;border-radius: 5px;border:#ff5050 solid 5px  ; cursor: pointer" title="delete">Delete</span><script> $("#delete' + id + '").click(function(){$("div").remove("#table' + id + '");arrai_total[' + id + ']=0;var total_mos=0;for (var i =0; i<arrai_total.length; i++){if(arrai_total[i]!=null){var sum=parseFloat(arrai_total[i]);total_mos=total_mos+sum;}};if(total_mos<0){$("#total").attr("value","0");}else{total_mos=total_mos.toFixed(2);$("#total").attr("value",total_mos+currency);}})</' + text + '></"td> <script>arrai_total['+id+'] = 0;function fn_total' + id + '(){var fee=$("input[name=fee' + id + ']").val();var hours=$("input[name=hours' + id + ']").val();var extra=$("input[name=extras' + id + ']").val();var discount=$("input[name=discount' + id + ']").val();var tec=$("select[name=tec' + id + '").val();var band=$("select[name=acsz' + id + '").val();var total_mos=0;extra=parseFloat(extra);discount=parseFloat(discount);if($("select[name=ecce' + id + ']").val()=="yes"){hours-=3;}total=hours*fee;if((tec!=" ")&&(band!=" ")){switch(tec){case"FT":switch(band){case"A":total-=145;break;case"AJ":total-=80;break;case"B":total-=70;break;case"D":total-=50;break;}break; case"PT":switch(band){case"A":total-=80;break;case"AJ":total-=80;break;case"B":total-=35;break;case"D":total-=25;break;}break;  case"SP":switch(band){case"A":total-=45;break;case"AJ":total-=45;break;case"B":total-=25;break;case"D":total-=17;break;}break;  case"HSP":switch(band){case"A":total-=22.50;break;case"AJ":total-=22.50;break;case"B":total-=12.50;break;case"D":total-=8.50;break;}break; }}total=total+extra;if($("select[name=type' + id + ']").val()=="%"){discount=total*(discount/100);total=total-discount;}else{total=total-discount;}arrai_total[' + id + ']=total;for (var i =0; i<arrai_total.length; i++){if(arrai_total[i]!=null){var sum=parseFloat(arrai_total[i]);total_mos=total_mos+sum;}};currency = $("select[name=currency]").val();if(total_mos<0){$("#total").attr("value","0");}else{total_mos=total_mos.toFixed(2);$("#total").attr("value",total_mos+currency);}}$("input[name=fee' + id + ']").change(fn_total' + id + ');$("input[name=hours' + id + ']").change(fn_total' + id + ');$("select[name=ecce' + id + ']").change(fn_total' + id + ');$("input[name=extras' + id + ']").change(fn_total' + id + ');$("input[name=discount' + id + ']").change(fn_total' + id + ');$("select[name=type' + id + ']").change(fn_total' + id + ');$("select[name=tec' + id + '").change(fn_total' + id + ');$("select[name=acsz' + id + ']").change(fn_total' + id + ');</' + text + '></div>');
+                    cont = id;
+                });
+
+            </script>
+            <input type="hidden" value="{{ user.user_id }}" name="id_user">
+            <input type="hidden" value="{{ child.child_id }}" name="id_child">
+        </form>
+    </div>
+</div>
+{% endblock %}

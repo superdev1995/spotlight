@@ -1,0 +1,28 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<form action="{{ path_for('policyNew') }}" method="post">
+    <h4 class="mb-5">{{ title }}</h4>
+    <div class="card mb-4">
+        <div class="card-header">
+            Create your pre-school’s policy here.
+        </div>
+        <div class="card-block">
+            <div class="form-group">
+                <label for="polName">Policy Name</label>
+                <input type="text" class="form-control" id="polName" name="polName" rows="18"></input>
+            </div>
+            <div class="form-group">
+                <label for="polDesc">Policy Summary (Optional)</label>
+                <small class="form-text text-muted">Please summarise the policy in less than 140 words, you will be able to upload the full policy or copy and paste it directly in your policy section, in the next step</small>
+                <textarea class="form-control" id="polDesc" name="polDesc" rows="18"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="my-3">
+        <button class="btn btn-primary" type="submit">Create policy</button>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endblock %}

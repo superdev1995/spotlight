@@ -1,0 +1,8 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>The teacher {{ usercreate.user_first_name ~ " " ~ usercreate.user_last_name }} has created a new invoice to validate for the child {{ child.child_name }}</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('invoices') }}paypage/{{ thisinvoice.idC }}/{{ thisinvoice.invoiceNumber}}">See the invoice</a>
+{% endblock %}

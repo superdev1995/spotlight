@@ -1,0 +1,68 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script src="/javascripts/pdfdownload.js"></script> 
+
+    <div class="row">
+        <div class="col-12 col-sm-5">
+            <h4 class="mb-3">{{ title }}</h4>
+        </div>
+
+        <div class="col-12 col-sm-6 mb-2 ml-auto text-right noprint">
+            <div class="btn-group dropdown">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-caret-down mr-1"></i>
+                    Options
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                    <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+                </div>
+            </div>
+            <a class="btn btn-primary noprint" href="{{ path_for('editLogBook') }}">Edit Log Book</a>
+        </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-block table-responsive"> 
+			 <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Nature of Drill</th>
+                    <th>Persons</th>
+                    <th>Evacuation Time</th>
+                    <th>Person in Charge</th>
+                    <th>Comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, entry in book %}
+                <tr>
+                    <td>
+                        {{ entry.date is empty ? "" : entry.date|date('m/d/Y') }}
+                    </td>
+                    <td>
+                        {{ entry.nature_of_drill }}
+                    </td>
+                    <td>
+                        {{ entry.persons }}
+                    </td>
+                    <td>
+                        {{ entry.evacuation_time }}
+                    </td>
+                    <td>
+                        {{ entry.person_in_charge }}
+                    </td>
+                    <td>
+                        {{ entry.comments }}
+                    </td>
+                </tr>
+        {% endfor %}
+            </tbody>
+        </table>
+
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+	
+    
+{% endblock %}

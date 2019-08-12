@@ -1,0 +1,88 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12 col-sm-6 pt-2">
+            </div>
+            {% if user.user_type == 'T' %}
+            <div class="col-12 col-sm-6 ml-auto text-right noprint">
+                <a class="btn btn-outline-primary" href="{{ path_for('abc') }}" role="button">Back to ABC</a>
+                <a class="btn btn-primary" href="{{ path_for('abcEdit', { abc_id: abc.abc_id }) }}">Edit this ABC</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% for block in blocks %}
+<div class="card mb-4">
+    <div class="card-header">
+        {{ block.date}} {{ block.time}}
+    </div>
+    <div class="card-block">
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Antecedents</th>
+						<th>Behaviour</th>
+						<th>Consequence</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							{{ block.antecedents }}
+						</td>
+						<td>
+							{{ block.behaviour }}
+						</td>
+						<td>
+							{{ block.consequence }}
+						</td>
+					</tr>
+				
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{% endfor %}
+<div class="card mb-4">
+	<div class="col-12">
+		{% if abc.abc_assoc %}
+			<br>
+			<h5>Association</h5>
+								{% if abc.abc_assoc == 'school' %}
+									<strong>Entire school</strong>
+								{% endif %}
+								{% if abc.abc_assoc == 'room' %}
+									{% if abc_rooms %}
+										|   
+										{% for room in abc_rooms %}
+											<strong>{{ room.room_name }}   |</strong>
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+								{% if abc.abc_assoc == 'child' %}
+									{% if abc_children %}
+										{% for child in abc_children %}
+											<a href="{{ path_for('childDetails', { child_id: child.child_id }) }}"><img class="rounded-circle mr-1" width="30" height="30" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" data-toggle="tooltip" data-placement="top" title="{{ child.child_name }}" alt="Child image"></a>
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+								<br><br>
+		{% endif %}
+		{% if abc.abc_comment %}
+			<br>
+			<h5>Comment</h5>
+			{{ abc.abc_comment }}
+			<br><br>
+		{% endif %}
+    </div>
+</div>
+{% endblock %}

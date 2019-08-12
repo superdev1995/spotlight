@@ -1,0 +1,39 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Subscription</th>
+                <th>Email Address</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <strong><a href="{{ path_for('adminUserDetails', { user_id: user.user_id }) }}">{{ user.user_first_name }} {{ user.user_last_name }}</a></strong>
+                        {% if user.user_status == 'P' %}
+                            <span class="badge badge-danger">Unconfirmed</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.school_status in ['Subscribed', 'Free Trial'] %}
+                            <span class="badge badge-success">{{user.school_status}}</span>
+                        {% endif %}
+                        {% if user.school_status == 'Expired' %}
+                            <span class="badge badge-warning">{{user.school_status}}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.user_email }}</td>
+                    <td>{{ user.created_at }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

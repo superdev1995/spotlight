@@ -1,0 +1,330 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<!-- <script src="/javascripts/speechrecognition.js"></script>
+<script src="/javascripts/BingSpeech.js" type="text/javascript"></script> -->
+
+<div class="alert alert-warning my-4" style="display: none" role="alert" id="no_child_alert">
+    Please select at least one child
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<form action="{%if formdata.running_record_id%}{{ path_for('runningRecordUpdate') }}{%else%}{{ path_for('runningRecordCreate') }}{%endif%}"
+      method="post" id="running_record_form">
+    {%if formdata.running_record_id%}
+    <input type="hidden" name="running_record_id" value="{{formdata.running_record_id}}">
+    {%endif%}
+    <div class="row">
+        <div class="col-12 col-lg-5">
+            <h4 class="mb-5">Running Record</h4>
+        </div>
+        <div class="col-12 col-lg-7 text-right mb-2">
+            <a class="btn btn-outline-primary" href="{{ path_for('runningRecords') }}" role="button">Back to
+                Records</a>
+            {%if formdata.running_record_id%}
+            <a class="btn btn-outline-primary"
+               href="{{path_for('runningRecordShow',{record_id:formdata.running_record_id}) }}" role="button">View record</a>
+            {%endif%}
+            <button class="btn btn-primary" type="submit">{%if
+                formdata.running_record_id%}Save{%else%}Publish{%endif%}
+            </button>
+        </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-block">
+            <div class="tab-content">
+                <!-- Begin Plan Details Pane -->
+                <div class="tab-pane active" id="tab1" role="tabpanel">
+                    <ul class="nav nav-tabs nav-justified" role="tablist">
+                        {% for key, group in group_items %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab"
+                               href="#{{key}}" role="tab">{{ group }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content">
+
+                        <div class="tab-pane card-block plan-details active" id="basic" role="tabpanel">
+                            <!-- BEGIN Basic Running Record -->
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-3 col-form-label" for="observer">
+                                    Observer (optional)
+                                </label>
+                                <div class="col-12 col-lg-9">
+                                    <input type="text" class="form-control" name="observer" id="observer"
+                                           value="{{ formdata.observer|default('') }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-3 col-form-label" for="course">
+                                    Course (optional)
+                                </label>
+                                <div class="col-12 col-lg-9">
+                                    <input type="text" class="form-control" name="course" id="course"
+                                           value="{{ formdata.course|default('') }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-3 col-form-label" for="date">
+                                    Date (optional)
+                                </label>
+                                <div class="col-12 col-lg-9">
+                                    <input type="date" class="form-control" name="date" id="date"
+                                           value="{{ formdata.record_date|default('') }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-3 col-form-label" for="start">
+                                    Start time (optional)
+                                </label>
+                                <div class="col-12 col-lg-9">
+                                    <input type="time" class="form-control" name="start" id="start"
+                                           value="{{ formdata.start_time|default('') }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-3 col-form-label" for="end">
+                                    End time (optional)
+                                </label>
+                                <div class="col-12 col-lg-9">
+                                    <input type="time" class="form-control" name="end" id="end"
+                                           value="{{ formdata.end_time|default('') }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-3 col-form-label" for="age">
+                                    Age group (optional)
+                                </label>
+                                <div class="col-12 col-lg-9">
+                                    <input type="text" class="form-control" name="age" id="age"
+                                           value="{{ formdata.age|default('') }}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-12 col-lg-3 col-form-label" for="context">
+                                    Context/setting (optional)
+                                </label>
+                                <div class="col-12 col-lg-9">
+                                    <input type="text" class="form-control" name="context" id="context"
+                                           value="{{ formdata.context|default('') }}">
+                                </div>
+                            </div>
+
+
+                            <div id="childForm">
+                                <h4>Select Child(ren)</h4>
+                                {% for room in rooms %}
+                                <h5 class="mb-0">{{ room.room_name }}</h5>
+                                <h6 class="mb-4 text-muted">{{ room.room_description }}</h6>
+                                <ul class="list-group mb-4">
+                                    {% for child in children if child.room_id == room.room_id %}
+                                    <li class="list-group-item">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" name="children[]"
+                                                   value="{{ child.child_id }}" {% if child.child_id in assoc_id_arr
+                                                   %}checked{% endif %}>
+                                            <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+                                            <span class="custom-control-description"><img class="rounded-circle mr-2"
+                                                                                          width="35" height="35"
+                                                                                          src="{{ child.child_avatar_url|default('/images/avatar.png') }}"
+                                                                                          alt="Child image"> <strong>{{ child.child_name }}</strong></span>
+                                        </label>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% endfor %}
+                            </div>
+
+
+                        </div>
+                        <div class="tab-pane card-block plan-details" id="purpose" role="tabpanel">
+                            <div class="form-group">
+                                <label class="col-form-label" for="purpose">
+                                    Purpose (optional)
+                                    <small class="form-text text-muted">What is the aim of this running record? Are you
+                                        trying to document a specific developmental area?
+                                    </small>
+                                </label>
+                                <!-- <div class="flright" >
+                                    <button onclick="recordspeech('purpose_text','pcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                                    <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                                    <img class="voice_detect hidden" id="pcspa"  src="/images/waiting.gif" alt="Waiting gif">
+                                </div> -->
+                                <textarea class="form-control"
+                                          name="purpose"
+                                          id="purpose_text"
+                                          rows="8">{{ formdata.purpose|default('') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="tab-pane card-block plan-details" id="observation" role="tabpanel">
+                            <div class="form-group">
+                                <label class="col-form-label" for="observation">
+                                    Observation (optional)
+                                    <small class="form-text text-muted">Record the child’s actions and language verbatim
+                                    </small>
+                                </label>
+                                <!-- <div class="flright" >
+                                <button onclick="recordspeech('observation_text','ocspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                                <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                                <img class="voice_detect hidden" id="ocspa"  src="/images/waiting.gif" alt="Waiting gif">
+                                </div> -->
+                                <textarea class="form-control"
+                                          name="observation"
+                                          id="observation_text"
+                                          rows="8">{{ formdata.observation|default('') }}</textarea>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">Media (optional)</label>
+                                <div class="col-8">
+                                    <input type="hidden" role="uploadcare-uploader" name="running_record_media"
+                                           data-images-only="true" data-multiple="true"
+                                           data-image-shrink="1600x1600">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane card-block plan-details" id="interpretation" role="tabpanel">
+                            <div class="form-group">
+                                <label class="col-form-label" for="interpretation">
+                                    Interpretation (optional)
+                                    <small class="form-text text-muted">Identify and explain each developmental area
+                                        observed and connect it to developmental theorists, your early childhood
+                                        curriculum and/or framework
+                                    </small>
+                                </label>
+                                <!-- <div class="flright" >
+                                <button onclick="recordspeech('story_action_1','icspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                                <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                                <img class="voice_detect hidden" id="icspa"  src="/images/waiting.gif" alt="Waiting gif">
+                                </div> -->
+                                <textarea class="form-control"
+                                          name="interpretation"
+                                          id="interpretation_text"
+                                          rows="8">{{ formdata.interpretation|default('') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="tab-pane card-block plan-details" id="extension" role="tabpanel">
+                            <div class="form-group">
+                                <label class="col-form-label" for="extension">
+                                    Extension (optional)
+                                    <small class="form-text text-muted">How can the child’s learning be enhanced or
+                                        further developed? What resources and materials are needed now and/or in the
+                                        future?
+                                    </small>
+                                </label>
+                                <!-- <div class="flright" >
+                                <button onclick="recordspeech('extension_text','ecspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                                <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                                <img class="voice_detect hidden" id="ecspa"  src="/images/waiting.gif" alt="Waiting gif">
+                                </div> -->
+                                <textarea class="form-control"
+                                          name="extension"
+                                          id="extension_text"
+                                          rows="8">{{ formdata.extension|default('') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="tab-pane card-block plan-details" id="teacher" role="tabpanel">
+                            <div class="form-group">
+                                <label class="col-form-label" for="teacher">
+                                    Teacher or Student Comments (optional)
+                                </label>
+                                <!-- <div class="flright" >
+                                    <button onclick="recordspeech('teacher_text','tecspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                                    <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                                    <img class="voice_detect hidden" id="tecspa"  src="/images/waiting.gif" alt="Waiting gif">
+                                </div> -->
+                                <textarea class="form-control"
+                                          name="teacher"
+                                          id="teacher_text"
+                                          rows="8">{{ formdata.teacher_comments|default('') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="tab-pane card-block plan-details" id="manager" role="tabpanel">
+                            <div class="form-group">
+                                <label class="col-form-label" for="extension">
+                                    Manager or Tutor Comments (optional)
+                                </label>
+                                <!-- <div class="flright" >
+                                    <button onclick="recordspeech('manager_text','mcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                                    <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                                    <img class="voice_detect hidden" id="mcspa"  src="/images/waiting.gif" alt="Waiting gif">
+                                </div> -->
+                                <textarea class="form-control"
+                                          name="manager"
+                                          id="manager_text"
+                                          rows="8">{{ formdata.manager_comments|default('') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- END Plan Details Pane -->
+
+                <!-- Begin Emerging Interests Pane -->
+            </div>
+        </div>
+        <div class="card-footer">
+            <label class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" name="record_public" value="1" {%if formdata is not defined or formdata.public|default(false) %}checked=""{%endif%}>
+                <span class="custom-control-indicator"></span>
+                <span class="custom-control-description">Make this daily record visible to parents. <i
+                        class="fa fa-question-circle text-muted" aria-hidden="true" data-toggle="tooltip"
+                        data-placement="top" title=""
+                        data-original-title="This update will show on the child's timeline. This is a good place to add a comment and an activity that the child was engaged in today."></i></span>
+            </label>
+        </div>
+    </div>
+
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var $alert = $("#no_child_alert");
+        $alert.hide();
+        $("#running_record_form").submit(function (e) {
+                if ($("input[name='children\[\]']:checked").length === 0) {
+                    e.preventDefault();
+                    $alert.show()
+                } else {
+                    $alert.hide();
+                }
+            }
+        );
+        $("input[name='children\[\]']").click(function () {
+            $alert.hide();
+        });
+    });
+
+    /*var textareas = document.querySelectorAll('textarea, input[type="text"]');
+    for(var i=0; i<textareas.length; i++){
+        var area = textareas[i];
+        var a = Autocompletion.init({{ user_id }}, area, {
+            onValueChange: function(a){
+                //doKeywordSearch({ autocomplete: a })
+            }
+        });
+        area.style.display="block";
+    }*/
+</script>
+<script>
+        function smallButtons (deviceWidth) {
+            if(deviceWidth <= 340) {
+                $('.btn').addClass('btn-sm');
+            }
+            else {
+                $('.btn').removeClass('btn-sm');
+            }
+        }
+        
+        $( window ).on('load resize', function() {
+            var deviceWidth = $(window).width();
+            smallButtons(deviceWidth);
+        });
+    
+    </script>
+{% endblock %}

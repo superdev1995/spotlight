@@ -1,0 +1,95 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<form action="{{ path_for('editFireDuties') }}" method="post">
+    <div class="row">
+        <div class="col-12 col-sm-4">
+            <h4 class="mb-3">{{ title }}</h4>
+        </div>
+        <div class="col-12 col-sm-6 mb-2 ml-auto text-right">
+        	<a class="btn btn-outline-primary" href="{{ path_for('fireDuties') }}" role="button">Back
+                to Display</a>
+            <button class="btn btn-primary" type="submit">Publish</button>
+        </div>
+    </div>
+    <div class="card mb-5">
+        <!--div class="card-header success">
+            Risk Assessment Details
+        </div-->
+        <div class="card-block">
+            
+            <!-- Begin Risk Assessment Pane -->
+           	<ul class="nav nav-tabs nav-justified" role="tablist">
+	            {% for key, group in group_items %}
+                <li class="nav-item">
+    	            <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab"
+        		            href="#{{key}}" role="tab">{{ group }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+                    
+			<div class="tab-content">
+				{% for key, group in group_items %}
+                <div class="tab-pane card-block fireDuties-details {% if group_items|first == group %}active{% endif %}"
+		        		id="{{key}}" role="tabpanel">
+        		    <div class="card-block">
+                            <div class="card-block">
+            					<input type="hidden" name="duties[{{ key }}][type]" value="{{key}}" />
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="duties[{{ key }}][name]">
+                							{% if key == 'owner' %}
+           		    							Owner Details
+           		    						{% elseif key == 'manager' %}
+           		    							Fire Safety Manager
+           		    						{% elseif key == 'deputy' %}
+           		    							Deputy Fire Safety Manager
+           		    						{% endif %}	name
+                						</label>
+                						<div class="col-12 col-sm-9">
+							                <input type="text" class="form-control"
+								                name="duties[{{ key }}][name]"
+								                id="name"
+								                value="{{ duties[key].name }}" />
+						                </div>
+                					</div>
+					                <div class="form-group row">
+						                <label class="col-12 col-sm-3" for="duties[{{ key }}][phone]">
+							                Telephone
+						                </label>
+						                <div class="col-12 col-sm-9">
+                                        	<input class="form-control" type="tel" id="phone" name="duties[{{ key }}][phone]" maxlength="32"
+                                        		value = "{{ duties[key].phone }}" pattern="(((\+|00)|)(.\d{1,12}))">
+                                    	</div>
+				                	</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="duties[{{ key }}][duties]">
+							                Fire Duties
+						                </label>
+						                <div class="col-12 col-sm-9">
+							                <input type="text" class="form-control"
+                								name="duties[{{ key }}][duties]"
+                								id="duties"
+                								value="{{ duties[key].duties }}" />
+                						</div>
+                					</div>
+					                <div class="form-group row">
+						                <label class="col-12 col-sm-3" for="duties[{{ key }}][comments]">
+						                	Other Comments
+						                </label>
+						                <div class="col-12 col-sm-9">
+				                			<textarea class="form-control" name="duties[{{ key }}][comments]" id="comments" rows="8">{{ duties[key].comments }}</textarea>
+										</div>
+					                </div>
+                				</div>
+                        	</div>
+                </div>
+                {% endfor %}
+			</div>
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    
+</form>
+{% endblock %}

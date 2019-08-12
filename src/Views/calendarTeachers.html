@@ -1,0 +1,861 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<script src="/javascripts/moment.min.js"></script>
+<script src="/javascripts/fullcalendar.min.js"></script>
+<script src="/javascripts/bootstrap-clockpicker.js"></script>
+<link rel="stylesheet" href="/stylesheets/fullcalendar.min.css"> 
+<link rel="stylesheet" href="/stylesheets/jquery.timepicker.css">
+<link rel="stylesheet" href="/stylesheets/bootstrap-datepicker.css">
+<script src="/javascripts/bootstrap-datepicker.js"></script>
+<script src="/javascripts/jquery.timepicker.js"></script>
+<script src="/javascripts/datepair.js"></script>
+
+<style>
+    .smallLetter{
+            font-size: small;
+            color: grey;
+        }
+/* .fc-widget-header{
+    background-color:blue;
+} */
+.fc-today-button{
+    background-color: #eef5f7;
+    background-image: none;
+}
+.fc-prev-button{
+    background-color: #eef5f7;
+    background-image: none;
+}
+.fc-next-button{
+    background-color: #eef5f7;
+    background-image: none;
+}
+.fc-month-button{
+    background-color: #e782ae;
+    background-image: none;
+}
+.fc-agendaWeek-button{
+    background-color: #fbdd4b;
+    background-image: none;
+}
+.fc-agendaDay-button{
+    background-color: #10a05b;
+    background-image: none;
+}
+.calendar-control {
+    font-family: inherit;
+    padding: .65rem;
+    border: 1px solid #d1dbe0;
+    width:110px;
+}
+.calendar-control:focus {
+    border-color: #10a05c;
+    box-shadow: 0 0 0 2px rgba(87, 100, 198, .15);
+}
+.calendar-control:hover {
+    border-color: #10a05c;
+}
+
+/* The container */
+.containerLab {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.containerLab input {
+  position: relative;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: blue;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.containerLab:hover input ~ .checkmark {
+  background-color: blue;
+}
+
+/* When the radio button is checked, add a blue background */
+.containerLab input:checked ~ .checkmark {
+  background-color: blue;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.containerLab input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.containerLab .checkmark:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 2Check */
+.checkmark2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: green;
+  border-radius: 50%;
+}
+
+.checkmark2:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark2:after {
+  display: block;
+}
+
+.containerLab .checkmark2:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 3Check */
+.checkmark3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: red;
+  border-radius: 50%;
+}
+
+.checkmark3:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark3:after {
+  display: block;
+}
+
+.containerLab .checkmark3:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 4Check */
+.checkmark4 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: orange;
+  border-radius: 50%;
+}
+
+.checkmark4:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark4:after {
+  display: block;
+}
+
+.containerLab .checkmark4:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 5Check */
+.checkmark5 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: yellow;
+  border-radius: 50%;
+}
+
+.checkmark5:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark5:after {
+  display: block;
+}
+
+.containerLab .checkmark5:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 6Check */
+.checkmark6 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: aquamarine;
+  border-radius: 50%;
+}
+
+.checkmark6:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark6:after {
+  display: block;
+}
+
+.containerLab .checkmark6:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 7Check */
+.checkmark7 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: pink;
+  border-radius: 50%;
+}
+
+.checkmark7:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark7:after {
+  display: block;
+}
+
+.containerLab .checkmark7:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 8Check */
+.checkmark8 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: magenta;
+  border-radius: 50%;
+}
+
+.checkmark8:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark8:after {
+  display: block;
+}
+
+.containerLab .checkmark8:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 9Check */
+.checkmark9 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: white;
+  border: 1px solid;
+  border-color: grey;
+  border-radius: 50%;
+}
+
+.checkmark9:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark9:after {
+  display: block;
+}
+
+.containerLab .checkmark9:after {
+ 	top: 8px;
+	left: 8px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: black;
+}
+
+/* 10Check */
+.checkmark10 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: black;
+  border-radius: 50%;
+}
+
+.checkmark10:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark10:after {
+  display: block;
+}
+
+.containerLab .checkmark10:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+/* 11Check */
+.checkmark11 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: grey;
+  border-radius: 50%;
+}
+
+.checkmark11:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.containerLab input:checked ~ .checkmark11:after {
+  display: block;
+}
+
+.containerLab .checkmark11:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
+
+.centered {
+  margin: auto; 
+  max-width: 150px;
+}
+
+</style>
+{% if errors != '' %}
+  <p class="text-danger">{{errors}}</p>
+{% endif %}
+
+<div id="calendar"></div>
+
+<script>
+        $(document).ready(function(){
+            $("#calendar").fullCalendar({
+                header:{
+                    left:'today,prev,next',
+                    center:'title',
+                    right:'month,agendaWeek,agendaDay'
+                },
+                //eventSources:[{
+                String, default: 'bootstrap4',
+                events:"https://dashboard.teachkloud.com/plans/calendar/events",
+                //}],
+                dayClick:function(date,jsEvent,view){
+                    cleanForm();
+                    //$("#startDate").val(date.format());
+                    date=date.format().split("T");
+                    $("#startDate").val(date[0]);
+                    $("#startHour").val(date[1]);
+                    $("#finishDate").val(date[0]);
+                    $("#addEvent").modal('show');
+                },
+                eventClick:function(calEvent,jsEvent,view){
+                    $('#titEvent').html(calEvent.title);
+                    //$('#startEvent').val(calEvent.start);
+                    dateHourStart= calEvent.start._i.split(" ");
+                    $('#startEvent').val(dateHourStart[0]);
+                    $('#startHour').val(dateHourStart[1]);
+                    //$('#endEvent').val(calEvent.end);
+                    dateHourEnd= calEvent.end._i.split(" ");
+                    $('#endEvent').val(dateHourEnd[0]);
+                    $('#endHour').val(dateHourEnd[1]);
+                    $('#titleEvent').val(calEvent.title);
+                    $('#idEvent').val(calEvent.idCalendarEvent);
+                    $('#descriptionEvent').val(calEvent.description);
+                    $('#colorEvent').val(calEvent.color);
+                    $("#"+calEvent.color).prop("checked", true);
+                    $('#textColorEvent').val(calEvent.textColor);
+                    if(calEvent.shareAllParents==1){
+                      $("#share").prop("checked", true);
+                    }else{
+                      $("#share").prop("checked", false);
+                    }
+                    $("#"+calEvent.textColor+"Text").prop("checked", true);
+                    
+                    $("#exampleModal").modal();
+                },
+                editable:true,
+                eventDrop:function(calEvent){
+                var dateHourStart= calEvent.start.format().split("T");
+                $('#startEvent').val(dateHourStart[0]);
+                $('#startHour').val(dateHourStart[1]);
+                var dateHourEnd= calEvent.end.format().split("T");
+                $('#endEvent').val(dateHourEnd[0]);
+                $('#endHour').val(dateHourEnd[1]);
+
+                location.href ="https://dashboard.teachkloud.com/plans/calendar/dropEvent?id="+calEvent.idCalendarEvent+"&start="+dateHourStart[0]+" "+dateHourStart[1]+"&end="+dateHourEnd[0]+" "+dateHourEnd[1];
+                  //  GetDataEvent();
+                  //  sendInfo('editEvent',NewEvent,true);
+                }
+            });
+        });
+    </script>
+    
+    <!-- Modal SeeEvent -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="titEvent"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          <form action="{{ path_for('editEvent') }}" enctype="multipart/form-data" method="post">
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            <input type="hidden" id="idEvent" name="idEvent"/>
+            <div class="form-group">
+              <label for="titleEvent">Title:</label>
+              <input type="text" id="titleEvent" name="titleEvent" class="form-control" placeholder="Add Title..."/>
+            </div><!--End form group-->
+            <div class="form-group">
+              <center>
+                <p id="basicExample">
+                    <input type="text" id="startEvent"  name="startDate" placeholder="Start Date..." class="date start calendar-control" />
+                    <input type="text" id="startHour" name="startHour" placeholder="Start Hour..." class="time start calendar-control" />
+                    to
+                    <input type="text" id="endEvent" name="finishDate" placeholder="Finish Date..." class="date end calendar-control" />
+                    <input type="text" id="endHour" name="finishHour" placeholder="Finish Hour..." class="time end calendar-control" />
+                </p>
+              </center>
+            </div><!--End form group-->
+
+            <div class="form-group">
+              <label for="descriptionEvent">Description:</label>
+              <textarea id="descriptionEvent" name="descriptionEvent" rows="3" class="form-control" placeholder="Add Description..."></textarea>
+            </div><!--End form group-->
+            <div class="form-group col-md-12">
+
+<script type="text/javascript">
+
+
+</script>
+              <label for="color">Background Color: </label>
+              <div class="centered">
+                <div class="row">
+                  <label class="containerLab">
+                    <input type="radio" name="colorEvent" id="blue" class="form-control" value="blue" />
+                    <span class="checkmark"></span>
+                  </label>
+                  <label class="containerLab">
+                    <input type="radio" name="colorEvent" id="green" class="form-control" value="green" />
+                    <span class="checkmark2"></span>
+                  </label>
+                  <label class="containerLab">
+                    <input type="radio" name="colorEvent" id="red" class="form-control" value="red" />
+                    <span class="checkmark3"></span>
+                  </label>
+                  <label class="containerLab">
+                    <input type="radio" name="colorEvent" id="orange" class="form-control" value="orange" />
+                    <span class="checkmark4"></span>
+                  </label>
+                  <label class="containerLab">
+                    <input type="radio" name="colorEvent" id="black" class="form-control" value="black" />
+                    <span class="checkmark10"></span>
+                  </label>
+                  </div>
+                  <p> </p>
+                  <div class="row">                          
+                    <label class="containerLab">
+                      <input type="radio" name="colorEvent" id="yellow" class="form-control" value="yellow"/>
+                      <span class="checkmark5"></span>
+                    </label>
+                    <label class="containerLab">
+                      <input type="radio" name="colorEvent" id="aquamarine" class="form-control " value="aquamarine" />
+                      <span class="checkmark6"></span>
+                    </label>
+                    <label class="containerLab">
+                      <input type="radio" name="colorEvent" id="pink" class="form-control " value="pink" />
+                      <span class="checkmark7"></span>
+                    </label>
+                    <label class="containerLab">
+                      <input type="radio" name="colorEvent" id="magenta" class="form-control " value="magenta" />
+                      <span class="checkmark8"></span>
+                    </label>
+                    <label class="containerLab">
+                      <input type="radio" name="colorEvent" id="grey" class="form-control " value="grey" />
+                      <span class="checkmark11"></span>
+                    </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <label for="textColor">Text Color: </label>
+              <div class="centered">
+                <div class="row">
+                  <label class="containerLab">
+                    <input type="radio" name="textColorEvent" id="whiteText" class="form-control " value="white" />
+                    <span class="checkmark9"></span>
+                  </label>
+                  <label class="containerLab">
+                    <input type="radio" name="textColorEvent" id="blackText" class="form-control " value="black" />
+                    <span class="checkmark10"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <br />
+            <div class="form-group col-md-12">
+              <input type="checkbox" id="share" name="shareParents" value="shareParents"/>
+              <label for="share">Share with all the parents</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit"  name="delEvent" class="btn btn-danger">Delete</button>
+            <button type="submit"  name="editEvent" class="btn btn-success">Edit</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+    <!-- end modal SeeEvent-->
+    
+    <!-- Modal ADD EVENT -->
+    <div class="modal fade" id="addEvent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Add Event</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+              <form action="{{ path_for('editEvent') }}" enctype="multipart/form-data" method="post">
+                <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <!-- <label for="title">Event Name:</label> -->
+                    <input type="text" id="titleEvent" name="titleEvent" class="form-control" placeholder="Add Title..." required/>
+                  </div>
+                  
+                  <div class="form-group">
+                    <center>
+                      <p id="basicExample">
+                          <input type="text"  name="startDate" placeholder="Start Date..." class="date start calendar-control" />
+                          <input type="text" name="startHour" placeholder="Start Hour..." class="time start calendar-control" />
+                          to
+                          <input type="text" name="finishDate" placeholder="Finish Date..." class="date end calendar-control" />
+                          <input type="text" name="finishHour" placeholder="Finish Hour..." class="time end calendar-control" />
+                      </p>
+                    </center>
+                  </div>
+
+                  <!-- <div class="form-row">
+                    <div class="form-group col-md-12">
+                      <label for="shareEvent">Share:</label>
+                      <br /><center><textarea id="shareEvent" name="shareEvent" cols="65" rows="2" placeholder="example1@gmail.com,example2@gmail.com" class="form-control"></textarea></center>
+                    </div>
+                  </div>End form-row -->
+  
+                  <div class="form-row">
+                    <div class="form-group col-md-12">
+                      <label for="description">Description:</label>
+                      <label class="smallLetter">*optional</label>
+                      <br /><center><textarea id="description" name="descriptionEvent" cols="65" rows="4" placeholder="Add Description..." class="form-control"></textarea></center>
+                    </div>
+                  </div>
+                  <!--End form-row-->
+                  <div class="form-group col-md-12">
+                    <label for="color">Background Color: </label>
+                    <div class="centered">
+                      <div class="row">
+                        <label class="containerLab">
+                          <input type="radio" name="colorEvent" id="radio1" class="form-control" value="blue" />
+                          <span class="checkmark"></span>
+                        </label>
+                        <label class="containerLab">
+                          <input type="radio" name="colorEvent" id="radio1" class="form-control" value="green" />
+                          <span class="checkmark2"></span>
+                        </label>
+                        <label class="containerLab">
+                          <input type="radio" name="colorEvent" id="radio1" class="form-control" value="red" />
+                          <span class="checkmark3"></span>
+                        </label>
+                        <label class="containerLab">
+                          <input type="radio" name="colorEvent" id="radio1" class="form-control" value="orange" />
+                          <span class="checkmark4"></span>
+                        </label>
+                        <label class="containerLab">
+                          <input type="radio" name="colorEvent" id="radio1" class="form-control" value="black" />
+                          <span class="checkmark10"></span>
+                        </label>
+                        </div>
+                        <p> </p>
+                        <div class="row">                          
+                          <label class="containerLab">
+                            <input type="radio" name="colorEvent" id="radio1" class="form-control" value="yellow"/>
+                            <span class="checkmark5"></span>
+                          </label>
+                          <label class="containerLab">
+                            <input type="radio" name="colorEvent" id="radio1" class="form-control " value="aquamarine" />
+                            <span class="checkmark6"></span>
+                          </label>
+                          <label class="containerLab">
+                            <input type="radio" name="colorEvent" id="radio1" class="form-control " value="pink" />
+                            <span class="checkmark7"></span>
+                          </label>
+                          <label class="containerLab">
+                            <input type="radio" name="colorEvent" id="radio1" class="form-control " value="magenta" />
+                            <span class="checkmark8"></span>
+                          </label>
+                          <label class="containerLab">
+                            <input type="radio" name="colorEvent" id="radio1" class="form-control " value="grey" />
+                            <span class="checkmark11"></span>
+                          </label>
+                      </div>
+                    </div>
+                  </div>
+                  <!--End form-group-->
+                  <div class="form-group col-md-12">
+                    <label for="textColor">Text Color: </label>
+                    <div class="centered">
+                      <div class="row">
+                        <label class="containerLab">
+                          <input type="radio" name="textColorEvent" id="radio1" class="form-control " value="white" />
+                          <span class="checkmark9"></span>
+                        </label>
+                        <label class="containerLab">
+                          <input type="radio" name="textColorEvent" id="radio1" class="form-control " value="black" />
+                          <span class="checkmark10"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <!--End form-row-->
+                  <br />
+                  <div class="form-group col-md-12">
+                    <input type="checkbox" id="shareParents" name="shareParents" value="shareParents"/>
+                    <label for="shareParents">Share with all the parents</label>
+                  </div>
+                </div><!--End body-->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" name="addEvent" class="btn btn-primary">Create</button>
+                    <!-- <button type="button" id="btnAddEvent" class="btn btn-primary">Create</button> -->
+                </div>
+              </form>
+        </div>
+      </div>
+    </div>
+    <!--End ADDEvent-->
+    
+    
+    <script>
+    var NewEvent;
+        $('#btnAddEvent').click(function(){
+            GetDataAddEvent();
+            sendInfoAddEvent('add',NewEvent);
+        });
+        $('#btnDelEvent').click(function(){
+            GetDataEvent();
+            sendInfo('delete',NewEvent);
+        });
+        $('#btnEditEvent').click(function(){
+            GetDataEvent();
+            sendInfo('mod',NewEvent);
+        });
+
+    function GetDataAddEvent(){
+        NewEvent= {
+            id:$('#idEvent').val(),
+            title:$('#title').val(),
+            start:$('#startDate').val()+" "+$('#startHour').val(),
+            end:$('#finishDate').val()+" "+$('#finishHour').val(),
+            share:$('#shareEvent').val(),
+            description:$('#description').val(),
+            color:$('#color').val(),
+            textColor:$('#textColor').val(),
+            editable:true
+        };
+    }
+    function GetDataEvent(){
+        NewEvent= {
+            id:$('#idEvent').val(),
+            title:$('#titleEvent').val(),
+            start:$('#startEvent').val()+" "+$('#startHour').val(),
+            end:$('#endEvent').val()+" "+$('#endHour').val(),
+            description:$('#descriptionEvent').val(),
+            color:$('#colorEvent').val(),
+            textColor:$('#textColorEvent').val(),
+            editable:true
+        };
+    }
+    function sendInfoAddEvent(action,objEvent){
+        $.ajax({
+            type:'POST',
+            // url:'bbdd.php?action='+action,
+            url:'http://dashboard.teachkloud.com/plans/calendar/dropEvent',
+            data:objEvent,
+            success:function(msg){
+                if(msg){
+                    $("#calendar").fullCalendar('refetchEvents');
+                    $("#addEvent").modal("toggle");
+                }
+            },
+            error:function(){
+                alert("Error...");
+            }
+        });
+    }
+    // sendInfo('editEvent',NewEvent,true);
+    function sendInfo(action,objEvent,modal){
+        $.ajax({
+            type:'POST',
+            // url:'bbdd.php?action='+action,
+            url:'http://dashboard.teachkloud.com/plans/calendar/dropEvent',
+            data:objEvent,
+            success:function(msg){
+                if(msg){
+                    $("#calendar").fullCalendar('refetchEvents');
+                    if(!modal){
+                      $("#exampleModal").modal("toggle");
+                    }
+                    
+                }
+            },
+            error:function(){
+                alert("Error...");
+            }
+        });
+    }
+    
+    // initialize input widgets first
+    $('#basicExample .time').timepicker({
+        'showDuration': true,
+        'timeFormat': 'H:i'
+    });
+
+    $('#basicExample .date').datepicker({
+        'format': 'yyyy-m-d',
+        'autoclose': true
+    });
+
+    // initialize datepair
+    var basicExampleEl = document.getElementById('basicExample');
+    var datepair = new Datepair(basicExampleEl);
+
+    function cleanForm(){
+      $('#titleEvent').val('');
+      $('#startHour').val('');
+      $('#finishDate').val('');
+      $('#finishHour').val('');
+      $('#description').val('');
+      $('#color').val('#0080ff');
+      $('#textColor').val('black');
+    }
+    
+    </script>
+
+{% endblock %}

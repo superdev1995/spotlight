@@ -1,0 +1,658 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<!-- <script src="/javascripts/speechrecognition.js"></script>
+<script src="/javascripts/BingSpeech.js" type="text/javascript"></script> -->
+
+<form action="{% if monthly_plan_id %}{{ path_for('editMonthlyPlan', { monthly_plan_id: monthly_plan_id }) }}
+{% else %}{{ path_for('createMonthlyPlan', { month: month, year: year, draft_id: draft_id }) }}{% endif %}" method="post">
+    <div class="row">
+        <div class="col-12">
+            <span class="h4 mb-5">{{ title }}</span>
+            {% if mode == 'create' %}
+                &nbsp;&nbsp;
+            <span id="autosave-text">Saved</span>  
+            {% endif %}  
+        </div>
+    </div>    
+    <br>
+    <div class="card mb-4">
+        <div class="card-block">
+            <div class="row">
+                <div class="col-12 col-sm-5 pt-2">
+                    <h4>{{ formdata.month_textual }}, {{ formdata.year }}</h4>
+                </div>
+                {% if user.user_type == 'T' %}
+                <div class="col-12 col-sm-7 text-right">
+                    <a class="btn btn-outline-primary" href="{{ path_for('monthlyPlanSummary', {year: year, month: month}) }}" role="button">Back
+                            to Selected Month</a>
+                    {% if mode == 'edit' %}
+                    <a class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</a>
+                    {% elseif mode == 'create' %}
+                    <a class="btn btn-danger" data-toggle="modal" data-target="#deleteDraftModal">Delete</a>
+                    {% endif %}
+                    <button class="btn btn-primary"  type="submit">Save</button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card mb-5">
+        <div class="card-block">
+            <ul class="nav nav-pills nav-justified mb-4" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">Plan Details</a>
+                </li>
+                {% for framework_id, framework in frameworks %}
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#framework{{ framework_id }}" role="tab">{{ framework.framework_name }}{% if framework.framework_month_min or framework.framework_month_max %} {{ framework.framework_month_min }} to {{ framework.framework_month_max }} months{% endif %}<span class="badge badge-primary hidden" data-recommendations-count data-recommendations-framework-id="{{ framework_id }}">0</span></a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1" role="tabpanel">
+
+                    {% for block_id, block in country_form %}
+
+                    <div class="form-group">
+                        <label class="col-form-label" for="{{block.associated_table_column}}">
+                            {{block.label}}
+                        </label>
+                        <textarea class="form-control" name="{{block.associated_table_column}}" id="{{block.associated_table_column}}" rows="4" data-keyword-search>{{ attribute(formdata, block.associated_table_column) }}</textarea>
+                    </div>
+
+                    {% endfor %}
+
+                    <div class="form-group">
+                        <label class="col-form-label" for="media">
+                            Add Photos
+                            <small class="form-text text-muted">Optional</small>
+                        </label>
+                        <span class="ml-3">  
+                            <input type="hidden" role="uploadcare-uploader" name="media" id="media" data-images-only="true" data-multiple="true" 
+                            data-image-shrink="1600x1600" value='{{ formdata.group_url }}'> 
+                        </span>
+                    </div>
+
+                    <div class="form-group">  
+                        <label class="col-form-label" for="videos">
+                            Add Videos
+                            <small class="form-text text-muted">Optional</small>
+                        </label>
+                        <span class="ml-3">               
+                            <input name="videos" id="videos" type="hidden" role="uploadcare-uploader" class="ml-4" data-file-types="mp4 avi mkv flv ogg gif wmv mov mpg" 
+                                data-input-accept-types="video/*" data-multiple="true" data-multiple-min="1" data-multiple-max="{{ num_videos_permitted > 0 ? num_videos_permitted : 1 }}" 
+                                data-min-size="102400" data-max-size="104857600" value="{{ formdata.video_group_url }}">
+                        </span>
+                        {% if num_videos_permitted > 1 %}
+                            <div class="text-muted">Today you can upload {{ num_videos_permitted }} more videos.</div>
+                        {% elseif num_videos_permitted == 1 %}
+                            <div class="text-muted">Today you can upload 1 more video.</div>
+                        {% elseif num_videos_permitted == 0 %}
+                            <div class="text-muted">You have reached the maximum amount of video uploads for today.</div>
+                            <script>
+                                $(document).ready(function(){
+                                    const widget = uploadcare.Widget('#videos')
+                                    const $widgetButton = widget.inputElement.nextSibling.querySelector('.uploadcare--widget__button_type_open')
+
+                                    $widgetButton.disabled = true;
+                                });
+                            </script>
+                        {% endif %}
+                    </div>
+
+                     <!-- Pick associations -->
+                    <div class="row">
+                        <div class="col-12">
+                        {% for id, name in types %}
+                        <label class="custom-control custom-radio">
+                            <input name="monthlyPlan_type" type="radio"
+                            class="custom-control-input monthlyPlan-type" value="{{ id }}" {% if (id==
+                            'school' and formdata.assoc == '') or formdata.assoc == id %}checked{% endif %}
+                            required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">{{ name }}</span>
+                        </label>
+                        {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Association tabs -->
+                    <div id="schoolForm" style="display: block;">
+                        <div class="form-group row">
+                            <div class="col-12 col-lg-8">
+                                Monthly Plan for entire school
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div id="childForm" style="display: none;">
+                        <h4>Select Child(ren)</h4>
+                        {% for room in rooms %}
+                        <h5 class="mb-0">{{ room.room_name }}</h5>
+                        <h6 class="mb-4 text-muted">{{ room.room_description }}</h6>
+                        <ul class="list-group mb-4">
+                            {% for child in children if child.room_id == room.room_id %}
+                            <li class="list-group-item">
+                                <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="child[]"
+                                            value="{{ child.child_id }}"
+                                            {% if formdata.assoc== 'child' %}
+                                    {% if child.child_id in assoc_id_arr %}checked{% endif %}
+                                    {% endif %}>
+                                    <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+                                    <span class="custom-control-description"><img class="rounded-circle mr-2"
+                                                                                    width="35" height="35"
+                                                                                    src="{{ child.child_avatar_url|default('/images/avatar.png') }}"
+                                                                                    alt="Child image"> <strong>{{ child.child_name }}</strong></span>
+                                </label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endfor %}
+                    </div>
+                
+                    <div id="roomForm" style="display: none;">
+                        <h4>Select Room(s)</h4>
+                        {% for room in rooms %}
+                        <h5 class="mb-0">{{ room.room_name }}</h5>
+                        <h6 class="mb-0 text-muted">{{ room.room_description }}</h6>
+                        <label class="custom-control custom-checkbox mb-4">
+                            <input type="checkbox" class="custom-control-input" name="room[]"
+                                    value="{{ room.room_id }}"
+                                    {% if formdata.assoc== 'room' %} {% if room.room_id in assoc_id_arr
+                            %}checked{% endif %} {% endif %}>
+                            <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <!-- End Pick Associations -->
+                    
+                </div>
+
+
+                {% for category_id, category in frameworks %}
+                <div class="tab-pane" id="framework{{ category_id }}" role="tabpanel">
+                    <ul class="nav nav-tabs nav-justified" role="tablist">
+                        {% for framework_id, group_items in groups if framework_id == category_id %}
+                            {% for group in group_items %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab" href="#framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tab">{{ group }} <span class="badge badge-primary hidden" data-recommendations-count data-recommendations-group-id="{{ group }}">0</span></a>
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content">
+                        {% for framework_id, group_items in groups if framework_id == category_id %}
+                            {% for group in group_items %}
+                                <div class="tab-pane {% if group_items|first == group %}active{% endif %}" id="framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tabpanel">
+                                    {% for category_id, category in categories if group == category.category_group and framework_id == category.framework_id %}
+                                        <h5 class="mt-4">{{ category.category_name }}</h5>
+                                        <p class="lead">{{ category.category_description }}</p>
+                                        {% for goal in category.goals %}
+                                            <div>
+                                                <label class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" name="goals[]" value="{{ goal.goal_id }}" {% if goal.goal_id in formgoals %}checked{% endif %}>
+                                                    <span class="custom-control-indicator"></span>
+                                                    <span class="custom-control-description">
+                                                        {% if goal.goal_keywords %}
+                                                          {% if frameworks[framework_id].framework_name == "EYFS" %}
+                                                            <span class="badge badge-primary hidden"
+                                                                  data-keywords="{{ goal.goal_keywords }}"
+                                                                  data-group-id="{{ group }}"
+                                                                  data-framework-id="{{ framework_id }}"
+                                                                  data-goal-id="{{ goal.goal_id }}"
+                                                                  data-framework-name="{{ frameworks[framework_id].framework_name }}"
+                                                                  title="Based on keywords: {{ goal.goal_keywords }}">Suggested</span>
+                                                          {% else %}
+                                                            <span class="badge badge-primary hidden"
+                                                                  data-keywords="{{ goal.goal_keywords }}"
+                                                                  data-group-id="{{ group }}"
+                                                                  data-framework-id="{{ framework_id }}"
+                                                                  data-goal-id="{{ goal.goal_id }}"
+                                                                  title="Based on keywords: {{ goal.goal_keywords }}">Recommended
+                                                            </span>
+                                                          {% endif %}
+                                                        {% endif %}
+                                                        {{ goal.goal_description }} {% if goal.goal_help %}&nbsp; <button class="btn btn-sm btn-secondary" role="button" data-container="body" data-toggle="popover" data-trigger="focus" title="Explanation" data-content="{{ goal.goal_help }}"><i class="fa fa-question"></i></button>{% endif %}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Optional Comment
+        </div>
+        <div class="card-block">
+            <div class="form-group">
+                <!-- <button onclick="recordspeech('comment','ncspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                <img class="voice_detect hidden" id="ncspa"  src="/images/waiting.gif" alt="Waiting gif">  -->
+                <textarea class="form-control" name="comment" id="comment" rows="4">{{ formdata.comment }}</textarea>
+            </div>
+            <label class="custom-control custom-checkbox">
+                <input type="checkbox" name="public" value="1" class="custom-control-input" {% if formdata.plan_public == 1 %} checked {% endif %}>
+                <span class="custom-control-indicator"></span>
+                <span class="custom-control-description">Make this monthly plan visible to parents</span>
+            </label>
+        </div>
+    </div>    
+    <input type="hidden" name="year" value="{{ formdata.year }}">
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+
+    
+{% if user.user_type == 'T' %}
+
+{% if mode == 'edit' %}
+<form method="post" action="{{ path_for('deleteMonthlyPlan') }}">
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Monthly Plan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Deleting a monthly plan will also delete all associated media files.</p>
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">I understand that this cannot be undone</span>
+                    </label>
+                    <input type="hidden" name="monthly_plan_id" id="monthly_plan_id" value="{{ monthly_plan_id }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+
+{% elseif mode == 'create' %}
+<form method="post" action="{{ path_for('deleteDraftMonthlyPlan') }}">
+    <div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Draft</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you certain that you want to delete this draft?</p>
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">I understand that this cannot be undone</span>
+                    </label>
+                    <input type="hidden" name="draft_id" id="draft_id" value="{{ draft_id }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endif %}
+
+
+<script>
+    function reset(selectedType) {
+        var recordTypes = ['school', 'room', 'child'];
+
+        recordTypes.forEach(function (type) {
+            if (type == selectedType) {
+                $('#' + type + 'Form').show();
+                $('.' + type + 'Param').attr("disabled", false);
+            } else {
+                $('#' + type + 'Form').hide();
+                $('.' + type + 'Param').attr("disabled", true);
+                if(type == 'room' || type == 'child'){
+                    $("[name^='" + type + "[]']").prop("checked", false);
+                }
+            }
+        })
+    }
+
+    var record = '<button onclick="recordspeech(&apos;{id}&apos;,&apos;{imgid}&apos;)" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>';
+    record += '<button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>';
+    record +='<img class="voice_detect hidden" id="{imgidd}"  src="/images/waiting.gif" alt="Waiting gif">';
+        
+    var threshold = 3;
+    function updateSuggestions(){
+        var text = '',
+        checkedGoals = [];
+        $( '[data-recommendations-count]' ).html( '0' ).addClass( 'hidden' );
+
+        $.each( $( '[data-keyword-search]' ), function () {
+            text += ' ' + $( this ).val();
+        } );
+
+        text = ' ' + text.replace( /[ \n\r\t.,'\"\+!?]/g, ' ' ) + ' ';
+
+        $.each( $( '[data-keywords]' ), function () {
+            var $this = $( this ),
+            goalId = $this.data( 'goal-id' ),
+            keywords = $this.data( 'keywords' ).trim().split( /,\s?/ ),
+            recommendIndex = 0;
+            if($this.data('framework-name') == "EYFS")
+                threshold = 2;
+
+            var localThreshold = threshold;
+
+            if ( checkedGoals.includes( goalId ) )
+                return;
+
+            keywords = keywords.filter( function ( el ) { return el != null; } );
+
+            if ( keywords.length < 3 )
+                localThreshold = 1;
+            $.each( keywords, function () {
+                var regex = new RegExp( " " + this + " ", 'gi' );
+                var occurrences = ( text.match( regex ) || [] ).length;
+                recommendIndex += Math.min( 2, occurrences );
+            } );
+
+            if($this.data('framework-name') == "EYFS" && recommendIndex > 0) {
+
+                this.classList.remove('badge-info');
+                this.classList.remove('badge-danger');
+                this.classList.remove('badge-primary');
+
+                if(recommendIndex == localThreshold) {
+                this.classList.add('badge-primary');
+                this.innerHTML = "Suggested";
+                } else if(recommendIndex == 3) {
+                this.classList.add('badge-info');
+                this.innerHTML = "Possible match";
+                } else if (recommendIndex > 3) {
+                this.classList.add('badge-danger');
+                this.innerHTML = "Perfect match";
+                }
+            }
+
+            if ( recommendIndex >= localThreshold ) {
+                var $groupRecommendationsCount = $( '#framework' + $this.data( 'framework-id' ) + ' [data-recommendations-group-id="' + $this.data( 'group-id' ) + '"]' );
+                $groupRecommendationsCount.html( parseInt( $groupRecommendationsCount.html() ) + 1 ).removeClass( 'hidden' );
+                var $frameworkRecommendationsCount = $( '[data-recommendations-framework-id="' + $this.data( 'framework-id' ) + '"]' );
+                $frameworkRecommendationsCount.html( parseInt( $frameworkRecommendationsCount.html() ) + 1 ).removeClass( 'hidden' );
+                $this.removeClass( 'hidden' );
+            } else {
+                $this.addClass( 'hidden' );
+            }
+
+            checkedGoals.push( goalId );
+        } );
+    }
+
+
+    function suggestGoalsBasedOnKeywords() {
+        $( '[data-keyword-search]' ).on( 'keyup paste propertychange', updateSuggestions);
+        updateSuggestions();
+    }
+
+    var imgcounter = 0;
+    $( document ).ready(function() {
+        var id = "";
+        var textareaid = "";
+        var imgid = "";
+        var addrecord = "";
+        // $("textarea").each(function() {
+        //     if(this.id !="comment") {
+        //         textareaid = this.id;
+        //         imgid = "img1" + imgcounter;
+        //         addrecord = record.replace("{id}",textareaid)
+        //                           .replace("{imgid}",imgid)
+        //                           .replace("{imgidd}",imgid);
+        //         imgcounter++;
+        //         $(this).parent().prepend(addrecord);
+        //     }
+        // });
+
+        suggestGoalsBasedOnKeywords();
+        reset($("input[name='monthlyPlan_type']:checked").attr('value'));
+    });
+
+    $("input[name='monthlyPlan_type']").click(function () {
+        reset(this.value)
+    });
+
+    /*var textareas = document.querySelectorAll('textarea, input[type="text"]');
+    for(var i=0; i<textareas.length; i++){
+        var area = textareas[i];
+        var a = Autocompletion.init({{ user_id }}, area, {
+            onValueChange: function(a){
+                //doKeywordSearch({ autocomplete: a })
+            }
+        });
+    }*/
+
+    function fileTypeLimit(types) {
+        types = types.split(' ');
+
+        return function(fileInfo) {
+            if (fileInfo.name === null) {
+                return;
+            }
+            var extension = fileInfo.name.split('.').pop();
+            if (types.indexOf(extension) == -1) {
+                throw new Error('fileType');
+            }
+        }
+    }
+
+    $(function() {
+        $('#videos').each(function() {
+            var input = $(this);
+            var widget = uploadcare.Widget(input);
+
+            widget.validators.push(fileTypeLimit(input.data('file-types')));
+        });
+    });
+
+    UPLOADCARE_LOCALE_TRANSLATIONS = {
+        // messages for widget
+        errors: {
+            fileType: 'This type of files is not allowed.',
+            fileMinimalSize: 'File is too small',
+            fileMaximumSize: 'File is too large'
+        },
+        // messages for dialog’s error page
+        dialog: {
+            tabs: {
+                preview: {
+                    error: {
+                        fileType: {
+                            title: 'Title.',
+                            text: 'Text.',
+                            back: 'Back'
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    function fileSizeLimit(min, max) {
+        return function(fileInfo) {
+            if (fileInfo.size === null) {
+                return;
+            }
+            if (min && fileInfo.size < min) {
+                throw new Error('fileMinimalSize');
+            }
+            if (max && fileInfo.size > max) {
+                throw new Error('fileMaximumSize');
+            }
+        }
+    }
+
+    $(function() {
+        $('#videos').each(function() {
+            var input = $(this);
+
+            if (!input.data('minSize') && !input.data('maxSize')) {
+                return;
+            }
+            var widget = uploadcare.Widget(input);
+
+            widget.validators.push(fileSizeLimit(input.data('minSize'), input.data('maxSize')));
+        });
+    });
+
+    {% if mode == 'create' %}    
+        function autosave(field, data){
+            console.log(data);
+            $("#autosave-text").text("Saving...");
+            var stringData = JSON.stringify( data );
+            $.ajax({
+                url: "{{ path_for('monthlyPlanAutosave', { 'draft_id': draft_id } )}}",
+                type: "POST",
+                data: 
+                { 
+                    field: field,
+                    data: stringData,
+                    {{ csrf.keys.name }}: "{{ csrf.name }}",
+                    {{ csrf.keys.value }}: "{{ csrf.value }}"
+                },
+                success: function(res){
+                    $("#autosave-text").text("Saved");
+                },
+                error: function(err){
+                    console.log(err);
+                }
+            });
+        }
+        
+        var timeoutId;  
+        function resetTimeout(field, data){
+            $("#autosave-text").text("Saving...");
+            if (timeoutId) 
+                clearTimeout(timeoutId);
+            timeoutId = setTimeout(function () {
+                autosave(field, data);
+                timeoutId = null;
+            }, 2000);
+        }
+
+        $("[name='public']").change(function () {
+            data = {};
+            data.goal_id = this.value;
+            data.is_checked = $(this).is(":checked");
+            autosave("public", data);
+        });
+
+        {% for block_id, block in country_form %}
+            $("[name='{{ block.associated_table_column }}']").keyup(function () {
+                data = {};
+                data.column = '{{ block.associated_table_column }}';
+                data.value = this.value;
+                resetTimeout("form_block", data);
+            });
+
+            $("[name='{{ block.associated_table_column }}']").focusout(function() {
+                if(timeoutId){
+                    clearTimeout(timeoutId);
+                    timeoutId = null;
+                    data = {};
+                    data.column = '{{ block.associated_table_column }}';
+                    data.value = this.value;
+                    autosave("form_block", data);
+                }
+            });
+        {% endfor %}
+
+        $("[name='comment']").keyup(function () {
+            data = {};
+            data.column = 'comment';
+            data.value = this.value;
+            resetTimeout("form_block", data);
+        });
+
+        $("[name='comment']").focusout(function() {
+            if(timeoutId){
+                clearTimeout(timeoutId);
+                timeoutId = null;
+                data = {};
+                data.column = 'comment';
+                data.value = this.value;
+                autosave("form_block", data);
+            }
+        });
+
+        $("input[name='monthlyPlan_type']").click(function () {
+            data = {};
+            data.value = this.value;
+            autosave("monthlyPlan_type", data);
+        });
+
+        $("[name='child[]']").change(function () {
+            data = {};
+            data.assoc_id = this.value;
+            data.type = 'child';
+            data.is_checked = $(this).is(":checked");
+            autosave("assoc", data);
+        });
+
+        $("[name='room[]']").change(function () {
+            data = {};
+            data.assoc_id = this.value;
+            data.type = 'room';
+            data.is_checked = $(this).is(":checked");
+            autosave("assoc", data);
+        });
+
+        $("[name='goals[]']").change(function () {
+            data = {};
+            data.goal_id = this.value;
+            data.is_checked = $(this).is(":checked");
+            autosave("goal", data);
+        });
+
+        var mediaWidget = uploadcare.MultipleWidget('#media');
+        mediaWidget.onUploadComplete(function (group) {
+            data = {};
+            data.value = group.cdnUrl;
+            autosave("media", data);
+        });
+
+        var videosWidget = uploadcare.MultipleWidget('#videos');
+        videosWidget.onUploadComplete(function (group) {
+            data = {};
+            data.value = group.cdnUrl;
+            autosave("videos", data);
+        });
+
+        {% endif %}
+
+</script>
+
+
+{% endif %}
+{% endblock %}

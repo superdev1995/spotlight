@@ -1,0 +1,7 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<p><img width="100%" src="https://{{ settings.mailer.domain }}/images/welcome.png"></p>
+<h3>Hello {{ first_name }}!</h3>
+<p>The attached PDF guide has everything you need to get started! It includes self-help guides, step by step information on how to use TeachKloud and more. We are always here to help.</p>
+{% endblock %}

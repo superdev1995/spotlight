@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<link href='https://use.fontawesome.com/releases/v5.0.6/css/all.css' rel='stylesheet'>
+<link href='packages/core/main.css' rel='stylesheet' />
+<link href='packages/bootstrap/main.css' rel='stylesheet' />
+<link href='packages/timegrid/main.css' rel='stylesheet' />
+<link href='packages/daygrid/main.css' rel='stylesheet' />
+<link href='packages/list/main.css' rel='stylesheet' />
+<script src='packages/core/main.js'></script>
+<script src='packages/interaction/main.js'></script>
+<script src='packages/bootstrap/main.js'></script>
+<script src='packages/daygrid/main.js'></script>
+<script src='packages/timegrid/main.js'></script>
+<script src='packages/list/main.js'></script>
+<script src='demos/js/theme-chooser.js'></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+	var calendar;
+    initThemeChooser({
+      init: function(themeSystem) {
+        calendar = new FullCalendar.Calendar(calendarEl, {
+		plugins: [ 'dayGrid', 'timeGrid', 'list', 'bootstrap','interaction' ],
+		themeSystem: themeSystem,
+		firstDay: 1,
+		editable: true,
+		eventLimit: true, // allow "more" link when too many events
+
+		header: {
+			left: 'prevYear,prev,next,nextYear today',
+			center: 'title',
+			right: 'dayGridMonth,dayGridWeek,dayGridDay'
+			},
+		selectable: true,
+		selectMirror: true,
+		dateClick: function(info) {
+			alert('Date: ' + info.dateStr);
+			alert('Resource ID: ' + info.resource.id);
+			},
+		});
+      calendar.render();
+	},
+      change: function(themeSystem) {
+        calendar.setOption('themeSystem', themeSystem);
+      }
+    });
+  });
+
+</script>
+<style>
+ body {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+  }
+
+  #bottom {
+  position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  #bottom .selector {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  #bottom select {
+    font: inherit; /* mock what Boostrap does, don't compete  */
+  }
+  .left { float: left }
+  .right { float: right }
+  .clear { clear: both }
+  #calendar {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 10px;
+  }
+
+</style>
+</head>
+<body>
+
+  <div id='bottom'>
+      <div id='theme-system-selector' class='selector' style="visibility: hidden ">
+        <select>
+          <option value='bootstrap' selected>Bootstrap 4</option>
+        </select>
+      </div>
+
+      <div data-theme-system="bootstrap" value="united" class='selector' style="visibility: hidden ">
+        <select>
+          <option value='united' selected>United</option>
+        </select>
+      </div>
+
+      <span id='loading' style='display:none'>loading theme...</span>
+</div>
+  <div id='calendar'></div>
+ 
+
+</body>
+</html>

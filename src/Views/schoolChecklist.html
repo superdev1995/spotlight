@@ -1,0 +1,229 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-5">
+        <h4 class="mb-5">{{ title }}</h4>
+    </div>
+    <div class="col-6 mr-1 ml-auto text-right">
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#createModal">Create New Checklist</button>
+    </div>
+</div>
+<form action="{{ path_for('schoolChecklistCreate') }}" method="post">
+    <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Checklist</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>A custom checklist gives teachers the option to observe children for milestones that you determine here. The appropriate checklist is automatically selected for children based on their age in months.</p>
+                    <div class="form-group mt-5">
+                        <label for="name">New Checklist Name</label>
+                        <input class="form-control" type="text" maxlength="64" name="name" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Recommended Age Range (in Months)</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input class="form-control" type="number" min="0" max="73" name="month_min" placeholder="Minimum 0 Months" required>
+                            </div>
+                            <div class="col-6">
+                                <input class="form-control" type="number" min="0" max="73" name="month_max" placeholder="Maximum 73 Months" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<div class="card mb-4">
+    <div class="card-header success">
+        Custom Pre-School Checklists
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="w-40">Checklist Name</th>
+                <th class="w-15">Recommended Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if checklists %}
+                {% for checklist in checklists %}
+                    <tr>
+                        <td><strong><a href="{{ path_for('schoolChecklistDetails', { checklist_id: checklist.checklist_id }) }}">{{ checklist.checklist_name }}</a></strong></td>
+                        <td>
+                            {{ checklist.checklist_month_min }} to {{ checklist.checklist_month_max }} months
+                        </td>
+                        <td>
+                            <div class="d-none d-xl-block text-right">
+                                    <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="modal" data-target="#duplicateModal" data-id="{{ checklist.checklist_id }}" data-name="{{ checklist.checklist_name }}" data-min="{{ checklist.checklist_month_min }}" data-max="{{ checklist.checklist_month_max }}">Duplicate</button>
+                                    <a class="btn btn-primary btn-sm" href="{{ path_for('schoolChecklistDetails', { checklist_id: checklist.checklist_id }) }}">Edit</a>
+                                    <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#deleteModal" data-id="{{ checklist.checklist_id }}">Delete</button>
+                            </div>
+                            <div class="d-block d-xl-none text-right">
+                                <div class="btn-group dropleft">
+                                        <button style="border-color: transparent;" class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-h"></i>
+                                            </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <button class="dropdown-item" data-toggle="modal" data-target="#duplicateModal" data-id="{{ checklist.checklist_id }}" data-name="{{ checklist.checklist_name }}" data-min="{{ checklist.checklist_month_min }}" data-max="{{ checklist.checklist_month_max }}">Duplicate</button>
+                                        <a class="dropdown-item" href="{{ path_for('schoolChecklistDetails', { checklist_id: checklist.checklist_id }) }}">Edit</a>
+                                        <button class="dropdown-item" data-toggle="modal" data-target="#deleteModal" data-id="{{ checklist.checklist_id }}">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="text-center" colspan="2">No checklists have been created yet. Add yours today!</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <form action="{{ path_for('schoolChecklistDuplicate') }}" method="post">
+        <div class="modal fade" id="duplicateModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Duplicate Checklist</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Give your new checklist a name and recommended age group. Below values are prefilled from the checklist you are duplicating.</p>
+                        <div class="form-group mt-5">
+                            <label for="name">New Checklist Name</label>
+                            <input class="form-control" type="text" maxlength="64" name="name" id="duplicate_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Recommended Age Range (in Months)</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input class="form-control" type="number" min="0" max="73" name="month_min" id="duplicate_month_min" placeholder="Minimum Months" required>
+                                </div>
+                                <div class="col-6">
+                                    <input class="form-control" type="number" min="0" max="73" name="month_max" id="duplicate_month_max" placeholder="Maximum Months" required>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="duplicate_id" name="checklist_id" value="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Duplicate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    <script>
+        $('#duplicateModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var name = button.data('name');
+            var min = button.data('min');
+            var max = button.data('max');
+
+            $(this).find('#duplicate_id').val(id);
+            $(this).find('#duplicate_name').val(name);
+            $(this).find('#duplicate_month_min').val(min);
+            $(this).find('#duplicate_month_max').val(max);
+        });
+    </script>
+    <form action="{{ path_for('schoolChecklistDelete') }}" method="post">
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Checklist</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Delete your checklists with care. Deleting this checklist will prevent other teachers from making new observations based off this checklist. Existing milestone observations will remain intact.</p>
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">I understand that this cannot be undone</span>
+                        </label>
+                        <input type="hidden" id="delete_id" name="checklist_id" value="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    <script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+
+            $(this).find('#delete_id').val(id);
+        });
+    </script>
+</div>
+<div class="card mb-4">
+    <div class="card-header danger">
+        Global Checklists by TeachKloud
+    </div>
+    <div class="card-block">
+        <p>These are official checklists provided to you with permission from the <em>Mid-State Early Childhood Direction Centre</em>. All pre-schools can start off using these for their children, but you can also edit your own checklists above.</p>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="w-40">Checklist Name</th>
+                <th class="w-15">Recommended Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for checklist in checklists_global %}
+                <tr>
+                    <td><strong><a href="{{ path_for('schoolChecklistDetails', { checklist_id: checklist.checklist_id }) }}">{{ checklist.checklist_name }}</a></strong></td>
+                    <td>
+                        {{ checklist.checklist_month_min }} to {{ checklist.checklist_month_max }} months
+                    </td>
+                    <td>
+                        <div class="d-none d-xl-block text-right">
+                                <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="modal" data-target="#duplicateModal" data-id="{{ checklist.checklist_id }}" data-name="{{ checklist.checklist_name }}" data-min="{{ checklist.checklist_month_min }}" data-max="{{ checklist.checklist_month_max }}">Duplicate</button>
+                        </div>
+                        <div class="d-block d-xl-none text-right">
+                            <div class="btn-group dropleft">
+                                    <button style="border-color: transparent;" class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <button class="dropdown-item" data-toggle="modal" data-target="#duplicateModal" data-id="{{ checklist.checklist_id }}" data-name="{{ checklist.checklist_name }}" data-min="{{ checklist.checklist_month_min }}" data-max="{{ checklist.checklist_month_max }}">Duplicate</button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

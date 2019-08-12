@@ -1,0 +1,139 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% if current_checklist_id %}
+    <div class="row">
+        <div class="col-6">
+            <h4 class="mb-0">{{ title }}</h4>
+            <h6 class="mb-5 text-muted">Ideal for {{ child.child_name }}’s age of {{ months }} months</h6>
+        </div>
+        <div class="col-6 text-right">
+            <a class="btn btn-outline-primary" href="{{ path_for('schoolChecklistDetails', { checklist_id: current_checklist_id }) }}">Checklist Editor</a>
+        </div>
+    </div>
+    <p>Choose <em>Yes</em> or <em>No</em> where you want to document an observation. To skip a goal, simply leave <em>Not observed</em> checked. Goals which have already been observed positively by yourself or your colleagues are disabled. Checklists are <strong>never shared with parents</strong>.</p>
+    <form>
+        <div class="card mb-4">
+            <div class="card-block">
+                <label>Switch between available checklists for {{ child.child_name }}: </label>
+                <select class="form-control" name="checklist" onchange="this.form.submit()">
+                    {% for checklist in checklists %}
+                        <option value="{{ checklist.checklist_id }}" {% if current_checklist_id == checklist.checklist_id %}selected{% endif %}>{{ checklist.checklist_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+    <form method="post" action="{{ path_for('checklistCreate', { child_id: child.child_id}) }}">
+        {% for name, milestones in categories %}
+            {% if milestones %}
+                <div class="card mb-4">
+                    <div class="card-header success">
+                        {{ name }}
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="w-50">Milestone</th>
+                                <th class="w-50">Observation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for milestone in milestones %}
+                                <tr>
+                                    {% if observed[milestone.milestone_id] == true %}
+                                        <td class="text-muted">
+                                            {{ milestone.milestone_description }}
+                                        </td>
+                                        <td>
+                                            <label class="custom-control custom-radio mb-0">
+                                                <input name="milestones[{{ milestone.milestone_id }}]" type="radio" value="1" class="custom-control-input" checked disabled>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description text-success"><strong>Yes</strong></span>
+                                            </label>
+                                            <label class="custom-control custom-radio mb-0">
+                                                <input name="milestones[{{ milestone.milestone_id }}]" type="radio" value="0" class="custom-control-input" disabled>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description text-danger"><strong>No</strong></span>
+                                            </label>
+                                            <label class="custom-control custom-radio mb-0">
+                                                <input name="milestones[{{ milestone.milestone_id }}]" type="radio" value="" class="custom-control-input" disabled>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description text-muted">Not observed</span>
+                                            </label>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            {{ milestone.milestone_description }}
+                                        </td>
+                                        <td>
+                                            <label class="custom-control custom-radio mb-0">
+                                                <input name="milestones[{{ milestone.milestone_id }}]" type="radio" value="1" class="custom-control-input" required>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description text-success"><strong>Yes</strong></span>
+                                            </label>
+                                            <label class="custom-control custom-radio mb-0">
+                                                <input name="milestones[{{ milestone.milestone_id }}]" type="radio" value="0" class="custom-control-input" required>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description text-danger"><strong>No</strong></span>
+                                            </label>
+                                            <label class="custom-control custom-radio mb-0">
+                                                <input name="milestones[{{ milestone.milestone_id }}]" type="radio" value="" class="custom-control-input" checked required>
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description text-muted">Not observed</span>
+                                            </label>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="card mb-4">
+            <div class="card-header danger">
+                Developmental Red Flags
+            </div>
+            <table class="table">
+                <tbody>
+                    {% for red_flag in red_flags %}
+                        <tr>
+                            <td>
+                                <label class="custom-control custom-checkbox mb-0">
+                                    <input type="checkbox" class="custom-control-input" name="red_flags[]" value="{{ red_flag.red_flag_id }}">
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">{{ red_flag.red_flag_description }}</span>
+                                </label>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                Optional Comment
+            </div>
+            <div class="card-block">
+                <div class="form-group">
+                    <p>This comment will appear separately in the child’s timeline.</p>
+                    <textarea class="form-control" name="comment" id="comment" rows="4" maxlength="255"></textarea>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+{% else %}
+    <h4 class="mb-0">{{ title }}</h4>
+    <div class="col-lg-8 offset-lg-2">
+        <div class="text-center mb-5">
+            <img width="200" height="201" src="/images/ken.svg" alt="Background image">
+        </div>
+        <p class="lead">There is no suitable checklist found for the child’s age. Please create a checklist in the checklist editor.</p>
+        <p><a class="btn btn-primary" href="{{ path_for('schoolChecklist') }}">Checklist Editor</a></p>
+    </div>
+{% endif %}
+{% endblock %}

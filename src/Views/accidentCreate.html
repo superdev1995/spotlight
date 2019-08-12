@@ -1,0 +1,99 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<!-- <script src="/javascripts/speechrecognition.js"></script>
+<script src="/javascripts/BingSpeech.js" type="text/javascript"></script> -->
+
+<h4 class="mb-5">{{ title }}</h4>
+{% if children|length > 0 %}
+    <form method="post" action="{{ path_for('accidentCreate') }}">
+        <div class="card mb-4">
+            <div class="card-header">
+                Select the child involved in the accident
+            </div>
+            <div class="card-block">
+                <div class="row">
+                    {% for child in children %}
+                        <div class="col-4 col-sm-3 col-md-2">
+                            <img class="rounded-circle" width="80" height="80" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image"><br>
+                            <label class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="child_id" value="{{ child.child_id }}" {% if preselected_child_id == child.child_id %}checked{% endif %} required>
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">{{ child.child_name }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                Describe all details of the accident
+            </div>
+            <div class="card-block">
+                <div class="form-group row">
+                    <label class="col-12 col-sm-4 col-form-label" for="date_time">Date and Time:</label>
+                    <div class="col-7 col-sm-4">
+                        <input class="form-control" type="date" name="date" id="date" value="{{ formdata.date }}" required>
+                    </div>
+                    <div class="col-5 col-sm-4">
+                        <input class="form-control" type="time" name="time" id="time" value="{{ formdata.time }}" required>
+                    </div>
+                </div>
+                <div class="form-group row mb-5">
+                    <label class="col-12 col-sm-4 col-form-label" for="location">Immediate Location:</label>
+                    <div class="col-12 col-sm-8">
+                        <input class="form-control" type="text" name="location" id="location" value="{{ formdata.location }}" maxlength="255" placeholder="bathroom, waiting room, sandbox etc." required>
+                    </div>
+                </div>
+                <div class="form-group row mb-5">
+                    <label class="col-12 col-sm-4 col-form-label" for="location">Body Parts:</label>
+                    <div class="col-12 col-sm-8">
+                        <div class="row">
+                            {% for body_part in body_parts %}
+                                <div class="col-4">
+                                    <img width="65" height="65" src="/images/bodyparts/{{ body_part.part_id }}.png" alt="Bodypart image"><br>
+                                    <label class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" name="body_parts[]" value="{{ body_part.part_name }}">
+                                        <span class="custom-control-indicator"></span>
+                                        <span class="custom-control-description">{{ body_part.part_name }}</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-sm-4 col-form-label" for="description">What happened exactly?</label>
+                    <div class="col-12 col-sm-8">
+                        <!-- <button onclick="recordspeech('description','dspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="dspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea class="form-control" name="description" id="description" rows="4" required>{{ formdata.description }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-sm-4 col-form-label" for="cause">What caused the accident?</label>
+                    <div class="col-12 col-sm-8">
+                        <!-- <button onclick="recordspeech('description','cspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="cspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea class="form-control" name="cause" id="cause" rows="4" required>{{ formdata.cause }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-sm-4 col-form-label" for="witnesses">Witnesses:</label>
+                    <div class="col-12 col-sm-8">
+                        <input class="form-control" type="text" name="witnesses" id="witnesses" maxlength="255" value="{{ formdata.witnesses }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+{% else %}
+    <p>You cannot report an accident at this moment. Please <a href="{{ path_for('child') }}">create</a> at least one child profile.</p>
+{% endif %}
+{% endblock %}

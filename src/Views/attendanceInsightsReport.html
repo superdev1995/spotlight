@@ -1,0 +1,357 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<div class="row">
+	<div class="col-8">
+		<h4 class="mb-5">{{ title }}: {{child.child_name}}</h4>
+		<h6 class="mb-5">Total Hours: {{month_total}}</h6>
+		<h6 class="mb-5">Total Monthly NCS Hours: {{month_total_NCS}}</h6>
+		<h6 class="mb-5">Total Monthly ECCE Hours: {{month_total_ECCE}}</h6>
+	</div>
+	{% if user.user_type == 'T' %}
+	<div class="col-4 hidden-xs hidden-sm text-right noprint">
+		<div class="btn-group dropdown">
+			<button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<i class="fa fa-caret-down mr-2"></i>
+				Options
+			</button>
+			<div class="dropdown-menu">
+				<button class="dropdown-item" id="print_btn" role="button">Print</button>
+				<button class="dropdown-item" id="download_btn" role="button">Download</button>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+</div>
+<div id="canvas">
+	<div class="card mb-4">
+		<div class="card-block">
+			<div class="row mb-3">
+				<div class="col-12">
+					<div class="text-center">
+						<h4>
+							<a href="{{ path_for('attendanceInsightsReport', {'year': prev_year, 'month': prev_month , 'child_id': child_id}) }}"> &larr; </a>
+								{{ months[month] }} {{ year }}
+							<a href="{{ path_for('attendanceInsightsReport', {'year': next_year, 'month': next_month, 'child_id': child_id}) }}"> &rarr; </a>
+						</h4>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="table-responsive">
+					<table class="table table-bordered">
+						<tr>
+							{% for day in calendar_layout.headings %}
+								<th class="calendar-head">{{ day|slice(0,3) }}</th>
+							{% endfor %}
+						</tr>
+						{% for row in calendar_layout.rows %}
+							<tr>
+								{% for cell in row %}
+									<td class="calendar-day {{ calendar_data[cell.date].cell_class }}">
+										<a href="{{ path_for('timesheetCreate', { 'date': cell.date }) }}">
+											<div class="day-number">{{ cell.day }}{% if calendar_data[cell.date].time_total and calendar_data[cell.date].type %}<span style="float: right; font-size: 12px; padding-top: 2px;">*{{ calendar_data[cell.date].type }}</span>{% endif %}</div>
+											{% if calendar_data[cell.date].time_in %}{{ calendar_data[cell.date].time_in }}<br>{% endif %}
+											{% if calendar_data[cell.date].time_total %}
+												<strong style="font-size: 12px;">{{ calendar_data[cell.date].time_total }}</strong><br>
+											{% else %}
+												<strong style="font-size: 12px;">{{ calendar_data[cell.date].type }}</strong>
+											{% endif %}
+											{% if calendar_data[cell.date].time_out %}{{ calendar_data[cell.date].time_out }}<br>{% endif %}
+										</a>
+									</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="card-block">
+
+			<div class="row mb-2" id="graphs">
+				<div class="col-12">
+					<h4>
+						{{ title }} Graphs
+					</h4>
+				</div>
+			</div>
+			<div class="no-print">
+				<div class="row mb-4">
+					<div class="col-12">
+						<form method="GET" action="#graphs">
+							<div class="row">
+								<label class="col-sm-1 col-form-label">Start</label>
+								<div class="col-sm-4">
+									<input class="form-control" type="date" name="date_start" value="{{ date_start }}">
+								</div>
+							</div>
+							<div class="row">
+								<label class="col-sm-1 col-form-label">End</label>
+								<div class="col-sm-4">
+									<input class="form-control" type="date" name="date_end" value="{{ date_end }}">
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-12 mt-2">
+									<button class="btn btn-primary">Submit</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-4">
+				<div class="col-12">
+					<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+					<div id="attendance_rate_graph"></div>
+				</div>
+			</div>
+			<script type="text/javascript">
+				google.charts.load('current', {packages: ['corechart', 'bar']});
+				google.charts.setOnLoadCallback(drawRateGraph);
+				var dataRateGraph, optionsRateGraph;
+				function drawRateGraph() {
+					dataRateGraph = google.visualization.arrayToDataTable([
+						['Day', 'Present', {role: 'style'}, 'Sick', {role: 'style'}, 'Absent', {role: 'style'}, 'Holiday', {role: 'style'}],
+						{% for day,values in graph_days %}
+							[
+							'{{ day }}', 
+							{{ values.Present/values.Total|default('1') }}, '#dff0d8',
+							{{ values.Sick/values.Total|default('1') }}, '#fcf8e3',
+							{{ values.Absent/values.Total|default('1') }}, '#f2dede',
+							{{ values.Holiday/values.Total|default('1') }}, '#d9edf7'
+							],
+						{% endfor %}
+					]);
+
+					optionsRateGraph = {
+						isStacked: 'true',
+						title: 'Attendance rate between {{ date_start }} and {{ date_end }}',
+						colors: ['#e782af'],
+						fontName: 'Source Sans Pro',
+						hAxis: {
+							title: 'Day',
+							format: 'EEE',
+							gridlines: {
+								color: 'transparent'
+							},
+							ticks: [0, 0.25, 0.5, 0.75, 1]
+						},
+						vAxis: {
+							title: 'Attendance Rate',
+							format: 'percent',
+							gridlines: {
+								color: '#eef3f5'
+							}
+						},
+						legend: {
+							position: 'none'
+						},
+						series: {
+							0:{color:'#dff0d8'},
+							1:{color:'#fcf8e3'},
+							2:{color:'#f2dede'},
+							3:{color:'#d9edf7'},
+						}
+					};
+
+					var chart = new google.charts.Bar(document.getElementById('attendance_rate_graph'));
+					chart.draw(dataRateGraph, google.charts.Bar.convertOptions(optionsRateGraph));
+				}
+			</script>
+			<div class="row mb-4">
+				<div class="col-12">
+					<div id="cumulative_absences_graph"></div>
+				</div>
+			</div>
+			<script type="text/javascript">
+				google.charts.load('current', {packages: ['corechart', 'bar']});
+				google.charts.setOnLoadCallback(drawDaysGraph);
+
+				var dataDaysGraph, optionsDaysGraph;
+				function drawDaysGraph() {
+					dataDaysGraph = google.visualization.arrayToDataTable([
+						['', 'Present', {role: 'style'}, {role: 'annotation'}, 'Sick', {role: 'style'}, {role: 'annotation'}, 'Absent', {role: 'style'}, {role: 'annotation'},  'Holiday', {role: 'style'}, {role: 'annotation'}],
+							[' ',
+								{{ graph_horizontal.Present|default('0') }}, '#dff0d8', 'Present',
+								{{ graph_horizontal.Sick|default('0') }}, '#fcf8e3', 'Sick',
+								{{ graph_horizontal.Absent|default('0') }}, '#f2dede', 'Absent',
+								{{ graph_horizontal.Holiday|default('0') }}, '#d9edf7', 'Holiday'
+							],
+					]);
+
+					optionsDaysGraph = {
+						title: 'Attendance between {{ date_start }} and {{ date_end }}',
+						colors: ['#e782af'],
+						fontName: 'Source Sans Pro',
+						height: 130,
+						bars: 'horizontal',
+						isStacked: true,
+						hAxis: {
+							viewWindow: {
+								min: 0,
+								max: {{ maxDays ? maxDays : 20}}
+							},
+							gridlines: {
+								color: 'transparent'
+							},
+						},
+						vAxis: {
+							gridlines: {
+								color: '#eef3f5'
+							}
+						},
+						legend: {
+							position: 'none'
+						},
+						series: {
+							0:{color:'#dff0d8'},
+							1:{color:'#fcf8e3'},
+							2:{color:'#f2dede'},
+							3:{color:'#d9edf7'},
+						}
+					};
+
+					var chart = new google.charts.Bar(document.getElementById('cumulative_absences_graph'));
+					chart.draw(dataDaysGraph, google.charts.Bar.convertOptions(optionsDaysGraph));
+				}
+			</script>
+			<div class="row mb-4">
+				<div class="col-12">
+					<div id="horizontal_absences_graph"></div>
+				</div>
+			</div>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
+			<script type="text/javascript" src="/javascripts/html2canvas.js"></script>
+			<script type="text/javascript">
+				var a4 = [595.28, 841.89];
+				var canvas_cpy;
+
+				$("#print_btn").on('click', function(){
+					createPDF('print');
+				});
+
+				$("#download_btn").on('click', function(){
+					createPDF('download');
+				});
+
+				// create canvas object  
+				function createPDF(mode) {
+					window.scroll(0,0); // to prevent a bug to happen
+					canvas_cpy = $("#canvas").clone();
+					canvas_cpy.appendTo("body"); 
+					canvas_cpy.width((a4[0] * 1.33333) - 80).css('max-width', 'none'); 
+
+					canvas_cpy.attr('id', 'canvas_cpy');
+					$("#canvas_cpy .no-print").html("");
+
+					canvas_cpy_js = document.querySelector("#canvas_cpy");
+					var chart1 = new google.charts.Bar(canvas_cpy_js.querySelector('#attendance_rate_graph'));
+					chart1.draw(dataRateGraph, google.charts.Bar.convertOptions(optionsRateGraph));
+					var chart2 = new google.charts.Bar(canvas_cpy_js.querySelector('#cumulative_absences_graph'));
+					chart2.draw(dataDaysGraph, google.charts.Bar.convertOptions(optionsDaysGraph));
+					var chart3 = new google.charts.Bar(canvas_cpy_js.querySelector('#horizontal_absences_graph'));
+					chart3.draw(dataHorizontalGraph, google.charts.Bar.convertOptions(optionsHorizontalGraph));
+					
+					var chartFinished = 0;
+					function chartDrown(){
+						chartFinished++;
+						if(chartFinished == 3){
+							var top_left_margin = 15;
+							var HTML_Width = canvas_cpy.width();
+							var HTML_Height = canvas_cpy.height();
+							var canvas_image_width = a4[0] - 2*top_left_margin;
+							var ratio = canvas_image_width / HTML_Width;
+							var canvas_image_height = HTML_Height * ratio;
+							
+							var totalPDFPages = Math.ceil(canvas_image_height/(a4[1] - 2*top_left_margin))-1;
+							html2canvas(canvas_cpy_js, {  
+								imageTimeout: 2000,  
+								removeContainer: true  
+							}).then(function(canvas) {
+								var imgData = canvas.toDataURL("image/png", 1.0);
+            
+								var pdf = new jsPDF('p', 'pt',  'a4');
+								pdf.addImage(imgData, 'PNG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+								
+								for (var i = 1; i <= totalPDFPages; i++) { 
+									pdf.addPage(a4[0], a4[1]);
+									pdf.addImage(imgData, 'PNG', top_left_margin, -(a4[1]*i)+top_left_margin, canvas_image_width, canvas_image_height);
+								}
+
+								canvas_cpy.remove();
+								if(mode == 'print'){      
+									pdf.autoPrint();
+									window.open(pdf.output('bloburl'), '_blank');
+								}
+								else if(mode == 'download'){
+									pdf.save("AttendanceInsights.pdf");
+								}
+							});
+						}
+					}
+					google.visualization.events.addListener(chart1, 'ready', chartDrown);
+					google.visualization.events.addListener(chart2, 'ready', chartDrown);
+					google.visualization.events.addListener(chart3, 'ready', chartDrown);
+				}  
+			</script>
+			<script type="text/javascript">
+				google.charts.load('current', {packages: ['corechart', 'bar']});
+				google.charts.setOnLoadCallback(drawHorizontalGraph);
+
+				var dataHorizontalGraph, optionsHorizontalGraph;
+				function drawHorizontalGraph() {
+					dataHorizontalGraph = google.visualization.arrayToDataTable([
+						['Day', 'Sick', {role: 'style'}, 'Absent', {role: 'style'}, 'Holiday', {role: 'style'}],
+						{% for day, values in graph_days %}
+							[
+							'{{ day }}', 
+							{{ values.Sick|default('0') }}, '#fcf8e3',
+							{{ values.Absent|default('0') }}, '#f2dede',
+							{{ values.Holiday|default('0') }}, '#d9edf7'
+							],
+						{% endfor %}
+					]);
+
+					optionsHorizontalGraph = {
+						title: 'Absences between {{ date_start }} and {{ date_end }} (by day)',
+						colors: ['#e782af'],
+						fontName: 'Source Sans Pro',
+						isStacked: true,
+						hAxis: {
+							title: 'Day',
+							format: 'EEE',
+							gridlines: {
+								color: 'transparent'
+							},
+						},
+						vAxis: {
+							title: 'Attendance Records',
+							gridlines: {
+								color: '#eef3f5'
+							}
+						},
+						legend: {
+							position: 'none'
+						},
+						series: {
+							0:{color:'#fcf8e3'},
+							1:{color:'#f2dede'},
+							2:{color:'#d9edf7'},
+						}
+					};
+
+					var chart = new google.charts.Bar(document.getElementById('horizontal_absences_graph'));
+					chart.draw(dataHorizontalGraph, google.charts.Bar.convertOptions(optionsHorizontalGraph));
+				}
+			</script>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

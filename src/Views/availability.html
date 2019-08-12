@@ -1,0 +1,599 @@
+{% extends 'master.dashboard.html' %}
+{% block body %}
+
+<link href='/Fullcalendar/packages/core/main.css' rel='stylesheet' />
+<link href='/Fullcalendar/packages/bootstrap/main.css' rel='stylesheet' />
+<link href='/Fullcalendar/packages/timegrid/main.css' rel='stylesheet' />
+<link href='/Fullcalendar/packages/daygrid/main.css' rel='stylesheet' />
+<link href='/Fullcalendar/packages/list/main.css' rel='stylesheet' />
+<link rel="stylesheet" href="/Fullcalendar/packages/clockpicker/dist/bootstrap-clockpicker.min.css">
+
+<script src='/Fullcalendar/packages/core/main.js'></script>
+<script src='/Fullcalendar/packages/interaction/main.js'></script>
+<script src='/Fullcalendar/packages/bootstrap/main.js'></script>
+<script src='/Fullcalendar/packages/daygrid/main.js'></script>
+<script src='/Fullcalendar/packages/timegrid/main.js'></script>
+<script src='/Fullcalendar/packages/list/main.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="/Fullcalendar/packages/clockpicker/dist/bootstrap-clockpicker.min.js"></script>
+
+
+<script src='/Fullcalendar/packages/colorPicker/resources/js/bcPicker.js'></script>
+<link rel="stylesheet" href='/Fullcalendar/packages/colorPicker/resources/css/bcPicker.css'>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      plugins: ['dayGrid', 'timeGrid', 'list', 'bootstrap', 'interaction'],
+      firstDay: 1,
+      editable: true,
+      eventLimit: true, // allow "more" link when too many events
+
+      header: {
+        left: 'prevYear,prev,next,nextYear today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek,dayGridDay'
+      },
+
+      selectable: true,
+      selectMirror: true,
+
+      dateClick: function (info) {
+        var date = info.dateStr;
+
+
+        var year = date[0] + date[1] + date[2] + date[3];
+        var month = date[5] + date[6];
+        var day = date[8] + date[9];
+
+
+        var date = day + "-".concat(month) + "-".concat(year);
+
+
+        $('#startEvent').val(date);
+        $('#modalEvents').modal();
+      },
+
+      events: "{{ path_for('availabilityCalendar') }}",
+
+      eventClick: function (info) {
+        var eventObj = info.event;
+        console.log(eventObj);
+
+        var titleSplit = eventObj.title.split(": ");
+        var idEvent = eventObj.id;
+        var nameUpdate = titleSplit[1];
+        var startEventUpdate = eventObj.start;
+        var hourStartEventUpdate = eventObj.extendedProps.start_hour;
+        var endEventUpdate = eventObj.end || eventObj.start;;
+        var hourEndEventUpdate = eventObj.extendedProps.end_hour;
+        var eventReasonUpdate = titleSplit[0];
+
+        console.log(eventReasonUpdate)
+        if (eventReasonUpdate == "Vacation" || eventReasonUpdate == "Personal" || eventReasonUpdate ==
+          "Sick") {
+          $('input[name=eventReasonUpdate][value=' + eventReasonUpdate + ']').prop('checked', true)
+
+          $('input[name=eventReasonUpdate][value!=Custom]').on('change', function () {
+            $('textarea[name="customReasonUpdate"]').hide();
+            $("#customReasonUpdate").val('');
+          })
+          $('input[name=eventReasonUpdate][value=Custom]').on('change', function () {
+            $('textarea[name="customReasonUpdate"]').show();
+            $("#customReasonUpdate").val('');
+
+          })
+        } else {
+          $('input[name=eventReasonUpdate][value=Custom]').prop('checked', true)
+          $('textarea[name="customReasonUpdate"]').show();
+          $('textarea[name="customReasonUpdate"]').val(eventReasonUpdate);
+          $('input[name=eventReasonUpdate][value!=Custom]').on('change', function () {
+            $('textarea[name="customReasonUpdate"]').hide();
+            $("#customReasonUpdate").val('');
+          })
+          $('input[name=eventReasonUpdate][value=Custom]').on('change', function () {
+            $('textarea[name="customReasonUpdate"]').show();
+            $("#customReasonUpdate").val('');
+          })
+        }
+
+
+        var textColorUpdate = eventObj.textColor;
+        var backgroundColorUpdate = eventObj.backgroundColor;
+
+        //to take out the hours.
+        var startEventUpdate = startEventUpdate + '';
+        var fullDate = startEventUpdate.split(" ", 4);
+        var startmonth = fullDate[1];
+        var numberMonth = ("JanFebMarAprMayJunJulAugSepOctNovDec".indexOf(startmonth) / 3 + 1);
+        if (numberMonth < 10) {
+          numberMonth = "0" + numberMonth;
+        }
+
+        var startEventUpdate = fullDate[2] + "-" + numberMonth + "-" + fullDate[3];
+
+        var endEventUpdate = endEventUpdate + '';
+
+        var endfullDate = endEventUpdate.split(" ", 4);
+        var month = endfullDate[1];
+        var numberMonth = ("JanFebMarAprMayJunJulAugSepOctNovDec".indexOf(month) / 3 + 1);
+        if (numberMonth < 10) {
+          numberMonth = "0" + numberMonth;
+        }
+        var endEventUpdate = endfullDate[2] + '-'.concat(numberMonth) + '-'.concat(endfullDate[3]);
+
+        $('#idEvent').val(idEvent);
+        $('#nameUpdate').val(nameUpdate);
+        $('#startEventUpdate').val(startEventUpdate);
+        $('#hourStartEventUpdate').val(hourStartEventUpdate);
+        $('#endEventUpdate').val(endEventUpdate);
+        $('#hourEndEventUpdate').val(hourEndEventUpdate);
+        $('#eventReasonUpdate').val(eventReasonUpdate);
+        $('#customReasonUpdate').val(eventReasonUpdate);
+
+
+        $('input.spanElement3').val(textColorUpdate);
+        $('input.spanElement4').val(backgroundColorUpdate);
+
+
+        $('#modalEventsUpdate').modal();
+
+      },
+      editable: true,
+      eventDrop: function (info) {
+        $('#idEvent').val(idEvent);
+        $('#nameUpdate').val(nameUpdate);
+        $('#startEventUpdate').val(startEventUpdate);
+        $('#hourStartEventUpdate').val(hourStartEventUpdate);
+
+        $('#endEventUpdate').val(endEventUpdate);
+        $('#hourEndEventUpdate').val(hourEndEventUpdate);
+
+        $('#eventReasonUpdate').val(eventReasonUpdate);
+        $('input.spanElement3').val(textColorUpdate);
+        $('input.spanElement4').val(backgroundColorUpdate);
+      },
+    });
+    console.log
+    calendar.render();
+  });
+</script>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+  }
+
+  #bottom {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+
+  #bottom .selector {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  #bottom select {
+    font: inherit;
+    /* mock what Boostrap does, don't compete  */
+  }
+
+  .left {
+    float: left
+  }
+
+  .right {
+    float: right
+  }
+
+  .clear {
+    clear: both
+  }
+
+  #calendar {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 10px;
+  }
+
+  label {
+    display: inline-block;
+    width: 70px;
+  }
+
+  textarea {
+    display: none;
+  }
+</style>
+
+
+<!-- Table on the top of the page -->
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <div class="table-responsive">
+      <table class="table">
+        <tbody>
+          <tr>
+            <td><strong>Teacher Name</strong> {{TeacherAdminName}} {% if school.role == '1' %}<span
+                class="badge badge-primary">Administrator</span><br />
+              <form action="{{ path_for('availabilityCheck') }}">
+                <script>
+                  $(function () {
+                    var date = new Date();
+                    var month = date.getMonth() + 1;
+                    var day = date.getDate();
+
+                    var actualDate = date.getFullYear() + '/' +
+                      (('' + month).length < 2 ? '0' : '') + month
+                    $('.actualDate input').val(actualDate);
+                  });
+                </script>
+
+                <div class="actualDate"><input type="hidden" id="actualDate" name="actualDate" />
+                  <!--send the actual date-->
+                </div>
+                <button type="submit" id="btnCheck" class="btn-orange">Check absences</button> {% endif %}
+
+              </form>
+            </td>
+            <td><strong>School Name</strong> {{schoolName.school_name}}</td>
+          </tr>
+          <tr>
+            <td>
+              {% if school.role == '1' %} {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-sm-1"></div>
+</div>
+<!-- End table of the top  -->
+
+
+<!-- Show calendar -->
+<div id='calendar'></div>
+
+
+
+
+
+<!-----------------------------------------------------------------------END MAIN CODE------------------------------------------------------------------------------>
+<!-- Modal Add / delete -->
+<form action="{{ path_for('availability') }}" method="POST">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+  <div name="modalEvents" class="modal fade" id="modalEvents" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Reason of absence</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-------------------------- Dates: day of start, hour of start, day of ending and hour of ending -------------------------------->
+          <div class="form-group">
+            <label for="name"><strong>Name of Staff</strong></label>
+            <input type="text" id="name" name="name" autocomplete="off" required />
+            </p>
+          </div>
+          <div class="form-group">
+            <label for="startEvent"><strong>Dates</strong></label>
+            <div style="margin-left:210px;"><strong>From</strong></div>
+            <div class="center">
+              <p id="basicExample">
+                <input type="text" id="startEvent" name="startEvent" class="date start beauty" autocomplete="off"
+                  required />
+                <input type="text" name="hourStartEvent" class="time start beauty" autocomplete="off" required />
+                <!-- We've to put no break space because this plugin doesn't allow to make br/div or anything else -->
+                <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <strong>To</strong><br />
+
+                <input type="text" name="hourEndEvent" class="time end beauty" autocomplete="off" required />
+                <input type="text" name="endEvent" class="date end beauty" autocomplete="off" required />
+              </p>
+            </div>
+
+            <!------------------------------------- include input widgets; this is independent of Datepair.js --------------------------------->
+            <link rel="stylesheet" type="text/css"
+              href="/Fullcalendar/packages/timepicker/jquery/jquery.timepicker.css" />
+            <link rel="stylesheet" type="text/css"
+              href="/Fullcalendar/packages/timepicker/jquery/lib/bootstrap-datepicker.css" />
+          </div>
+
+          <!------------------------------------------------------------ Basic reasons or custom --------------------------------------->
+          <label for="reason"><strong>Reason</strong></label>
+          {% for reason_id,reason in ReasonOfAbsence  %}
+          <input type="radio" id="{{reason}}" name="eventReason" value={{reason}} required>
+          <label for="{{reason}}">{{reason}}</label>
+          {% endfor %}
+          <script>
+            $('input[type="radio"][id="Custom"]').on('change', function () {
+              $('textarea[name="customReason"]').toggle();
+            });
+            $('input[type="radio"][id!="Custom"]').on('change', function () {
+              $('textarea[name="customReason"]').hide();
+            });
+          </script>
+          <textarea rows="2" cols="60" type="text" id="customReason" size="5" name="customReason" placeholder="Custom"
+            onclick="showDiv()" style="text-align: center;vertical-align:middle;"></textarea>
+
+          <br />
+
+          <!--------------------------------------------------------------- Text color ----------------------------------------------->
+          <div class="row">
+            <label for="textColor" style="float:left;margin-left:15px"><strong>Text &nbsp; &nbsp; &nbsp; &nbsp;
+                color</strong></label>
+            <div id="textColor" name="textColor" class="color-picker"
+              style="border-radius:25px;margin-left:0px;border:3px black"></div>
+
+            <div>
+              <!-- This plugin show the value in the div and in the span, so we've to send it to an input to send if to the form -->
+              <span class="spanElement" style="display:none"></span>
+              <input type="hidden" class="spanElement" name="textColor" value="#000000" required />
+
+              <!-- Script for put the value of the span into the input and can send it to the form in this way -->
+              <script>
+                $('#textColor').click(function () {
+                  var spanElement = $(".spanElement").html();
+                  $('input.spanElement').val(spanElement);
+                });
+              </script>
+
+              <!--Color Script-->
+              <script type="text/javascript">
+                $('#textColor').bcPicker({
+                  defaultColor: "#000000",
+                  colors: ['FC3409', 'DC38AD', 'FE9A00', 'E5FF00', '00F9FF', '17D23B', 'FFFFFF', '3200F8', 'FFFFFF',
+                    '9800FF', '694C5E', '0097FC',
+                  ]
+                });
+
+
+                $('.textColor-palette').on('click', '.textColor-color', function () {
+                  var color = $(this).css('background-color');
+                  $(this).parent().parent().next().children().val($.fn.bcPicker.toHex(color));
+                })
+              </script>
+            </div>
+
+            <!-------------------------------------------------- Background color ------------------------------------------------>
+            <div class="row">
+              <label for="backgroundColor" style="margin-left:180px;float:right"><strong>Background
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color</strong></label>
+
+              <div id="backgroundColor" name="backgroundColor" class="color-picker"
+                style="border-radius:25px;margin-left:15px"></div>
+
+              <div>
+                <span class="spanElement2" style="display:none"></span>
+
+                <input type="hidden" class="spanElement2" name="backgroundColor" value="#FFFF99" required />
+
+                <!-- Script for put the value of the span into the input and can send it to the form in this way -->
+                <script>
+                  $('#backgroundColor').click(function () {
+                    var spanElement = $(".spanElement2").html();
+                    console.log(spanElement)
+                    $('input.spanElement2').val(spanElement);
+                  });
+                </script>
+
+                <script type="text/javascript">
+                  $('#backgroundColor').bcPicker({
+                    defaultColor: "#FFFF99",
+                    colors: ['FC3409', 'DC38AD', 'FE9A00', 'E5FF00', '00F9FF', '17D23B', 'FFFFFF', '3200F8',
+                      'FFFFFF', '9800FF', '694C5E', '0097FC',
+                    ]
+                  });
+
+                  $('.bcPicker-palette').on('click', '.bcPicker-color', function () {
+                    var color = $(this).css('background-color');
+
+                    $(this).parent().parent().next().children().text($.fn.bcPicker.toHex(color));
+                  })
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" id="btnSave" class="btn btn-primary">Save changes</button>
+          <input type="hidden" name="modalEvents" id="modalEvents" />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<!------------------------------------------------ MODAL FOR UPDATE ------------------------------------------------>
+<form action="{{ path_for('availability') }}" method="POST">
+  <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+  <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+  <div name="modalEventsUpdate" class="modal fade" id="modalEventsUpdate" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel2" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel2">Reason of absence</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="nameUpdate"><strong>Name of Staff</strong></label>
+            <input type="text" id="nameUpdate" name="nameUpdate" autocomplete="off" required />
+            </p>
+          </div>
+          <div class="form-group">
+            <label for="startEventUpdate"><strong>Dates</strong></label>
+            <div style="margin-left:210px;"><strong>From</strong></div>
+            <div class="center">
+              <p id="basicExample">
+                <input type="text" id="startEventUpdate" name="startEventUpdate" class="date start beauty"
+                  autocomplete="off" required />
+                <input type="text" id="hourStartEventUpdate" name="hourStartEventUpdate" class="time start beauty"
+                  autocomplete="off" required />
+
+                <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>
+                  To</strong><br />
+
+                <input type="text" id="hourEndEventUpdate" name="hourEndEventUpdate" class="time end" autocomplete="off"
+                  required />
+                <input type="text" id="endEventUpdate" name="endEventUpdate" class="date end" autocomplete="off"
+                  autocomplete="off" required />
+              </p>
+            </div>
+
+            <!-- include input widgets; this is independent of Datepair.js -->
+            <link rel="stylesheet" type="text/css"
+              href="/Fullcalendar/packages/timepicker/jquery/jquery.timepicker.css" />
+            <link rel="stylesheet" type="text/css"
+              href="/Fullcalendar/packages/timepicker/jquery/lib/bootstrap-datepicker.css" />
+          </div>
+
+          <label for="reason"><strong>Reason</strong></label>
+          {% for reason_id,reason in ReasonOfAbsence  %}
+          <input type="radio" id="{{reason}}" name="eventReasonUpdate" value="{{reason}}" required>
+          <label for="{{reason}}">{{reason}}</label>
+          {% endfor %}
+
+          <textarea rows="2" cols="60" type="text" id="customReasonUpdate" size="5" name="customReasonUpdate"
+            placeholder="Custom" onclick="showDiv()" style="text-align: center;vertical-align:middle;"></textarea>
+
+          <br />
+
+          <!-- Text color ---->
+          <div class="row">
+            <label for="textColorUpdate" style="float:left;margin-left:15px;margin-top:5px"><strong>Text
+                color</strong></label>
+            <div id="textColorUpdate" name="textColorUpdate" class="color-picker"
+              style="border-radius:25px;margin-left: 8px;"></div>
+
+            <div>
+              <span class="spanElement3" style="display:none"></span>
+              <input type="hidden" class="spanElement3" name="textColorUpdate" required />
+
+              <!-- Script for put the value of the span into the input and can send it to the form in this way -->
+              <script>
+                $('#textColorUpdate').click(function () {
+                  var spanElement3 = $(".spanElement3").html();
+                  $('input.spanElement3').val(spanElement3);
+                });
+              </script>
+
+              <!--Color Script-->
+              <script type="text/javascript">
+                $('#textColorUpdate').bcPicker({
+                  defaultColor: "#000000",
+                  colors: ['FC3409', 'DC38AD', 'FE9A00', 'E5FF00', '00F9FF', '17D23B', 'FFFFFF', '3200F8', 'FFFFFF',
+                    '9800FF', '694C5E', '0097FC',
+                  ]
+                });
+
+                $('.textColorUpdate-palette').on('click', '.textColorUpdate-color', function () {
+                  var color = $(this).css('background-color');
+                  $(this).parent().parent().next().children().val($.fn.bcPicker.toHex(color));
+                })
+              </script>
+            </div>
+
+            <!-- Background color -->
+            <div class="row">
+              <label for="backgroundColorUpdate" style="margin-left:180px;float:right"><strong>Background
+                  color</strong></label>
+
+              <div id="backgroundColorUpdate" name="backgroundColorUpdate" class="color-picker"
+                style="border-radius:25px;margin-top:5px;margin-left: 15px;"></div>
+
+              <div>
+                <span class="spanElement4" style="display:none"></span>
+
+                <input type="hidden" class="spanElement4" name="backgroundColorUpdate" required />
+
+                <!-- Script for put the value of the span into the input and can send it to the form in this way -->
+                <script>
+                  $('#backgroundColorUpdate').click(function () {
+                    var spanElement4 = $(".spanElement4").html();
+                    $('input.spanElement4').val(spanElement4);
+                  });
+                </script>
+
+                <script type="text/javascript">
+                  $('#backgroundColorUpdate').bcPicker({
+                    defaultColor: "#FFFF99",
+                    colors: ['FC3409', 'DC38AD', 'FE9A00', 'E5FF00', '00F9FF', '17D23B', 'FFFFFF', '3200F8',
+                      'FFFFFF', '9800FF', '694C5E', '0097FC',
+                    ]
+                  });
+                  defaultColor: "222"
+
+                  $('.bcPicker-palette').on('click', '.bcPicker-color', function () {
+                    var color = $(this).css('background-color');
+
+                    $(this).parent().parent().next().children().text($.fn.bcPicker.toHex(color));
+                  })
+                </script>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="idEvent" name="idEvent">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" name="btnDel" id="btnDel" class="btn btn-danger">Delete</button>
+          <button type="submit" name="btnUpdate" id="btnUpdate" class="btn btn-primary">Update</button>
+          <input type="hidden" name="modalEventsUpdate" id="modalEvents" />
+
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<!--------------------------------------------------------------- End of modals----------------------------------------------->
+
+
+
+
+<script type="text/javascript" src="/Fullcalendar/packages/timepicker/jquery/lib/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="/Fullcalendar/packages/timepicker/jquery/jquery.timepicker.js"></script>
+<script type="text/javascript" src="/Fullcalendar/packages/timepicker/datepair/dist/datepair.js"></script>
+<script>
+  // initialize input widgets first for the time picker on the top of the modals.
+  $('#basicExample .time').timepicker({
+    'showDuration': true,
+    'timeFormat': 'G:i',
+    'show2400': true
+  });
+
+  $('#basicExample .date').datepicker({
+    'format': 'dd-mm-yyyy',
+    'autoclose': true
+
+  });
+
+  // initialize datepair
+  var basicExampleEl = document.getElementById('basicExample');
+  var datepair = new Datepair(basicExampleEl);
+</script>
+{% endblock %}

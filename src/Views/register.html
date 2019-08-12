@@ -1,0 +1,389 @@
+{% extends "master.default.html" %}
+
+{% block body %}
+
+<link rel="stylesheet" href="/stylesheets/sign-in.css">
+
+<div class="row">
+  <div id="formColumn" class="dividingSpace col-12 col-lg-6 col-xl-5">
+    <form action="{{ path_for('register') }}" method="post">
+      <div class="card">
+        <div class="card-block">
+          <h4 class="card-title">{{ title }}</h4>
+          <h6 class="card-subtitle mb-4 text-muted">Already have an account? <a href="{{ path_for('login') }}">Log in
+              here.</a></h6>
+          <div class="form-group row">
+            <label class="col-md-4 col-form-label" for="password">Account Type:</label>
+            <div class="col-md-8">
+              <select class="form-control" name="type" required>
+                <option value="T" selected>I’m a teacher</option>
+                <option value="P">I’m a parent</option>
+              </select>
+            </div>
+          </div>
+          <br>
+          <div class="form-group row">
+            <label class="col-md-4 col-form-label" for="first_name">First Name:</label>
+            <div class="col-md-8">
+              <input class="form-control" type="text" id="first_name" name="first_name" value="{{ first_name }}"
+                maxlength="64" placeholder="Anne" autofocus required>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-4 col-form-label" for="last_name">Last Name:</label>
+            <div class="col-md-8">
+              <input class="form-control" type="text" id="last_name" name="last_name" value="{{ last_name }}"
+                maxlength="64" placeholder="Sullivan" required>
+            </div>
+          </div>
+          <br>
+          <div class="form-group row">
+            <label class="col-md-4 col-form-label" for="email">Email Address:</label>
+            <div class="col-md-8">
+              <input class="form-control" type="email" id="email" name="email" value="{{ email }}" maxlength="64"
+                placeholder="name@company.com" required>
+              <small class="form-text text-muted">We’ll never share your email with anyone else.</small>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-4 col-form-label" for="password1">Password:</label>
+            <div class="col-md-8">
+              <input class="form-control" type="password" id="password1" name="password1" minlength="6" maxlength="32"
+                required>
+                <input type="checkbox" onclick="myFunction1()"> Show password
+                <script>
+                    function myFunction1() {
+                     var x = document.getElementById("password1");
+                             if (x.type === "password")
+                                 {      
+                                x.type = "text";
+                                 } 
+                                 else
+                                  {
+                                  x.type = "password";
+                                  }
+                                          }
+            </script>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-4 col-form-label" for="password2">Confirm Password:</label>
+            <div class="col-md-8">
+              <input class="form-control" type="password" id="password2" name="password2" minlength="6" maxlength="32"
+                required>
+                <input type="checkbox" onclick="myFunction2()"> Show password
+                <script>
+                    function myFunction2() {
+                     var x = document.getElementById("password2");
+                             if (x.type === "password")
+                                 {      
+                                x.type = "text";
+                                 } 
+                                 else
+                                  {
+                                  x.type = "password";
+                                  }
+                                          }
+            </script>
+            </div>
+          </div>
+          <div class="form-group mt-4 mb-0">
+            <label class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" name="terms" value="1" required>
+              <span class="custom-control-indicator"></span>
+              <span class="custom-control-description">I agree to the <a href="{{ path_for("terms") }}"
+                  target="_blank">terms &amp; conditions</a> and <a href="{{ path_for("privacy") }}"
+                  target="_blank">privacy policy</a>.</span>
+            </label>
+            <label class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" name="consent" value="1" required>
+              <span class="custom-control-indicator"></span>
+              <span class="custom-control-description">I agree to the <a href="{{ path_for("consent") }}"
+                  target="_blank">consent</a>.</span>
+              <br>
+            </label>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button onclick="confirm()" class="btn btn-primary" type="submit">Create Account</button>
+        <script>  
+        <p id="demo"></p>
+              function confirm(){
+              var text;
+              var r= confirm("Do you really want to make a teacher account?");
+                              
+              if(r == true){}
+              else
+              {
+                location.replace("https://dashboard.teachkloud.com/register")
+              }
+              document.getElementById("demo").innerHTML = txt;
+              }
+              </script>
+        </div>
+      </div>
+      <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+      <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+  </div>
+
+  <div id="imageColumn" class="dividingSpace d-none d-md-block col-12 col-lg-6 col-xl-7 ">
+    <div class="card mb-3 headingCards" style="background: transparent; border: 0;">
+      <div class="card-body p-0">
+        <h1 id="mainHeading" class="m-0">
+          Get Started For Free<img src="/images/devices.png" alt="image">
+        </h1>
+      </div>
+    </div>
+    <div class="card" id="mainImage">
+      <img class="card-image" src="/images/safe_image.jpg" alt="image">
+      <div class="card-img-overlay p-0">
+        <p class="lead p-4 m-0">
+          “I love TeachKloud because it was designed by teachers just like me, it helps me save time on paperwork and
+          spend more time doing what I love, educating and caring for young children”
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card dividingSpaceHeading headingCards" style="background: transparent; border: 0;">
+      <div class="card-body p-0">
+        <h2 class="m-0 sectionHeadings" style="text-align: center;">
+          What can we offer you?
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div id="featureListColumn" class="col-12 dividingSpace">
+    <div class="card cardPadding">
+      <div class="card-body">
+        <div class="row h-100">
+          <div class="col-12 col-md-6">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item pl-0 pr-0 pt-0">
+                <div class="row w-100 m-0"><div class="col p-0">
+                  <div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fab fa-leanpub fa-fw"></i>
+                  </div>
+                </div>
+                <span>Learning Journals that auto-suggest curriculum goals</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="far fa-comments fa-fw"></i>
+                  </div>
+                </div>
+                <span>Parent communication</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="far fa-eye fa-fw"></i>
+                  </div>
+                </div>
+                <span>Observations</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fas fa-money-bill-wave fa-fw"></i>
+                  </div>
+                </div>
+                <span>Billing</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fas fa-chart-line fa-fw"></i>
+                  </div>
+                </div>
+                <span>Child records</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0 pb-md-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="far fa-clock fa-fw"></i>
+                  </div>
+                </div>
+                <span>Attendance</span>
+              </div>
+            </div>
+              </li>
+            </ul>
+          </div>
+          <div class="col-12 col-md-6">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item pl-0 pr-0 pt-md-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fas fa-book-open fa-fw"></i>
+                  </div>
+                </div>
+                <span>Resources for teachers</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fas fa-book fa-fw"></i>
+                  </div>
+                </div>
+                <span>Parent library</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fas fa-balance-scale fa-fw"></i>
+                  </div>
+                </div>
+                <span>Policies</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fas fa-briefcase-medical fa-fw"></i>
+                  </div>
+                </div>
+                <span>Accident and Emergency</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="far fa-map fa-fw"></i>
+                  </div>
+                </div>
+                <span>Daily, weekly and monthly plans</span>
+              </div>
+            </div>
+              </li>
+              <li class="list-group-item pl-0 pr-0 pb-0">
+                <div class="row w-100 m-0"><div class="col p-0"><div class=" float-left h-100">
+                  <div class="signUpListIcon">
+                    <i class="fas fa-gavel fa-fw"></i>
+                  </div>
+                </div>
+                <span>Compliance audits based on your location and regulatory standards</span>
+              </div>
+            </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card dividingSpaceHeading headingCards" style="background: transparent; border: 0;">
+      <div class="card-body p-0">
+        <h2 class="m-0 sectionHeadings" style="text-align: center;">
+          We're here to help
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div id="questionBox" class="col-12 dividingSpace">
+    <div class="card cardPadding">
+      <div class="row">
+        <div class="col-12">
+          <div class="card-body">
+            <div class="row  justify-content-center">
+              <div class="d-none d-md-block col-1 pr-0 questionBoxIcons">
+                <h1 style="text-align: center" class="m-0"><i class="fas fa-shield-alt fa-fw"></i></h1>
+              </div>
+              <div class="col">
+                <h6 class="card-title">Do I have to worry about you selling my data?</h6>
+                <p>No. Your data is private, we do not sell your data and we
+                  do
+                  not
+                  have access to your account. We will email you from time to time but you can
+                  opt-out
+                  at any time. </p>
+              </div>
+            </div>
+            <hr class="mt-0">
+            <div class="row  justify-content-center">
+              <div class="d-none d-md-block col-1 pr-0 questionBoxIcons">
+                <h1 style="text-align: center" class="m-0"><i class="fas fa-coins fa-fw"></i></h1>
+              </div>
+              <div class="col">
+                <h6 class="card-title">How does billing work?</h6>
+                <p>We charge €1 per child, per month. You can opt-out at any time. If you have a
+                  franchise or large early years service, <a href="https://www.teachkloud.com/billing.php"
+                    target="_blank">contact
+                    us</a> to
+                  see what special discounts we have on offer.</p>
+              </div>
+            </div>
+            <hr class="mt-0">
+            <div class="row  justify-content-center">
+              <div class="d-none d-md-block col-1 pr-0 questionBoxIcons">
+                <h1 style="text-align: center" class="m-0"><i class="fas fa-phone fa-fw"></i></h1>
+              </div>
+              <div class="col">
+                <h6 class="card-title">Can I request a call-back?</h6>
+                <p class="mb-0">Sure. Just <a href="https://www.teachkloud.com/billing.php" target="_blank">email us</a>
+                  with
+                  a time,
+                  date and your phone number.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="socialMedia" class="col-12 dividingSpace">
+    <div class="card cardPadding">
+      <div class="card-body">
+        <div class="row justify-content-center">
+          <div class="col-12 ">
+            <a class="socialMediaButton mr-sm-3" href="https://twitter.com/teachkloud" target="_blank"><i
+                class="fab fa-twitter-square"></i></a>
+            <a class="socialMediaButton mr-sm-3"
+              href="https://www.linkedin.com/in/teach-kloud-2b125a155/?originalSubdomain=ie" target="_blank"><i
+                class="fab fa-linkedin"></i></a>
+            <a class="socialMediaButton" href="https://www.facebook.com/teachkloud/" target="_blank"><i
+                class="fab fa-facebook-square"></i></a>
+            <a class="d-sm-none" href="https://blog.teachkloud.com/" target="_blank">Blog</a>
+            <a class="d-none d-sm-block" href="https://blog.teachkloud.com/" target="_blank">TeachKloud Blog</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+{% endblock %}

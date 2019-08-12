@@ -1,0 +1,64 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% embed 'childDetailsHeader.html' %}{% endembed %}
+{% if user.user_type == 'T' %}
+    <div class="card">
+        <div class="card-block">
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <div id="chart_div"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        google.charts.load('current', {packages: ['corechart', 'bar']});
+        google.charts.setOnLoadCallback(drawColColors);
+
+        function drawColColors() {
+            var data = google.visualization.arrayToDataTable([
+                ['Month', 'Preschool'],
+                {% for month in months %}
+                    ['{{ month.label }}', {{ month.count }}],
+                {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Pre-school accidents in the past 24 months',
+                colors: ['#e782af'],
+                fontName: 'Source Sans Pro',
+                hAxis: {
+                    title: 'Month',
+                    format: 'MMMM yyyy',
+                    gridlines: {
+                        color: 'transparent'
+                    },
+                },
+                vAxis: {
+                    title: 'Number of Accidents',
+                    gridlines: {
+                        color: '#eef3f5'
+                    }
+                },
+                legend: {
+                    position: 'none'
+                }
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('chart_div'));
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+        }
+    </script>
+{% endif %}
+<ul class="list-group mt-4">
+    {% for accident in accidents %}
+        <li class="list-group-item">
+            <div class="media">
+                <a class="d-flex mr-3" href="{{ path_for('childDetails', { child_id: accident.child.id }) }}"><img class="rounded-circle" width="45" height="45" src="{{ accident.user_avatar_url|default(accident.user_email|gravatar) }}" data-toggle="tooltip" data-placement="top" title="{{ accident.child_name }}" alt="Child image"></a>
+                <div class="media-body">
+                    <strong><a href="{{ path_for('accidentDetails', {accident_id: accident.accident_id}) }}">{{ accident.accident_date_time }}</a></strong><br>
+                    <p class="text-muted">{{ accident.accident_description[0:112] }}</p>
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

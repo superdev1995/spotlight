@@ -1,0 +1,36 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h3 class="mb-5">{{ title }}</h3>
+<div class="card">
+    <div class="card-block">
+        {% if monthly_plans %}
+            <h4>Monthly Plans</h4>
+            <div class="card-block">
+                {% for monthly_plan in monthly_plans %}
+                    <a href="{{ path_for('singleMonthlyPlan', { year: monthly_plan.year, month: monthly_plan.month, child_id: child.child_id }) }}">
+                        Monthly Plan {{ monthly_plan.month }}/{{ monthly_plan.year }}</a><br>
+                {% endfor %}
+            </div><hr>
+        {% endif %}
+        {% if weekly_plans %}
+            <h4>Weekly Plans</h4>
+            <div class="card-block">
+                {% for weekly_plan in weekly_plans %}
+                    <a href="{{ path_for('singleWeeklyPlan', { weekly_plan_id: weekly_plan.weekly_plan_id }) }}">
+                        Weekly Plan {{ weekly_plan.week }}° week/{{ weekly_plan.year }}  &nbsp; &nbsp; {{ weekly_plan.name }}</a><br>
+                {% endfor %}
+            </div><hr>
+        {% endif %}
+        {% if daily_plans %}
+            <h4>Daily Plans</h4>
+            <div class="card-block">
+                {% for daily_plan in daily_plans %}
+                    <a href="{{ path_for('dailyPlan', { daily_plan_id: daily_plan.daily_plan_id }) }}">
+                        Daily Plan {{ daily_plan.date }} &nbsp; &nbsp; {{ daily_plan.name }}</a><br>
+                {% endfor %}
+            </div><hr>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

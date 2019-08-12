@@ -1,0 +1,616 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<form action="{% if daily_plan_id %}{{ path_for('editDailyPlan', { daily_plan_id: daily_plan_id }) }}{% else %}{{ path_for('createDailyPlan', { draft_id: draft_id }) }}{% endif %}" method="post">
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <span class="h4" >{{ title }}</span> 
+            {% if mode == 'create' %}
+                &nbsp;&nbsp;
+            <span id="autosave-text">Saved</span>  
+            {% endif %}
+        </div>
+        <div class="col-12 col-lg-6 mb-2 text-right">
+            <a class="btn btn-outline-primary" href="{{ path_for('summaryDailyPlan') }}" role="button">Back to Daily Plans</a>
+            <button class="btn btn-primary" type="submit">Publish</button>
+        </div>
+    </div>
+
+    <div class="card mb-5">
+        <div class="card-block">
+            <ul class="nav nav-pills nav-justified mb-4" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">Plan Details</a>
+                </li>
+                {% for framework_id, framework in frameworks %}
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#framework{{ framework_id }}" role="tab">{{ framework.framework_name }}{% if framework.framework_month_min or framework.framework_month_max %} {{ framework.framework_month_min }} to {{ framework.framework_month_max }} months{% endif %}<span class="badge badge-primary hidden" data-recommendations-count data-recommendations-framework-id="{{ framework_id }}">0</span></a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content">
+
+                <!-- Begin Plan Details Pane -->
+                <div class="tab-pane active" id="tab1" role="tabpanel">
+                    <div class="mb-4">
+                        {% for id, name in types %}
+                        <label class="custom-control custom-radio">
+                            <input name="dailyPlan_type" type="radio" class="custom-control-input dailyPlan-type" value="{{ id }}" {% if (id == 'school' and formdata.assoc == '') or formdata.assoc == id %}checked{% endif %} required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">{{ name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="col-12 col-lg-4 col-form-label">Date of Event</label>
+                        <div class="col-12 col-lg-8">
+                            <input class="form-control" type="date" name="record_date" value="{{ formdata.date|default(date) }}" placeholder="{{ date }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-12 col-lg-4 col-form-label">Name</label>
+                        <div class="col-12 col-lg-8">
+                            <input class="form-control noteParam" name="dailyPlan_name" type="text" value="{{ formdata.name }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Plan Picture
+                            <small class="form-text text-muted">Optional</small>
+                        </label>
+                        <div class="col-8">
+                            <img class="rounded-circle d-flex mr-3" id="img" 
+                                {% if formdata.plan_img_url %} src="{{ formdata.plan_img_url }}" width="100" height="100" alt="image" {% endif %}>
+                            <input class="noteParam" type="hidden" role="uploadcare-uploader" id="plan_img" name="plan_img" data-images-only="true" data-image-shrink="1600x1600" value="{{ formdata.plan_img_url }}">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <div class="col-4">
+                            <label class="col-form-label">
+                                Plan Video
+                                <small class="form-text text-muted">Optional</small>
+                            </label>
+                        </div>
+                        <div class="col-8">
+                            <input name="videos" id="videos" type="hidden" role="uploadcare-uploader" data-file-types="mp4 avi mkv flv ogg gif wmv mov mpg" 
+                            data-input-accept-types="video/*" data-multiple="true" data-multiple-min="1" data-multiple-max="{{ num_videos_permitted > 0 ? num_videos_permitted : 1 }}" 
+                                data-min-size="102400" data-max-size="104857600" value="{{ formdata.video_group_url }}">
+                        </div>                        
+                        {% if num_videos_permitted > 1 %}
+                            <div class="col-12 text-muted">Today you can upload {{ num_videos_permitted }} more videos.</div>
+                        {% elseif num_videos_permitted == 1 %}
+                            <div class="col-12 text-muted">Today you can upload 1 more video.</div>
+                        {% elseif num_videos_permitted == 0 %}
+                            <div class="col-12 text-muted">You have reached the maximum amount of video uploads for today.</div>
+                            <script>
+                                $(document).ready(function(){
+                                    const widget = uploadcare.Widget('#videos')
+                                    const $widgetButton = widget.inputElement.nextSibling.querySelector('.uploadcare--widget__button_type_open')
+
+                                    $widgetButton.disabled = true;
+                                });
+                            </script>
+                        {% endif %}
+                    </div>
+
+                    
+                    <div class="form-group row">
+                        <div class="col-12">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <td>Time Block</td>
+                                        <td>Description</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+                                <tbody id="block-container">
+                                {% if blocks %}
+                                    {% for block in blocks %}
+                                    <tr>
+                                        <td><input name="time-block[]" data-autocomplete  class="form-control" type="text" data-block-id="{{ block.daily_plan_block_id }}"  value="{{ block.time_block }}"></td>
+                                        <td><input name="description[]" data-autocomplete  class="form-control" size="80" type="text" data-block-id="{{ block.daily_plan_block_id }}" value="{{ block.description }}" data-keyword-search></td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm btn-delete" role="button" data-toggle="modal" data-target="#deleteModal" data-block-id="{{ block.daily_plan_block_id }}">Delete</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-success" id="add-block">Add new block</button>
+                    
+
+                    <div id="schoolForm" class="mt-2" style="display: block;">
+                        <div class="form-group row">
+                            <div class="col-12">
+                                Daily Plan for entire school
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- End Plan Details Pane -->
+
+                <!-- Begin Goals Panes -->
+                {% for category_id, category in frameworks %}
+                <div class="tab-pane" id="framework{{ category_id }}" role="tabpanel">
+                    <ul class="nav nav-tabs nav-justified" role="tablist">
+                        {% for framework_id, group_items in groups if framework_id == category_id %}
+                            {% for group in group_items %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab" href="#framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tab">{{ group }} <span class="badge badge-primary hidden" data-recommendations-count data-recommendations-group-id="{{ group }}">0</span></a>
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content">
+                        {% for framework_id, group_items in groups if framework_id == category_id %}
+                            {% for group in group_items %}
+                                <div class="tab-pane {% if group_items|first == group %}active{% endif %}" id="framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tabpanel">
+                                    {% for category_id, category in categories if group == category.category_group and framework_id == category.framework_id %}
+                                        <h5 class="mt-4">{{ category.category_name }}</h5>
+                                        <p class="lead">{{ category.category_description }}</p>
+                                        {% for goal in category.goals %}
+                                            <div>
+                                                <label class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" name="goals[]" value="{{ goal.goal_id }}" {% if goal.goal_id in formgoals %}checked{% endif %}>
+                                                    <span class="custom-control-indicator"></span>
+                                                    <span class="custom-control-description">
+                                                        {% if goal.goal_keywords %}
+                                                          {% if frameworks[framework_id].framework_name == "EYFS" %}
+                                                            <span class="badge badge-primary hidden"
+                                                                  data-keywords="{{ goal.goal_keywords }}"
+                                                                  data-group-id="{{ group }}"
+                                                                  data-framework-id="{{ framework_id }}"
+                                                                  data-goal-id="{{ goal.goal_id }}"
+                                                                  data-framework-name="{{ frameworks[framework_id].framework_name }}"
+                                                                  title="Based on keywords: {{ goal.goal_keywords }}">Suggested</span>
+                                                          {% else %}
+                                                            <span class="badge badge-primary hidden"
+                                                                  data-keywords="{{ goal.goal_keywords }}"
+                                                                  data-group-id="{{ group }}"
+                                                                  data-framework-id="{{ framework_id }}"
+                                                                  data-goal-id="{{ goal.goal_id }}"
+                                                                  title="Based on keywords: {{ goal.goal_keywords }}">Recommended
+                                                            </span>
+                                                          {% endif %}
+                                                        {% endif %}
+                                                        {{ goal.goal_description }} {% if goal.goal_help %}&nbsp; <button class="btn btn-sm btn-secondary" role="button" data-container="body" data-toggle="popover" data-trigger="focus" title="Explanation" data-content="{{ goal.goal_help }}"><i class="fa fa-question"></i></button>{% endif %}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- End Goals Panes -->
+
+            </div>
+        </div>
+    </div>
+
+    <div id="childForm" style="display: none;">
+        <h4>Select Child(ren)</h4>
+        {% for room in rooms %}
+        <h5 class="mb-0">{{ room.room_name }}</h5>
+        <h6 class="mb-4 text-muted">{{ room.room_description }}</h6>
+        <ul class="list-group mb-4">
+            {% for child in children if child.room_id == room.room_id %}
+            <li class="list-group-item">
+                <label class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name="child[]" value="{{ child.child_id }}"
+                           {% if formdata.assoc == 'child' %}
+                    {% if child.child_id in assoc_id_arr %}checked{% endif %}
+                    {% endif %}>
+                    <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+                    <span class="custom-control-description"><img class="rounded-circle mr-2" width="35" height="35" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image"> <strong>{{ child.child_name }}</strong></span>
+                </label>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+
+    <div id="roomForm" style="display: none;">
+        <h4>Select Room(s)</h4>
+        {% for room in rooms %}
+        <h5 class="mb-0">{{ room.room_name }}</h5>
+        <h6 class="mb-0 text-muted">{{ room.room_description }}</h6>
+        <label class="custom-control custom-checkbox mb-4">
+            <input type="checkbox" class="custom-control-input" name="room[]" value="{{ room.room_id }}"
+                   {% if formdata.assoc == 'room' %} {% if room.room_id in assoc_id_arr %}checked{% endif %} {% endif %}>
+            <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+        </label>
+        {% endfor %}
+    </div>
+
+    <script>
+        function reset(selectedType) {
+            var recordTypes = [ 'school', 'room', 'child' ]
+
+            recordTypes.forEach(function(type) {
+                if (type == selectedType) {
+                    $('#' + type + 'Form').show()
+                    $('.' + type + 'Param').attr("disabled", false);
+                } else {
+                    $('#' + type + 'Form').hide()
+                    $('.' + type + 'Param').attr("disabled", true);
+                    if(type == 'room' || type == 'child'){
+                        $("[name^='" + type + "[]']").prop("checked", false);
+                    }
+                }
+            })
+        }
+
+        var threshold = 3;
+        function updateSuggestions() {
+            var text = '',
+            checkedGoals = [];
+
+            $( '[data-recommendations-count]' ).html( '0' ).addClass( 'hidden' );
+            $.each( $( '[data-keyword-search]' ), function () {
+                text += ' ' + $(this).val();
+            } );
+
+            text = ' ' + text.replace( /[ \n\r\t.,'\"\+!?]/g, ' ' ) + ' ';
+
+            $.each( $( '[data-keywords]' ), function () {
+                var $this = $( this ),
+                goalId = $this.data( 'goal-id' ),
+                keywords = $this.data( 'keywords' ).trim().split( /,\s?/ ),
+                recommendIndex = 0;
+
+                if($this.data('framework-name') == "EYFS")
+                threshold = 2;
+
+                var localThreshold = threshold;
+                if ( checkedGoals.includes( goalId ) )
+                    return;
+
+                keywords = keywords.filter( function ( el ) { return el != null; } );
+                if ( keywords.length < 3 )
+                    localThreshold = 1;
+
+                $.each( keywords, function () {
+                    var regex = new RegExp( " " + this + " ", 'gi' );
+                    var occurrences = ( text.match( regex ) || [] ).length;
+                    recommendIndex += Math.min( 2, occurrences );
+                } );
+                if($this.data('framework-name') == "EYFS" && recommendIndex > 0) {
+                    this.classList.remove('badge-info');
+                    this.classList.remove('badge-danger');
+                    this.classList.remove('badge-primary');
+
+                    if(recommendIndex == localThreshold) {
+                        this.classList.add('badge-primary');
+                        this.innerHTML = "Suggested";
+                    }
+                    else if(recommendIndex == 3) {
+                        this.classList.add('badge-info');
+                        this.innerHTML = "Possible match";
+                    }
+                    else if (recommendIndex > 3) {
+                        this.classList.add('badge-danger');
+                        this.innerHTML = "Perfect match";
+                    }
+                }
+
+                if ( recommendIndex >= localThreshold ) {
+                    var $groupRecommendationsCount = $( '#framework' + $this.data( 'framework-id' ) + ' [data-recommendations-group-id="' + $this.data( 'group-id' ) + '"]' );
+                    $groupRecommendationsCount.html( parseInt( $groupRecommendationsCount.html() ) + 1 ).removeClass( 'hidden' );
+                    var $frameworkRecommendationsCount = $( '[data-recommendations-framework-id="' + $this.data( 'framework-id' ) + '"]' );
+                    $frameworkRecommendationsCount.html( parseInt( $frameworkRecommendationsCount.html() ) + 1 ).removeClass( 'hidden' );
+                    $this.removeClass( 'hidden' );
+                }
+                else {
+                    $this.addClass( 'hidden' );
+                }
+
+                checkedGoals.push( goalId );
+            } );
+        }
+
+        function suggestGoalsBasedOnKeywords() {
+            $( '[data-keyword-search]' ).on( 'keyup paste propertychange', updateSuggestions);
+            updateSuggestions();
+        }
+
+
+        $(document).ready(function() {
+            reset($("input[name='dailyPlan_type']:checked").attr('value'));
+            suggestGoalsBasedOnKeywords();
+        });
+
+        $("input[name='dailyPlan_type']").click(function() {
+            reset(this.value);
+        });
+
+        $("#block-container").on("click", ".btn-delete", function(e) {
+            e.preventDefault();
+            $(this).closest('tr').remove();
+            {% if mode == 'create' %}
+                data = {};
+                data.block_id = this.getAttribute("data-block-id");
+                autosave("block_deleted", data);
+            {% endif %}
+            updateSuggestions();
+        });
+
+        $("#add-block").on("click", function(e) {
+            e.preventDefault();
+            {% if mode == 'create' %}
+                autosave("block_added", []);
+            {% elseif mode == 'edit' %}
+                addBlockContainer(0);
+            {% endif %}
+        });
+
+        function addBlockContainer(blockId){
+            $("#block-container").append(
+                `<tr>
+                    <td><input name="time-block[]" data-autocomplete class="form-control new-block" type="text" data-block-id=${blockId}></td>
+                    <td><input name="description[]" data-autocomplete class="form-control new-block" size="80" type="text" data-block-id=${blockId} data-keyword-search></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm btn-delete" role="button" data-toggle="modal" data-target="#deleteModal" data-block-id=${blockId} }}">Delete</button>
+                    </td>
+                </tr>`
+            );
+            suggestGoalsBasedOnKeywords();
+        }
+
+        var mediaWidget = uploadcare.SingleWidget('#plan_img');
+        mediaWidget.onUploadComplete(function (file) {
+            $("#img").attr('src', file.cdnUrl);
+            $("#img").css('width', '100');
+            $("#img").css('height', '100');
+        });
+
+        /*var textareas = document.querySelectorAll('textarea, input[type="text"]');
+        for(var i=0; i<textareas.length; i++){
+            var area = textareas[i];
+            var a = Autocompletion.init({{ user_id }}, area, {
+                onValueChange: function(a){
+                    //doKeywordSearch({ autocomplete: a })
+                }
+            });
+        }*/
+
+        function fileTypeLimit(types) {
+            types = types.split(' ');
+
+            return function(fileInfo) {
+                if (fileInfo.name === null) {
+                    return;
+                }
+                var extension = fileInfo.name.split('.').pop();
+                if (types.indexOf(extension) == -1) {
+                    throw new Error('fileType');
+                }
+            }
+        }
+
+        $(function() {
+            $('#videos').each(function() {
+                var input = $(this);
+                var widget = uploadcare.Widget(input);
+
+                widget.validators.push(fileTypeLimit(input.data('file-types')));
+            });
+        });
+
+        UPLOADCARE_LOCALE_TRANSLATIONS = {
+            // messages for widget
+            errors: {
+                fileType: 'This type of files is not allowed.',
+                fileMinimalSize: 'File is too small',
+                fileMaximumSize: 'File is too large'
+            },
+            // messages for dialog’s error page
+            dialog: {
+                tabs: {
+                    preview: {
+                        error: {
+                            fileType: {
+                                title: 'Title.',
+                                text: 'Text.',
+                                back: 'Back'
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        function fileSizeLimit(min, max) {
+            return function(fileInfo) {
+                if (fileInfo.size === null) {
+                    return;
+                }
+                if (min && fileInfo.size < min) {
+                    throw new Error('fileMinimalSize');
+                }
+                if (max && fileInfo.size > max) {
+                    throw new Error('fileMaximumSize');
+                }
+            }
+        }
+
+        $(function() {
+            $('#videos').each(function() {
+                var input = $(this);
+
+                if (!input.data('minSize') && !input.data('maxSize')) {
+                    return;
+                }
+                var widget = uploadcare.Widget(input);
+
+                widget.validators.push(fileSizeLimit(input.data('minSize'), input.data('maxSize')));
+            });
+        });
+        
+        {% if mode == 'create' %}
+            function autosave(field, data){
+                $("#autosave-text").text("Saving...");
+                var stringData = JSON.stringify( data );
+                $.ajax({
+                    url: "{{ path_for('dailyPlanAutosave', { 'draft_id': draft_id } )}}",
+                    type: "POST",
+                    data:
+                    {
+                        field: field,
+                        data: stringData,
+                        {{ csrf.keys.name }}: "{{ csrf.name }}",
+                        {{ csrf.keys.value }}: "{{ csrf.value }}"
+                    },
+                    success: function(res){
+                        $("#autosave-text").text("Saved");
+                        if(field == 'block_added'){
+                            addBlockContainer(res["block_id"]);
+                            blockEvents();
+                        }
+                    },
+                    error: function(err){
+                        console.log(err);
+                    }
+                });
+            }
+
+            var timeoutId;
+            function resetTimeout(field, data){
+                if (timeoutId)
+                    clearTimeout(timeoutId);
+                $("#autosave-text").text("Saving...");    
+                timeoutId = setTimeout(function () {
+                    autosave(field, data);
+                    timeoutId = null;
+                }, 2000);
+            }
+
+            function blockEvents(){
+                $("[name='time-block[]']").onkeyup = null;
+                $("[name='time-block[]']").onfocusout = null;
+                $("[name='description[]']").onkeyup = null;
+                $("[name='description[]']").onfocusout = null;
+
+                $("[name='time-block[]']").keyup(function () {
+                    data = {};
+                    data.block_id = this.getAttribute("data-block-id");
+                    data.value = this.value;
+                    resetTimeout("time_block", data);
+                });
+
+                $("[name='time-block[]']").focusout(function() {
+                    if(timeoutId){
+                        clearTimeout(timeoutId);
+                        timeoutId = null;
+                        data = {};
+                        data.block_id = this.getAttribute("data-block-id");
+                        data.value = this.value;
+                        autosave("time_block", data);
+                    }
+                });
+
+                $("[name='description[]']").keyup(function () {
+                    data = {};
+                    data.block_id = this.getAttribute("data-block-id");
+                    data.value = this.value;
+                    resetTimeout("block_description", data);
+                });
+
+                $("[name='description[]']").focusout(function () {
+                    if(timeoutId){
+                        clearTimeout(timeoutId);
+                        timeoutId = null;
+                        data = {};
+                        data.block_id = this.getAttribute("data-block-id");
+                        data.value = this.value;
+                        autosave("block_description", data);
+                    }
+                });
+            }
+
+            blockEvents();
+
+            $("input[name='dailyPlan_type']").click(function() {
+                data = {};
+                data.value = this.value;
+                autosave("dailyPlan_type", data);
+            });
+
+            $("[name='dailyPlan_name']").keyup(function () {
+                data = {};
+                data.value = this.value;
+                resetTimeout("dailyPlan_name", data);
+            });
+
+            $("[name='dailyPlan_name']").focusout(function () {
+                if(timeoutId){
+                    clearTimeout(timeoutId);
+                    timeoutId = null;
+                    data = {};
+                    data.value = this.value;
+                    autosave("dailyPlan_name", data);
+                }
+            });
+
+            $("[name='record_date']").change(function () {
+                data = {};
+                data.value = this.value;
+                autosave("record_date", data);
+            });
+
+            $("[name='child[]']").change(function () {
+                data = {};
+                data.assoc_id = this.value;
+                data.type = 'child';
+                data.is_checked = $(this).is(":checked");
+                autosave("assoc", data);
+            });
+
+            $("[name='room[]']").change(function () {
+                data = {};
+                data.assoc_id = this.value;
+                data.type = 'room';
+                data.is_checked = $(this).is(":checked");
+                autosave("assoc", data);
+            });
+
+            $("[name='goals[]']").change(function () {
+                data = {};
+                data.goal_id = this.value;
+                data.is_checked = $(this).is(":checked");
+                autosave("goal", data);
+            });
+
+            mediaWidget.onUploadComplete(function (file) {
+                data = {};
+                data.value = file.cdnUrl;
+                autosave("img_url", data);
+            });
+
+            var videosWidget = uploadcare.MultipleWidget('#videos');
+            videosWidget.onUploadComplete(function (group) {
+                data = {};
+                data.value = group.cdnUrl;
+                autosave("videos", data);
+            });
+
+
+        {% endif %}
+
+        //Autocompletion.load_all({{ user_id }})
+    </script>
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endblock %}

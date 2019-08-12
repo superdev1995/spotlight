@@ -1,0 +1,124 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% embed 'childDetailsHeader.html' %}{% endembed %}
+
+<script src="/javascripts/pdfdownload.js"></script> 
+
+<div class="card mb-4 noprint">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-6">
+                <form id="checklist-form">
+                    <select class="form-control" name="checklist" onchange="this.form.submit()">
+                        <option disabled>Available checklists for {{ child.child_name }}</option>
+                        {% for checklist in checklists %}
+                            <option value="{{ checklist.checklist_id }}" {% if current_checklist_id == checklist.checklist_id %}selected{% endif %}>{{ checklist.checklist_name }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            <div class="col-6 ml-auto text-right">
+                <div class="btn-group dropdown">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Options
+                        <i class="fa fa-caret-down mr-1"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                        <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if observations %}
+    {% for name, milestones in categories %}
+        {% if milestones %}
+            <div class="card mb-4">
+                <div class="card-header success">
+                    {{ name }}
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="w-50">Milestone</th>
+                                {% for user in users %}
+                                    <th class="text-center"><img class="rounded-circle" width="30" height="30" src="{{ user.user_avatar_url|default(user.user_email|gravatar) }}" data-toggle="tooltip" data-placement="top" title="Observation by {{ user.user_first_name }} {{ user.user_last_name }} at {{ user.checklist_created_at }}" alt="Teacher image"></th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for milestone in milestones %}
+                                <tr>
+                                    <td>
+                                        {{ milestone.milestone_description }}
+                                    </td>
+                                    {% for observation in observations %}
+                                        <td class="text-center">
+                                            {% if observation[milestone.milestone_id].id %}
+                                                {% if observation[milestone.milestone_id].observation %}
+                                                    <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                                                {% else %}
+                                                    <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% if user.user_type == 'T' %}
+        <div class="card mb-4 noprint">
+            <div class="card-header danger">
+                Developmental Red Flags
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="w-50">Milestone</th>
+                            {% for user in users %}
+                                <th class="text-center"><img class="rounded-circle" width="30" height="30" src="{{ user.user_avatar_url|default(user.user_email|gravatar) }}" data-toggle="tooltip" data-placement="top" title="Observation by {{ user.user_first_name }} {{ user.user_last_name }} at {{ user.checklist_created_at }}" alt="Teacher image"></th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for red_flag in red_flags %}
+                            <tr>
+                                <td>
+                                    {{ red_flag.red_flag_description }}
+                                </td>
+                                {% for observation in observations %}
+                                    <td class="text-center">
+                                        {% if observation[red_flag.red_flag_id].id %}
+                                            {% if observation[red_flag.red_flag_id].observation %}
+                                                <i class="fa fa-flag text-danger" aria-hidden="true"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="col-lg-8 offset-lg-2">
+        <div class="text-center mb-5">
+            <img width="200" height="201" src="/images/ken.svg" alt="Background image">
+        </div>
+        <p class="lead">No checklists have been added for {{ child.child_name }}, yet.</p>
+        <p class="lead">Let’s get started by creating the first checklist by using the <em>Create</em> button above! Documenting and sharing with parents online is easy and fun.</p>
+    </div>
+{% endif %}
+{% endblock %}

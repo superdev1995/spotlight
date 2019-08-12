@@ -1,0 +1,30 @@
+.bcPicker-picker{
+  width: 100%;
+  height: 100%;
+  position:  relative;
+  cursor: pointer;
+  border-radius: 25px;
+  border: 1px solid rgb(0, 0, 0);
+}
+
+.bcPicker-palette{
+  width: 170px;
+  position: absolute;
+  top: 16px;
+  padding: 5px;
+  border: 1px solid #efefef;
+  background-color: #fdfdfd;
+  z-index: 10;
+  display: none;
+  border-radius: 25px;
+
+}
+
+.bcPicker-palette > .bcPicker-color{
+  border-radius:25px;
+  width: 20px;
+  height: 20px;
+  margin: 2px;
+  display: inline-block;
+  border: 1px solid #efefef;
+}

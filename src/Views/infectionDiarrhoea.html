@@ -1,0 +1,109 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-0">{{ title }}</h4>
+<h6 class="mb-4 text-muted">Section: {{ question.category_name }}</h6>
+<div class="row bs-wizard mb-4">
+    {% for category in categories %}
+        {% if category.category_id == question.category_id %}
+            <div class="col-2 bs-wizard-step active">
+        {% else %}
+            <div class="col-2 bs-wizard-step disabled">
+        {% endif %}
+                <div class="text-center bs-wizard-stepnum small">{{ category.category_sort }}</div>
+                <div class="progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <a class="bs-wizard-dot"></a>
+                <div class="bs-wizard-info text-center small">{{ category.category_name }}</div>
+            </div>
+    {% endfor %}
+</div>
+<div class="progress mb-4">
+    <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><strong>{{ progress }}%</strong></div>
+</div>
+<form action="{{ path_for('complianceCreate', { question_id: question.question_id }) }}" method="post">
+    <div class="card">
+        <div class="card-header success">
+            Question {{ question.question_sort }} of {{ category_count }}
+        </div>
+        <div class="card-block">
+            <p class="lead">{{ question.question_body | raw }}</p>
+            {% if question.question_description %}
+                <p>{{ question.question_description | raw }}</p>
+            {% endif %}
+            {% if question.question_multiple_choice %}
+                <p>This is a multiple choice question, which means that you can select several answers that apply. At least one answer must be selected.</p>
+            {% endif %}
+            {% if answers %}
+                <ul class="list-unstyled">
+                    {% for answer in answers %}
+                        <li>
+                            {% if question.question_multiple_choice %}
+                                <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="answers[]" value="{{ answer.question_answer_id }}" {% if answer.created_at %}checked{% endif %}>
+                            {% else %}
+                                <label class="custom-control custom-radio">
+                                    <input type="radio" class="custom-control-input" name="answers[]" value="{{ answer.question_answer_id }}" {% if answer.created_at %}checked{% endif %} required>
+                            {% endif %}
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">{{ answer.answer_body }} {% if answer.answer_description %}<a data-toggle="tooltip" data-placement="top" title="{{ answer.answer_description }}"><i class="fa fa-question-circle" aria-hidden="true"></i></a>{% endif %}</span>
+                            </label>
+                            {% if question.question_upload %}
+                                {% if question.question_multiple_choice %}
+                                    <p>Upload a file to support your answer here (optional): <input type="hidden" role="uploadcare-uploader" name="uploads[]" data-crop="disabled" data-images-only="false"></p>
+                                {% endif %}
+                            {% endif %}
+                            {% if answer.file_url %}
+                                <p><a href="{{ answer.file_url }}" target="_blank"><i class="fa fa-paperclip" aria-hidden="true"></i> &nbsp; Existing attached file</a></p>
+                            {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% if question.question_upload %}
+                    {% if question.question_multiple_choice == 0 %}
+                        <input type="hidden" role="uploadcare-uploader" name="uploads[]" data-crop="disabled" data-images-only="false">
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-6">
+            <button class="btn btn-primary" type="submit" role="button">{% if question.question_id == last_question.question_id %}Recommendations{% else %}Save and Proceed{% endif %} &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="col-6 text-right">
+            {% if question.question_id != last_question.question_id %}
+                <a class="btn btn-outline-primary" role="button" href="{{ path_for('complianceSummary') }}">View Recommendations</a>
+            {% endif %}
+            <button class="btn btn-outline-danger" type="button" role="button" data-toggle="modal" data-target="#resetModal">Reset</a>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+    
+<form action="{{ path_for('complianceReset') }}" method="post">
+    <div class="modal fade" id="resetModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reset Self-Audit Survey</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Resetting this self-audit survey will delete all your saved answers. This cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Confirm Reset</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endblock %}

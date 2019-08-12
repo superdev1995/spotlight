@@ -1,0 +1,26 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ resource.resource_name }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <dl class="row">
+            <dt class="col-12 col-lg-3">Description</dt>
+            <dd class="col-12 col-lg-9">{{ resource.resource_description }}</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-12 col-lg-3">Recommended Age</dt>
+            <dd class="col-12 col-lg-9">{{ resource.resource_min_age }} to {{ resource.resource_max_age }}</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-12 col-lg-3">Uploaded</dt>
+            <dd class="col-12 col-lg-9">{{ resource.resource_created_at }} by {{ resource.user_first_name }} {{ resource.user_last_name }}</dd>
+        </dl>
+    </div>
+</div>
+{% if subscription_status and school.stripe_id %}
+    <a class="btn btn-primary" href="{{ path_for('resourceDownload', { resource_id: resource.resource_id }) }}" role="button">Download Resource</a>
+{% else %}
+    <button class="btn btn-primary disabled" role="button" data-toggle="tooltip" data-placement="top" title="Downloads are for paying customers only. You can upgrade by going to the billing section.">Download Resource</button>
+{% endif %}
+{% endblock %}

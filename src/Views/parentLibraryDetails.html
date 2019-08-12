@@ -1,0 +1,25 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ library.library_name }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <dl class="row">
+            <dt class="col-12 col-lg-3">Name</dt>
+            <dd class="col-12 col-lg-9">{{ library.library_name }}</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-12 col-lg-3">Description</dt>
+            <dd class="col-12 col-lg-9">{{ library.library_description }}</dd>
+        </dl>
+    </div>
+</div>
+{% if subscription_status and school.stripe_id %}
+<a class="btn btn-primary" href="{{ path_for('parentLibraryDownload', { library_id: library.library_id }) }}" role="button">Download File</a>
+{% else %}
+<button class="btn btn-primary disabled" role="button" data-toggle="tooltip" data-placement="top" title="Downloads are for paying customers only. You can upgrade by going to the billing section.">Download File</button>
+{% endif %}
+{% if user.user_type == "T" and school_user.role == 1 %}
+<a class="btn btn-primary" href="{{ path_for('parentLibraryShare', { library_id: library.library_id }) }}" role="button">Share File</a>
+{% endif %}
+{% endblock %}

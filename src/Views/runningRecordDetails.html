@@ -1,0 +1,187 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<link rel="stylesheet" href="/stylesheets/lightbox.min.css" media="screen">
+<script src="/javascripts/lightbox.min.js"></script>
+<script src="/javascripts/pdfdownload.js"></script> 
+
+<div class="row">
+    <div class="col-6">
+        <h4 class="mb-0">{{ title }}</h4>
+        <h6 class="mb-5 text-muted">{{ runningRecord.running_record_created_at }}</h6>
+    </div>
+    {% if user.user_type == 'T' %}
+    <div class="col-12 col-lg-6 mb-2 text-right">
+        <div class="btn-group dropleft">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-caret-left mr-2"></i>
+                Options
+            </button>
+            <div class="dropdown-menu">
+                <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+            </div>
+        </div>
+        <a class="btn btn-outline-primary" href="{{ path_for('runningRecords') }}" role="button">Back to
+            Records</a>
+        <a class="btn btn-primary" href="{{path_for('runningRecordEdit',{record_id:runningRecord.running_record_id})}}">Edit</a>
+    </div>
+    {%endif%}
+</div>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="media">
+                    <img class="rounded-circle d-flex mr-3" width="50" height="50"
+                         src="{{ runningRecord.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+                    <div class="media-body">
+                        Child(ren)
+                        <h5><a href="{{ path_for('childDetails', { child_id: runningRecord.child_id }) }}">{{
+                            runningRecord.child_name }}</a></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="media">
+                    <img class="rounded-circle d-flex mr-3" width="50" height="50"
+                         src="{{ runningRecord.user_avatar_url|default(runningRecord.user_email|gravatar) }}" alt="Teacher image">
+                    <div class="media-body">
+                        Teacher
+                        <h5>{{ runningRecord.user_first_name }} {{ runningRecord.user_last_name }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        Running Record
+    </div>
+    <div class="card-block">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td>Observer</td>
+                        <td>{{ runningRecord.observer }}</td>
+                    </tr>
+                    <tr>
+                        <td>Course</td>
+                        <td>{{ runningRecord.course }}</td>
+                    </tr>
+                    <tr>
+                        <td>Date</td>
+                        <td>{{ runningRecord.record_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Start time</td>
+                        <td>{{ runningRecord.start }}</td>
+                    </tr>
+                    <tr>
+                        <td>End time</td>
+                        <td>{{ runningRecord.end }}</td>
+                    </tr>
+                    <tr>
+                        <td>Age group</td>
+                        <td>{{ runningRecord.age }}</td>
+                    </tr>
+                    <tr>
+                        <td>Context/setting</td>
+                        <td>{{ runningRecord.context }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Purpose
+                            <small class="form-text text-muted">
+                                What is the aim of this running record? Are you trying to document a
+                                specific developmental area?
+                            </small>
+                        </td>
+                        <td>{{ runningRecord.purpose }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Observation
+                            <small class="form-text text-muted">
+                                Record the child’s actions and language verbatim
+                            </small>
+                        </td>
+                        <td>{{ runningRecord.observation }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Interpretation
+                            <small class="form-text text-muted">Identify and explain each developmental area
+                                observed and connect it to developmental theorists, your early childhood
+                                curriculum and/or framework
+                            </small>
+                        </td>
+                        <td>{{ runningRecord.interpretation }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Extension
+                            <small class="form-text text-muted">How can the child’s learning be enhanced or
+                                further developed? What resources and materials are needed now and/or in the
+                                future?
+                            </small>
+                        </td>
+                        <td>{{ runningRecord.extension }}</td>
+                    </tr>
+                    <tr>
+                        <td>Teacher or Student Comments</td>
+                        <td>{{ runningRecord.teacher_comments }}</td>
+                    </tr>
+                    <tr>
+                        <td>Manager or Tutor Comments</td>
+                        <td>{{ runningRecord.manager_comments }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% if medias %}
+        <div class="card-columns mt-4">
+            {% for media in medias %}
+            <div class="card">
+                <a href="{{ media.media_full_url }}" data-lightbox="{{ runningRecord.running_record_id }}"><img
+                        class="card-img img-fluid" src="{{ media.media_thumbnail_url }}" alt="image"></a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+{% if school_user.role == 1 or user.user_id == runningRecord.user_id %}
+<div class="mt-4 noprint">
+    <a class="small text-danger" role="button" data-toggle="modal" data-target="#deleteModal">Delete</a>
+    <form method="post"
+          action="{{ path_for('runningRecordDelete', { record_id: runningRecord.running_record_id }) }}">
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Running Record</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Deleting a Running Record will also delete all associated media uploads</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+</div>
+{% endif %}
+{% endblock %}

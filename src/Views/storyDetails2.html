@@ -1,0 +1,374 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+  <link href="/stylesheets/lightbox.min.css" media="screen" rel="stylesheet">
+  <script src="/javascripts/lightbox.min.js"></script>
+  <script src="/javascripts/pdfdownload.js"></script>
+
+  <div class="storyDetailsDesign" id="canvas">
+    <div class="row">
+
+      <div class="col-12 col-sm-4">
+        <h4 class="mb-0">{{ title }}</h4>
+        <h6 class="mb-3 text-muted">{{ story.story_created_at }}</h6>
+      </div>
+
+      {% if story.child_status == 'A' %}
+        <div class="col-12 col-sm-7 mb-2 ml-auto text-right no-print">
+          <div class="btn-group dropdown">
+            <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" type="button">
+              Options
+              <i class="fa fa-caret-down mr-1"></i>
+            </button>
+            <div class="dropdown-menu">
+              <button class="dropdown-item" id="print_btn" role="button">Print</button>
+              <button class="dropdown-item" id="download_btn" role="button">Download</button>
+            </div>
+          </div>
+          {% if story.user_id == user.user_id %}
+            <a class="btn btn-outline-primary" role="button" href="{{ path_for('storyEdit', { story_id: story.story_id_num }) }}">Edit</a>
+          {% endif %}
+          <a class="btn btn-primary" role="button" href="{{ path_for('storyCreate') }}?child_id={{ story.child_id }}">Create
+            				Story</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-block">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="media">
+              <img class="rounded-circle d-flex mr-3" width="50" height="50" src="{{ story.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+              <div class="media-body">
+                Child
+                <h5>
+                  <a href="{{ path_for('childDetails', { child_id: story.child_id }) }}">{{ story_children_name }}</a>
+                </h5>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <p class="storyDetailsDesign_Title">Learning story
+              {{ story.story_name }}</p>
+          </div>
+          <div class="col-md-3">
+            <div class="media storyDetDesign_TeacherRight">
+              <div class="">
+                Teacher
+                <h5>{{ ststoryDetails2ory.user_first_name }}
+                  {{ story.user_last_name }}</h5>
+              </div>
+              <img class="rounded-circle d-flex mr-3" width="50" height="50" src="{{ story.user_avatar_url|default(story.user_email|gravatar) }}" alt="Teacher image">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="card mb-4">
+      <div class="card-header">
+        Questions
+      </div>
+      <table class="table table-bordered">
+        <tbody>
+          <tr>
+            <td>
+              What am I doing?
+              <small class="form-text text-muted">A short description of how I learn and develop.</small>
+            </td>
+            <td>
+              {{ story.story_action_1 }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              What does this experience tell you about me?
+              <small class="form-text text-muted">Think about my interests, dispositions, values and attitudes, skills,
+                							knowledge and my understanding. Link to Aistear themes, aims and learning goals.</small>
+            </td>
+            <td>
+              {{ story.story_action_2 }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              What will we do next to support my learning?
+              <small class="form-text text-muted">A short description of how I learn and develop.</small>
+            </td>
+            <td>
+              {{ story.story_action_3 }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              When will you do this?
+              <small class="form-text text-muted"></small>
+            </td>
+            <td>
+              {{ story.story_action_6 }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="card-block">
+        {% if medias %}
+          <div class="card-columns mt-4">
+            {% for media in medias %}
+              <div class="card">
+                <a href="{{ media.media_full_url }}" data-lightbox="{{ story.story_id }}"><img class="card-img img-fluid" src="{{ media.media_thumbnail_url }}" alt="image"></a>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+
+    <div class="card mb-4">
+      <div class="card-header success">
+        Learning Goals
+      </div>
+      <div class="card-block storyDetDesign_Goals">
+        {% if goals %}
+          {% for framework, groups in frameworks %}
+            <h4>{{ framework }}</h4>
+            {% for group, categories in groups %}
+              <h5>{{ group }}</h5>
+              {% for category, items in categories %}
+
+                <h6>{{ category }}</h6>
+                <ul>
+                  {% for goal in items.goals if goal.category_name == category and goal.category_group == group %}
+                    <li>{{ goal.goal_description }}</li>
+                  {% endfor %}
+                </ul>
+
+                {% for text in items.texts if text.category_name == category and text.category_group == group %}
+                  <div class="row mb-4">
+                    <div class="col-4">
+                      {{ text.text_title }}
+                    </div>
+                    <div class="col-8">
+                      <p class="line-break">{{ text.contents }}</p>
+                    </div>
+                  </div>
+                {% endfor %}
+
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+        {% else %}
+          No goals associated with this story.
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header success">
+        Emerging Interests
+      </div>
+      <table class="table table-bordered">
+        <tbody>
+          <tr>
+            <td>
+              Keyword 1
+            </td>
+            <td>
+              {{ story.keyword_1 }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Keyword 2
+            </td>
+            <td>
+              {{ story.keyword_2 }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Keyword 3
+            </td>
+            <td>
+              {{ story.keyword_3 }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Keyword 4
+            </td>
+            <td>
+              {{ story.keyword_4  }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Keyword 5
+            </td>
+            <td>
+              {{ story.keyword_5 }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    {% if user.user_type == 'T' %}
+      <div class="card storyDetailsDesign_Reflection">
+        <div class="card-header danger">
+          Reflection on Action (Invisible to Parents)
+        </div>
+        <table class="table table-bordered">
+          <tbody>
+            <tr>
+              <td>Why did you carry out your role in this way?</td>
+              <td>{{ story.story_reflection_1 | default('N/A') }}</td>
+            </tr>
+            <tr>
+              <td>What were the benefits of carrying out the interaction or activity in this way?</td>
+              <td>{{ story.story_reflection_2 | default('N/A') }}</td>
+            </tr>
+            <tr>
+              <td>Could anything have been done differently to enhance learning experiences and interactions?</td>
+              <td>{{ story.story_reflection_3 | default('N/A') }}</td>
+            </tr>
+            <tr>
+              <td>Were there any challenges?</td>
+              <td>{{ story.story_reflection_4 | default('N/A') }}</td>
+            </tr>
+            <tr>
+              <td>What support do you need or who could help you?</td>
+              <td>{{ story.story_reflection_5 | default('N/A') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+ 
+	{% if story_children_status %}
+	<div class="storyMultiCreate">
+		<div>
+			<div class="storyMultiCreate_header">
+				<h4>Children</h4>
+			</div>
+			<div class="storyMultiCreate_body">
+				<div class="">
+					<div class="storyMultiCreate_room">
+						<label class="custom-control custom-checkbox">
+							<span class="custom-control-description">{{ room.room_name }}</span>
+						</label>
+						<p class="storyMultiCreate_roomdesc">{{ room.room_description }}</p>
+					</div>
+					<div class="storyMultiCreate_children">
+						{% for child in story_children %}
+							<div class="storyMultiCreate_childrenone childrenSelect">
+                <span class="custom-control-description">
+                  <img class="rounded-circle mr-2" width="60" height="60" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+                  <strong>{{ child.child_name }}</strong>
+                </span>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
+  {% if school_user.role == 1 or user.user_id == story.user_id %}
+    <div class="mt-4 noprint">
+      <a class="small btn btn-primary storyDetailsDesign_Delete" data-target="#deleteModal" data-toggle="modal" role="button">Delete</a>
+      <form method="post" action="{{ path_for('storyDelete', { story_id: story.story_id }) }}">
+        <div aria-hidden="true" class="modal fade" id="deleteModal" role="dialog" tabindex="-1">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Delete Story</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Deleting a story will also delete all associated media uploads and goals.</p>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-danger" id="deleteButton" type="submit">Delete</button>
+                <button class="btn btn-secondary" data-dismiss="modal" type="button">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+      </form>
+    </div>
+	{% endif %}
+	
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
+  <script src="/javascripts/html2canvas.js" type="text/javascript"></script>
+  <script>
+    $('body').css('background-color', '#fff');
+
+    var a4 = [595.28, 841.89];
+    var canvas_cpy;
+
+    $("#print_btn").on('click', function () {
+      createPDF('print');
+    });
+
+    $("#download_btn").on('click', function () {
+      createPDF('download');
+    });
+
+    function createPDF(mode) {
+      window.scroll(0, 0); // to prevent a bug to happen
+      canvas_cpy = $("#canvas").clone();
+      canvas_cpy.appendTo("body");
+
+      var top_left_margin = 15;
+      canvas_cpy.width((a4[0] * 1.33333) - 80).css('max-width', 'none');
+
+      canvas_cpy.attr('id', 'canvas_cpy');
+      $("#canvas_cpy .no-print").remove();
+
+      canvas_cpy_js = document.querySelector("#canvas_cpy");
+
+      var HTML_Width = canvas_cpy.width();
+      var HTML_Height = canvas_cpy.height();
+      var canvas_image_width = a4[0] - 2 * top_left_margin;
+      var ratio = canvas_image_width / HTML_Width;
+      var canvas_image_height = HTML_Height * ratio;
+
+      var totalPDFPages = Math.ceil(canvas_image_height / (a4[1] - 2 * top_left_margin)) - 1;
+
+      html2canvas(canvas_cpy_js, {
+        imageTimeout: 2000,
+        removeContainer: true,
+        allowTaint: false,
+        useCORS: true
+      }).then(function (canvas) {
+        var imgData = canvas.toDataURL("image/png", 1.0);
+
+        var pdf = new jsPDF('p', 'pt', 'a4');
+        pdf.addImage(imgData, 'PNG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+
+        for (var i = 1; i <= totalPDFPages; i++) {
+          pdf.addPage(a4[0], a4[1]);
+          pdf.addImage(imgData, 'PNG', top_left_margin, -(a4[1] * i) + top_left_margin, canvas_image_width, canvas_image_height);
+        }
+
+        canvas_cpy.remove();
+        if (mode == 'print') {
+          pdf.autoPrint();
+          window.open(pdf.output('bloburl'), '_blank');
+        } else if (mode == 'download') {
+          pdf.save("LearningStory.pdf");
+        }
+      });
+    }
+  </script>
+{% endblock %}

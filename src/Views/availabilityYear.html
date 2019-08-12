@@ -1,0 +1,66 @@
+{% block body %}  
+<link rel="stylesheet" href="./../public/stylesheets/custom.css" media="all">
+<link rel="stylesheet" href="./../public/stylesheets/invoice.css">
+
+<img src="./../public/images/teachkloud.png"><br><br>
+<h1 style="position: absolute;left: 10%; color: #526971">Year Absences</h1> <h1 style="position: absolute;right: 10%; color :#526971">School: {{school_Name}}</h1>
+</h1><br/><br/><br/><br/>
+<div id="page-wrap">
+		<table width="100%">
+                    <thead>
+                        <tr style="background-color:#000 ; color:#ffffff;">
+                            <th style="text-align:center;" scope="col">Teacher</th>
+                            <th style="text-align:center;" scope="col">School</th>
+                            <th style="text-align:center;" scope="col">Start Day</th>
+                            <th style="text-align:center;" scope="col">Start hour</th>
+                            <th style="text-align:center;" scope="col">End Day</th>
+                            <th style="text-align:center;" scope="col">End Hour</th>
+                            <th style="text-align:center;" scope="col">Reason</th>
+                            <th style="text-align:center;" scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%set i=1 %}
+                        {% for teachReasons_id,teachReasons in teacherReasons %}  
+                          {%if teachReasons.status == "Approved" %}
+                        <tr style="background-color:#119ce1; color:#ffffff;">
+                            
+                                <td style="text-align:center;"><strong>{{teachReasons.teacherName}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.schoolName }}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.start}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.start_hour}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.end}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.end_hour}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.title }}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.status }}</strong></td>
+                        
+                           {% elseif teachReasons.status == "Denied" %}
+                           <tr  style="background-color:#f70000; color:#000000;"> 
+                                <td style="text-align:center;"><strong>{{teachReasons.teacherName}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.schoolName }}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.start}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.start_hour}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.end}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.end_hour}}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.title }}</strong></td>
+                                <td style="text-align:center;"><strong>{{ teachReasons.status }}</strong></td>
+                            
+                            {% else %}
+                            <tr> 
+                                    <td style="text-align:center;"><strong>{{teachReasons.teacherName}}</strong></td>
+                                    <td style="text-align:center;"><strong>{{ teachReasons.schoolName }}</strong></td>
+                                    <td style="text-align:center;"><strong>{{ teachReasons.start}}</strong></td>
+                                    <td style="text-align:center;"><strong>{{ teachReasons.start_hour}}</strong></td>
+                                    <td style="text-align:center;"><strong>{{ teachReasons.end}}</strong></td>
+                                    <td style="text-align:center;"><strong>{{ teachReasons.end_hour}}</strong></td>
+                                    <td style="text-align:center;"><strong>{{ teachReasons.title }}</strong></td>
+                                    <td style="text-align:center;"><strong>{{ teachReasons.status }}</strong></td>              
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                 </tbody>
+            </table>
+        </div>
+   </div>
+   </div>
+{% endblock %}

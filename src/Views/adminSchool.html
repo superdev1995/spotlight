@@ -1,0 +1,31 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>School Name</th>
+                <th>Children</th>
+                <th>Teachers</th>
+                <th>Country</th>
+                <th>Next Billing Date</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for school in schools %}
+                <tr>
+                    <td><strong><a href="{{ path_for('adminSchoolDetails', { school_id: school.school_id }) }}">{{ school.school_name }}</a></strong> {% if school.status %}<span class="badge badge-success">{{ school.status }}</span>{% endif %}</td>
+                    <td>{{ school.children | length }}</td>
+                    <td>{{ school.users | length }}</td>
+                    <td>{{ school.country_id }}</td>
+                    <td>{{ school.school_billing_date }}</td>
+                    <td>{{ school.created_at }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

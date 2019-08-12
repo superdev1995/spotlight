@@ -1,0 +1,37 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        {% if user.user_type == 'T' %}
+            <a class="btn btn-primary noprint" style="float:right;" role="button" href="{{ path_for('storyCreate') }}">Create Story</a> 
+        {% endif %}
+        <div class="row {% if user.user_type == 'T' %} mt-5 {% endif %}">
+            {% if stories %}
+                <ul class="list-group mb-4">
+                    {% for story in stories %}
+                        <li class="list-group-item nowrap">
+                            <div class="media">
+                                <img class="rounded-circle d-flex mr-3" width="45" height="45" src="{{ story.user_avatar_url|default(story.user_email|gravatar) }}" alt="Teacher image">
+                                <div class="media-body">
+                                    <strong><a href="{{ path_for('storyDetails', { story_id: story.story_id }) }}">{{ story.user_first_name }} {{ story.user_last_name }}</a></strong> at {{ story.updated_at }}<br>
+                                    <p class="text-muted">{{ story.story_action_1[0:112] }}</p>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="text-center mb-5">
+                        <img width="200" height="201" src="/images/ken.svg" alt="Backgroud image">
+                    </div>
+                    <p class="lead">No stories have been added yet.</p>
+                    <p class="lead">Let’s get started by creating the first story by using the <em>Create</em> button above! Documenting and sharing with parents online is easy and fun.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

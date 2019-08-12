@@ -1,0 +1,35 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+{% if user.user_type == 'T' %}
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-5 col-lg-3 ml-auto">
+                <a class="btn btn-primary" href="{{ path_for('runningRecordAdd') }}">Add Running Record</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<ul class="list-group mb-4">
+    {% for record in records %}
+    <li class="list-group-item nowrap" style="padding: 0.25rem 1.25rem;">
+        <div class="media">
+            <img class="rounded-circle d-flex mr-3" width="30" height="30" style="margin-top:3px;"
+                 src="{{ record.user_avatar_url|default(record.user_email|gravatar) }}" alt="Teacher image">
+            <div class="media-body">
+                <strong><a href="{{path_for('runningRecordShow',{record_id:record.running_record_id})}}">{{
+                    record.user_first_name }} {{ record.user_last_name }}</a></strong> 
+                    <span style="font-size: 12px;"> at {{record.running_record_created_at }}</span>
+                    <br>
+                <div class="text-muted small">Child: {{ record.child_name }}</div>
+            </div>
+        </div>
+    </li>
+    {%else%}
+    No Running Records to display. <a href="{{path_for('runningRecordAdd')}}">Add one</a>
+    {% endfor %}
+</ul>
+{% endblock %}

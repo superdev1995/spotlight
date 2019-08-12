@@ -1,0 +1,28 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ library.library_name }}</h4>
+<form id="libraryForm" action="{{ path_for('parentLibrary') }}" method="POST">
+	<div class="list-group">
+		{% for room in rooms %}
+			<div class="list-group-item ">
+				<div>
+					<h5 class="mb-0">{{ room.room_name }}</h5>
+				</div>
+				<div class=" col-2 col-sm-1 ml-auto mr-sm-1">
+					<input type="checkbox" class="libraryFormCheckbox" name="{{room.room_id}}" style="vertical-align: middle" {% if room.room_id in sharedArr%}checked{% endif %}/>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+	<input type="text" class="libraryFormCheckbox" name="libID" style="display: none;" value="{{library.library_id}}"/>
+	<button class="btn btn-primary mt-3" type="submit">Share Selected</button>
+	<div class="btn btn-primary mt-3" id="shareAllButton" title="Share with all parents">Share all</div>
+</form>
+<script>
+	$("#shareAllButton").click(function(){
+		$(".libraryFormCheckbox").attr("checked","true");
+		$("#libraryForm").submit();
+	});
+</script>
+{% endblock %}

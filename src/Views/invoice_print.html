@@ -1,0 +1,215 @@
+{% block body %}
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous" media="print">
+<link rel="stylesheet" href="./../public/stylesheets/invoice.css">
+
+	{# File to optimize#}
+
+	<div id="page-wrap">
+		<table width="100%">
+			<tbody>
+				<tr>
+					<td width="50%">
+
+						{% if school.school_avatar_url is not null %}
+						<img src="{{ school.school_avatar_url }}" height="100" width="100" style="float:left; margin-top: 17px; margin-right: 10px" alt="School image">
+						{% endif %}
+                         <h3>{{ school.school_name }}</h3>
+                            {{ school.school_street }}</br>
+                            {{ school.school_city }}, {{ school.school_postal_code }}</br>
+						    {{ school.school_phone }}</br>
+                            Ireland</br>
+
+					</td>
+
+					<td width="70%">
+						<h1 class="title">{{ title }} </h1><br />
+                        <h4 class="date-title">{{ "now"|date("Y/m/d") }}</h4>
+					</td>
+				</tr>
+
+			</tbody>
+		</table>
+        <br />
+        <table style="margin-left: 270px">
+            <tr>
+                 <td width="55%">
+                    <strong>For Period :</strong> {{ date_from }} to {{ date_to }}<br>
+                    <strong>Invoice Number :</strong> {{ invoiceno }}<br>
+                 </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="center-justified">
+                        <strong>For child :</strong> {{ child.child_name }}
+                        <strong>Invoice Amount :</strong> {{ data.currency ~ "" ~ data.total }}
+                    </div>
+                </td>
+            </tr>
+        </table>
+		<p>&nbsp;</p><p>&nbsp;</p>
+		<table width="100%" class="outline-table">
+			<tbody>
+				<tr class="border-bottom border-right grey">
+					<td colspan="3"><strong>INVOICE DETAILS {{ school.school_name }}</strong></td>
+				</tr>
+				<tr class="border-bottom border-right center">
+					<td width="50%" class="left"><strong>Description</strong></td>
+					<td width="30%"><strong>Calculation</strong></td>
+					<td width="20%"><strong>Value</strong></td>
+				</tr>
+				<tr class="border-right">
+					<td class="pad-left">Hours X Rate per hour</td>
+					<td class="center">{{ data.currency }}{{ data.fee }} x {{ data.hours }} Hours </td>
+					<td class="right-center">{{ data.currency }}{{ data.fee * data.hours}}</td>
+
+				</tr>
+				{% if data.ecce_value != "" and data.ecce_value != '0.00' %}
+                <tr class="border-right">
+					<td class="pad-left">ECCE Scheme </td>
+					<td class="center"> €12.90 x {{ data.open_days }} Work days</td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.ecce_value }}</td>
+				</tr>
+				{% endif %}
+				{% if data.ccsu_value != "" and data.ccsu_value != '0.00' %}
+                <tr class="border-right">
+					<td class="pad-left">CCSU Scheme
+						{% if data.ccsu_type == "FD" %}{{ data.ccsu_type|replace({'FD': "Full time"}) }} {% endif%}
+						{% if data.ccsu_type == "PT" %}{{ data.ccsu_type|replace({'PT': "Part time"}) }} {% endif%}
+						{% if data.ccsu_type == "SE" %}{{ data.ccsu_type|replace({'SE': "Sessional"}) }} {% endif%}
+						{% if data.ccsu_type == "HS" %} {{ data.ccsu_type|replace({'HS': "Half Session"}) }} {% endif%}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.ccsu_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.ccsr_value != "" and data.ccsr_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">CCSR Scheme
+						{% if data.ccsr_type == "PT" %}{{ data.ccsr_type|replace({'PT': "Part time"}) }} {% endif%}
+						{% if data.ccsr_type == "SE" %}{{ data.ccsr_type|replace({'SE': "Sessional"}) }} {% endif%}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.ccsr_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.ccsrt_value != "" and data.ccsrt_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">CCSR(T) Scheme
+						{% if data.ccsrt_type == "PT" %}{{ data.ccsrt_type|replace({'PT': "Part time"}) }} {% endif%}
+						{% if data.ccsrt_type == "SE" %}{{ data.ccsrt_type|replace({'SE': "Sessional"}) }} {% endif%}
+
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.ccsrt_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.cets_value != "" and data.cets_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">CETS Scheme
+						{% if data.cets_type == "FT" %}{{ data.cets_type|replace({'FT': "Full time"}) }} {% endif%}
+						{% if data.cets_type == "PT" %}{{ data.cets_type|replace({'PT': "Part time"}) }} {% endif%}
+						{% if data.cets_type == "AS" %}{{ data.cets_type|replace({'AS': "After School"}) }} {% endif%}
+						{% if data.cets_type == "ASWT" %} {{ data.cets_type|replace({'ASWT': "After School With Transport"}) }} {% endif%}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.cets_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.ascc_value != "" and data.ascc_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">ASCC Scheme
+						{% if data.ascc_type == "AS" %}{{ data.ascc_type|replace({'AS': "After School"}) }} {% endif%}
+						{% if data.ascc_type == "ASWT" %} {{ data.ascc_type|replace({'ASWT': "After School With Transport"}) }} {% endif%}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.ascc_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.cecps_value != "" and data.cecps_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">CEC PS Scheme
+						{% if data.cecps_type == "PT" %}{{ data.cecps_type|replace({'PT': "Part time"}) }} {% endif%}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.cecps_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.cecas_value != "" and data.cecas_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">CEC AS Scheme
+						{% if data.cecas_type == "AS" %}{{ data.cecas_type|replace({'AS': "After School"}) }} {% endif%}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.cecas_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.ccs_value != "" and data.ccs_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">CCS Scheme
+						{% if data.ccs_type == "FD" %}{{ data.ccs_type|replace({'FD': "Full Day",}) }} {% endif%}
+						{% if data.ccs_type == "PTA" %}{{ data.ccs_type|replace({'PTA': "Part time a.m,"}) }} {% endif%}
+						{% if data.ccs_type == "PTP" %}{{ data.ccs_type|replace({'PTP': "Part time p.m,"}) }} {% endif%}
+						{% if data.ccs_type == "SA" %}{{ data.ccs_type|replace({'SA': "Sessional a.m,"}) }} {% endif%}
+						{% if data.ccs_type == "SP" %}{{ data.ccs_type|replace({'SP': "Sessional p.m,"}) }} {% endif%}
+						{% if data.ccs_type == "HSA" %}{{ data.ccs_type|replace({'HSA': "Half session a.m,"}) }} {% endif%}
+						{% if data.ccs_type == "HSP" %} {{ data.ccs_type|replace({'HSP': "Half session p.m,"}) }} {% endif%}
+						Band {{ data.ccs_band }}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.ccs_value }}</td>
+				</tr>
+				{% endif%}
+				{% if data.ccsp_value != "" and data.ccsp_value != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">CCSP Scheme
+						{% if data.ccsp_type == "FD" %}{{ data.ccsp_type|replace({'FD': "Full Day,"}) }} {% endif%}
+						{% if data.ccsp_type == "PTA" %}{{ data.ccsp_type|replace({'PTA': "Part time a.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "PTP" %}{{ data.ccsp_type|replace({'PTP': "Part time p.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "SA" %}{{ data.ccsp_type|replace({'SA': "Sessional a.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "SP" %}{{ data.ccsp_type|replace({'SP': "Sessional p.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "HSA" %}{{ data.ccsp_type|replace({'HSA': "Half session a.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "HSP" %} {{ data.ccsp_type|replace({'HSP': "Half session p.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "UPTA" %}{{ data.ccsp_type|replace({'UPTA': "Universal Part Time a.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "UPTP" %} {{ data.ccsp_type|replace({'UPTP': "Universal Part Time p.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "USA" %}{{ data.ccsp_type|replace({'USA': "Universal Sessional a.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "USP" %}{{ data.ccsp_type|replace({'USP': "Universal Sessional p.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "UHA" %}{{ data.ccsp_type|replace({'UHA': "Universal Half Sessional a.m,"}) }} {% endif%}
+						{% if data.ccsp_type == "UHP" %} {{ data.ccsp_type|replace({'UHP': "Universal Half Sessional p.m,"}) }} {% endif%}
+						Band {{ data.ccsp_band }}
+					</td>
+					<td class="center"></td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.ccsp_value }}</td>
+				</tr>
+				{% endif%}
+
+
+				{% for extras in data_extras %}
+				<tr class="border-right">
+					<td class="pad-left">Extra {{ loop.index0 +1 }} : {{ extras.extra_desc }}</td>
+					<td class="center"></td>
+					<td class="right-center">+ {{ data.currency ~ "" ~ extras.extra_val }}</td>
+				</tr>
+				{% endfor %}
+
+				{% if data.discountVal != "" and data.discountVal != '0.00' %}
+				<tr class="border-right">
+					<td class="pad-left">Discount</td>
+					<td class="center">{{ data.discount ~ "" ~ data.discountType }}</td>
+					<td class="right-center">- {{ data.currency ~ "" ~ data.discountVal }}</td>
+				</tr>
+				{% endif%}
+
+                 <tr class="border-top">
+					<td class="pad-left"></td>
+					<th class="right">Grand total :</th>
+					<th class="right-center"> {{ data.currency ~ "" ~ data.total }}</th>
+				</tr>
+
+
+			</tbody>
+		</table>
+		<p>&nbsp;</p>
+	</div>
+	<input type="hidden" name="invoiceNumber" value="{{ invoiceno }}">
+
+{% endblock %}

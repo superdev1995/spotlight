@@ -1,0 +1,390 @@
+{% extends 'master.dashboard.html' %}
+{% block body %}
+
+<form action="{% if learning_summary_id %}{{ path_for('editLearningSummary', { learning_summary_id: learning_summary_id}) }}{% else %}{{ path_for('createLearningSummary', {'week': week, 'year': year, 'draft_id': draft_id}) }}{% endif %}"
+method="post">
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    <input type="hidden" name="week" value="{{ week }}" />
+    <input type="hidden" name="year" value="{{ year }}" />
+
+    <div class="row">
+        <div class="col-12">
+            <span class="h4 mb-5">{{ title }}</span>
+            {% if mode == 'create' %}
+                &nbsp;&nbsp;
+            <span id="autosave-text">Saved</span>  
+            {% endif %}
+        </div>
+    </div>    
+    <br>
+    <div class="card mb-4">
+        <div class="card-block">
+            <div class="row">
+                <div class="col-12 col-sm-5 pt-2">
+                    <h4>{{ start_date }} - {{ end_date }}</h4>
+                </div>
+                {% if user.user_type == 'T' %}
+                <div class="col-12 col-sm-7 text-right">
+                    <a class="btn btn-outline-primary" href="{{ path_for('learningSummarySummary', {year: year, week: week}) }}" role="button">Back
+                        to Selected Week</a>
+                    {% if mode == 'edit' %}
+                    <a class="btn btn-danger" data-toggle="modal" data-target="#deletePlanModal">Delete</a>
+                    {% elseif mode == 'create' %}
+                    <a class="btn btn-danger" data-toggle="modal" data-target="#deleteDraftModal">Delete</a>
+                    {% endif %}
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-block">
+            <ul class="nav nav-pills nav-justified dont-replace mb-4" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">Questions</a>
+                </li>
+                {% for framework_id, framework in frameworks %}
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#framework{{ framework_id }}" role="tab">{{ framework.framework_name }}{% if framework.framework_month_min or framework.framework_month_max %} {{ framework.framework_month_min }} to {{ framework.framework_month_max }} months{% endif %} <span class="badge badge-primary hidden" data-recommendations-count data-recommendations-framework-id="{{ framework_id }}">0</span></a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1" role="tabpanel">
+                    <div class="form-group">
+                        <label class="col-form-label" for="theme">
+                            Theme
+                            <small class="form-text text-muted">Theme of the learning summary. Photos can be attached in the next step.</small>
+                        </label>
+                        <input class="form-control" type="text" name="theme" id="theme" value="{{ formdata.name_theme }}" required>                            
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Upload related photos (maximum of 10 pictures)</label>
+                        <input type="hidden" role="uploadcare-uploader" name="media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" value="{{ formdata.group_url }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label" for="picture">
+                        Describe what is happening in the picture(s)
+                        </label>
+                        <textarea  class="form-control" name="picture" id="picture" rows="8" data-keyword-search required>{{ formdata.picture_description }}</textarea>
+                    </div>
+                </div>
+                {% for category_id, category in categories %}
+                    <div class="tab-pane" id="framework{{ category.framework_id }}" role="tabpanel">
+                        <ul class="nav nav-tabs nav-justified" role="tablist">
+                            {% for framework_id, group_items in groups if framework_id == category.framework_id %}
+                                {% for group in group_items %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab" href="#framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tab">{{ group }} <span class="badge badge-primary hidden" data-recommendations-count data-recommendations-group-id="{{ group }}">0</span></a>
+                                    </li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                        <div class="tab-content">
+                            {% for framework_id, group_items in groups if framework_id == category.framework_id %}
+                                {% for group in group_items %}
+                                    <div class="tab-pane {% if group_items|first == group %}active{% endif %}" id="framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tabpanel">
+                                        {% for category_id, category in categories if group == category.category_group and framework_id == category.framework_id %}
+                                            <h5 class="mt-4">{{ category.category_name }}</h5>
+                                            <p class="lead">{{ category.category_description }}</p>
+                                            {% for goal in category.goals %}
+                                                <div>
+                                                    <label class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" name="goals[]" value="{{ goal.goal_id }}" {% if goal.goal_id in formgoals %}checked{% endif %}>
+                                                        <span class="custom-control-indicator"></span>
+                                                        <span class="custom-control-description">
+                                                            {% if goal.goal_keywords %}
+                                                                {% if frameworks[framework_id].framework_name == "EYFS" %}
+                                                                <span class="badge badge-primary hidden"
+                                                                    data-keywords="{{ goal.goal_keywords }}"
+                                                                    data-group-id="{{ group }}"
+                                                                    data-framework-id="{{ framework_id }}"
+                                                                    data-goal-id="{{ goal.goal_id }}"
+                                                                    data-framework-name="{{ frameworks[framework_id].framework_name }}"
+                                                                    title="Based on keywords: {{ goal.goal_keywords }}">Suggested</span>
+                                                                {% else %}
+                                                                    <span class="badge badge-primary hidden" data-keywords="{{ goal.goal_keywords }}" data-group-id="{{ group }}" data-framework-id="{{ framework_id }}" data-goal-id="{{ goal.goal_id }}" title="Based on keywords: {{ goal.goal_keywords }}">Recommended</span>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {{ goal.goal_description }} {% if goal.goal_help %}&nbsp; <button class="btn btn-sm btn-secondary" role="button" data-container="body" data-toggle="popover" data-trigger="focus" title="Explanation" data-content="{{ goal.goal_help }}"><i class="fa fa-question"></i></button>{% endif %}</span>
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                            {% for text in category.texts %}
+                                                <div class="form-group">
+                                                    <label class="col-form-label" for="text_{{ text.text_id }}">{{ text.text_title }}</label>
+                                                    <textarea class="form-control" name="texts[{{ text.text_id }}]" id="text_{{ text.text_id }}" rows="5">{{ attribute(formtexts, text.text_id) }}</textarea>
+                                                </div>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <h4>Select Children Involved</h4>
+    {% for room in rooms %}
+        <h5 class="mb-0">{{ room.room_name }}</h5>
+        <h6 class="mb-4 text-muted">{{ room.room_description }}</h6>
+        <ul class="list-group mb-4">
+            {% for child in children if child.room_id == room.room_id %}
+                <li class="list-group-item">
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="children[]" value="{{ child.child_id }}" {% if child.child_id in formdata.children %}checked{% endif %}>
+                        <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+                        <span class="custom-control-description"><img class="rounded-circle mr-2" width="35" height="35" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image"> <strong>{{ child.child_name }}</strong></span>
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</form>
+
+{% if user.user_type == 'T' %}
+
+    {% if mode == 'edit' %}
+    <form method="post" action="{{ path_for('deleteLearningSummary') }}">
+        <div class="modal fade" id="deletePlanModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Learning Summary</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Deleting a learning summary will also delete all associated media files.</p>
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">I understand that this cannot be undone</span>
+                        </label>
+                        <input type="hidden" name="learning_summary_id" id="learning_summary_id" value="{{ learning_summary_id }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+
+    {% elseif mode == 'create' %}
+    <form method="post" action="{{ path_for('deleteDraftLearningSummary') }}">
+        <div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Draft</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you certain that you want to delete this draft?</p>
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">I understand that this cannot be undone</span>
+                        </label>
+                        <input type="hidden" name="draft_id" id="draft_id" value="{{ draft_id }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    {% endif %}
+
+{% endif %}
+
+<script type="text/javascript">
+    
+    function suggestGoalsBasedOnKeywords() {
+        $( '[data-keyword-search]' ).on( 'keyup paste propertychange', updateSuggestions);
+        updateSuggestions();
+    }
+
+    var threshold = 3;
+    function updateSuggestions(){
+        var text = '';
+        checkedGoals = [];
+        $( '[data-recommendations-count]' ).html( '0' ).addClass( 'hidden' );
+        $.each( $( '[data-keyword-search]' ), function () {
+
+            text += ' ' + $( this ).val();
+        } );
+        text = ' ' + text.replace( /[ \n\r\t.,'\"\+!?]/g, '  ' ) + ' ';
+        $.each( $( '[data-keywords]' ), function () {
+            var $this = $( this ),
+                goalId = $this.data( 'goal-id' ),
+                keywords = $this.data( 'keywords' ).trim().split( /,\s?/ ),
+                recommendIndex = 0;
+            if($this.data('framework-name') == "EYFS")
+                threshold = 2;
+
+            var localThreshold = threshold;
+            if ( checkedGoals.includes( goalId ) )
+                return;
+
+            keywords = keywords.filter( function ( el ) { return el != null; } );
+
+            if ( keywords.length < 3 )
+                localThreshold = 1;
+
+            $.each( keywords, function () {
+                var regex = new RegExp( " " + this + " ", 'gi' );
+                var occurrences = ( text.match( regex ) || [] ).length;
+                recommendIndex += Math.min( 2, occurrences );
+            } );
+
+            if($this.data('framework-name') == "EYFS" && recommendIndex > 0) {
+                this.classList.remove('badge-info');
+                this.classList.remove('badge-danger');
+                this.classList.remove('badge-primary');
+
+                if(recommendIndex == localThreshold) {
+                this.classList.add('badge-primary');
+                this.innerHTML = "Suggested";
+                } else if(recommendIndex == 3) {
+                this.classList.add('badge-info');
+                this.innerHTML = "Possible match";
+                } else if (recommendIndex > 3) {
+                this.classList.add('badge-danger');
+                this.innerHTML = "Perfect match";
+                }
+            }
+
+            if ( recommendIndex >= localThreshold ) {
+                var $groupRecommendationsCount = $( '[data-recommendations-group-id="' + $this.data( 'group-id' ) + '"]' );
+                $groupRecommendationsCount.html( parseInt( $groupRecommendationsCount.html() ) + 1 ).removeClass( 'hidden' );
+                var $frameworkRecommendationsCount = $( '[data-recommendations-framework-id="' + $this.data( 'framework-id' ) + '"]' );
+                $frameworkRecommendationsCount.html( parseInt( $frameworkRecommendationsCount.html() ) + 1 ).removeClass( 'hidden' );
+                $this.removeClass( 'hidden' );
+            } else {
+                $this.addClass( 'hidden' );
+            }
+            checkedGoals.push( goalId );
+        } );
+    }
+
+    suggestGoalsBasedOnKeywords();
+
+    document.getElementsByClassName('btn-primary')[0].addEventListener('click', () => {
+        for (var i = 0; i < window.localStorage.length; i++) {
+            console.log(window.localStorage.key(i));
+            if(/.*_.*_\d+/.test(window.localStorage.key(i))) {
+            window.localStorage.removeItem(window.localStorage.key(i));
+            }
+        };
+    });
+        
+    {% if mode == 'create' %}
+        function autosave(field, data){
+            $("#autosave-text").text("Saving...");
+            var stringData = JSON.stringify( data );
+            $.ajax({
+                url: "{{ path_for('learningSummaryAutosave', { 'draft_id': draft_id } )}}",
+                type: "POST",
+                data:
+                {
+                    field: field,
+                    data: stringData,
+                    {{ csrf.keys.name }}: "{{ csrf.name }}",
+                    {{ csrf.keys.value }}: "{{ csrf.value }}"
+                },
+                success: function(res){
+                    $("#autosave-text").text("Saved");
+                },
+                error: function(err){
+                    console.log(err);
+                }
+            });
+        }
+
+        var timeoutId;
+        function resetTimeout(field, data){
+            if (timeoutId)
+                clearTimeout(timeoutId);
+            $("#autosave-text").text("Saving...");    
+            timeoutId = setTimeout(function () {
+                autosave(field, data);
+                timeoutId = null;
+            }, 2000);
+        }
+
+        $("[name='theme']").keyup(function () {
+            data = {};
+            data.value = this.value;
+            resetTimeout("name_theme", data);
+        });
+
+        $("[name='theme']").focusout(function () {
+            if(timeoutId){
+                clearTimeout(timeoutId);
+                timeoutId = null;
+                data = {};
+                data.value = this.value;
+                autosave("name_theme", data);
+            }
+        });
+
+        $("[name='picture']").keyup(function () {
+            data = {};
+            data.value = this.value;
+            resetTimeout("picture_description", data);
+        });
+
+        $("[name='picture']").focusout(function () {
+            if(timeoutId){
+                clearTimeout(timeoutId);
+                timeoutId = null;
+                data = {};
+                data.value = this.value;
+                autosave("picture_description", data);
+            }
+        });
+
+        $("[name='children[]']").change(function () {
+            data = {};
+            data.child_id = this.value;
+            data.is_checked = $(this).is(":checked");
+            autosave("child", data);
+        });
+
+        $("[name='goals[]']").change(function () {
+            data = {};
+            data.goal_id = this.value;
+            data.is_checked = $(this).is(":checked");
+            autosave("goal", data);
+        });
+
+        var multipleWidget = uploadcare.MultipleWidget('[role=uploadcare-uploader]');
+        multipleWidget.onUploadComplete(function (group) {
+            data = {};
+            data.value = group.cdnUrl;
+            autosave("media", data);
+        });
+
+    {% endif %}
+</script>
+{% endblock %}

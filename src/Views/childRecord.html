@@ -1,0 +1,96 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% embed 'childDetailsHeader.html' %}{% endembed %}
+<link rel="stylesheet" href="/stylesheets/lightbox.min.css" media="screen">
+<script src="/javascripts/lightbox.min.js"></script>
+<script src="/javascripts/pdfdownload.js"></script> 
+
+<div class="card mb-4 noprint">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-6">
+                <form class="form-inline">
+                    Filter history:
+                    <select class="form-control mx-2" name="week" onchange="this.form.submit()">
+                        <option selected disabled>By Week</option>
+                        {% for week_number, week in weeks %}
+                            <option value="{{ week_number }}" {% if current_week == week_number %}selected{% endif %}>{{ week[0] }} &mdash; {{ week[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            <div class="col-6 text-right">
+                <button class="btn btn-link" onclick="downloadAsPdf()" role="button"><i class="fa fa-download" aria-hidden="true"></i></button>
+                <button class="btn btn-link" onclick="window.print()" role="button"><i class="fa fa-print" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% if dates %}
+    {% for date, times in dates %}
+        <h5 class="mt-5 mb-4"><i class="fa fa-calendar" aria-hidden="true"></i> &nbsp; {{ date|date('l') }}, {{ date }}</h5>
+        <div class="list-group">
+            {% for time, records in times %}
+                <div class="list-group-item">
+                    <div class="col-3">
+                        <h5>{% if time != 0 %}<i class="fa fa-clock-o" aria-hidden="true"></i> &nbsp; {{ time|date('G:i') }}{% else %}Others{% endif %}</h5>
+                    </div>
+                    <div class="col-9">
+                        {% for record_id, record in records %}
+                            <div class="my-3">
+                                <h5 class="mb-1"><strong>{{ types[record.record_type] }}</strong></h5>
+                                <p class="text-muted">
+                                    {{ record.record_user.user_first_name }} {{ record.record_user.user_last_name }} created at {{ record.created_at }}
+                                    {% if record.record_public == 1 %}
+                                        <i class="fa fa-globe ml-2" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Visible to everyone."></i>
+                                    {% else %}
+                                        <i class="fa fa-lock ml-2" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Only visible to school staff."></i>
+                                    {% endif %}
+                                </p>
+                                {% if record.record_type == 'mood' %}
+                                    <p class="lead">Today I was {{ record_params[record_id].mood }}.</p>
+                                {% endif %}
+                                {% if record.record_type == 'meal' %}
+                                    <p class="lead">Today I ate {{ record_params[record_id].amount }} of my {{ record_params[record_id].type }}.</p>
+                                {% endif %}
+                                {% if record.record_type == 'nap' %}
+                                    <p class="lead">Today I slept from {{ record.record_time|date('G:i') }} until {{ record_params[record_id].end|date('G:i') }}.</p>
+                                {% endif %}
+                                {% if record.record_type == 'toilet' %}
+                                    <p class="lead">Today I went to the toilet.</p>
+                                {% endif %}
+                                {% if record.record_type == 'diaper' %}
+                                    <p class="lead">Today my diaper was changed and it was {{ record_params[record_id].condition }}.</p>
+                                {% endif %}
+                                {% if record.record_type == 'medication' %}
+                                    <p class="lead">Today I took {{ record_params[record_id].amount }} {{ record_params[record_id].unit }} of  {{ record_params[record_id].name }}.</p>
+                                {% endif %}
+                                {% if record.record_comment %}
+                                    <p>{{ record.record_comment }}</p>
+                                {% endif %}
+                                {% if record.record_medias %}
+                                    <div class="card-columns mt-4">
+                                        {% for media in record.record_medias %}
+                                            <div class="card">
+                                                <a href="{{ media.media_full_url }}" data-lightbox="media"><img class="card-img-top img-fluid" src="{{ media.media_thumbnail_url }}" alt="image"></a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="col-lg-8 offset-lg-2">
+        <div class="text-center mb-5">
+            <img width="200" height="201" src="/images/richard.svg" alt="Background image">
+        </div>
+        <p class="lead">There are no records found for this week or child. Use the selection above to filter by week or child.</p>
+    </div>
+{% endif %}
+{% endblock %}

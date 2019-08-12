@@ -1,0 +1,53 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% embed 'childDetailsHeader.html' %}{% endembed %}
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>
+                        <a href="{{ path_for('childMonthlyYearSummary', {'child_id': child.child_id, 'year': year-1}) }}"> &larr; </a>
+                            {{ year }}
+                        <a href="{{ path_for('childMonthlyYearSummary', {'child_id': child.child_id, 'year': year+1}) }}"> &rarr; </a>
+                    </h4>
+                    click on any month to view Monthly Plan
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-block">
+        <div class="row">
+            {% for month_num, month in months %}
+            <div class="card-block col-6 col-sm-4 text-center">
+                <a href="{{ path_for('childMonthlyPlanSummary', {'child_id': child.child_id, 'month': month_num, 'year': year}) }}">
+                    {% if months_completed[month_num] is defined %}
+                    <button class="btn btn-primary" data-toggle="tooltip" data-html="true" 
+                        title="{% if months_completed[month_num].school_count %}
+                                School plans: {{ months_completed[month_num].school_count }} <br>
+                                {% endif %}
+                                {% if months_completed[month_num].room_count %}
+                                Room plans: {{ months_completed[month_num].room_count}} <br>
+                                {% endif %}
+                                {% if months_completed[month_num].child_count %}
+                                Child plans: {{ months_completed[month_num].child_count}}
+                                {% endif %}"
+                    {% else %}
+                    <button class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="No plans for this month"
+                    {% endif %}
+                        style="width: 100px; height: 100px; cursor: pointer; text-align: center;">
+                        <strong> {{ month }} </strong>
+                    </button>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

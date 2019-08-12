@@ -1,0 +1,10 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>You have requested a new password for your account. Please click this link to set your new password:</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('loginReset', { token_id: token_id }) }}">Reset Password</a>
+<br>
+<p>If this is a mistake just ignore this email. Your password will not be changed.</p>
+{% endblock %}

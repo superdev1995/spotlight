@@ -1,0 +1,39 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-6">
+        <h4 class="mb-4">{{ title }}</h4>
+    </div>
+    <div class="col-6 ml-auto text-right">
+        <a class="btn btn-primary" href="{{ path_for('broadcastCreate') }}">Broadcast Message</a>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        Message History
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Subject Line</th>
+                <th>Sender</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for broadcast in broadcasts %}
+                <tr>
+                    <td><strong><a href="{{ path_for('broadcastDetails', { broadcast_id: broadcast.broadcast_id }) }}">{{ broadcast.broadcast_subject }}</a></strong></td>
+                    <td><img class="rounded-circle mr-2" width="35" height="35" src="{{ broadcast.user_avatar_url|default('/images/avatar.png') }}" alt="Teacher image"> <br> <strong>{{ broadcast.user_first_name }} {{ broadcast.user_last_name }}</strong></td>
+                    <td><span style="font-size: 12px;">{{ broadcast.created_at }}</span></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="text-center" colspan="3">No broadcasts have been sent or received.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

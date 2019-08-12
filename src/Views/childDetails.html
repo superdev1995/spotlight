@@ -1,0 +1,459 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% embed 'childDetailsHeader.html' %}{% endembed %}
+<link rel="stylesheet" href="/stylesheets/lightbox.min.css" media="screen">
+<link rel="stylesheet" href="/stylesheets/pagination.css">
+<script src="/javascripts/pagination.js"></script>
+<script src="/javascripts/lightbox.min.js"></script>
+
+<div class="row">
+    <div id="timeline" class="col-12 col-lg-8">
+
+        {% for timeline in timelines %}
+        <div id="jar">
+        <div class="content">
+            <div class="card mb-2">
+                <div class="card-block">
+                    <div class="media mb-4">
+                        <img class="rounded-circle d-flex mr-3" width="50" height="50" src="{{ timeline.user_avatar_url|default(timeline.user_email|gravatar) }}" alt="Teacher image">
+                        <div class="media-body">
+                            <strong>{{ timeline.user_first_name }} {{ timeline.user_last_name }}</strong>
+                            {% if timeline.timeline_type == 'create' %}
+                                created this child profile.
+                            {% endif %}
+                            {% if timeline.timeline_type == 'checklist' %}
+                                filled out a <strong><a href="{{ path_for('checklist', { child_id: child.child_id }) }}">checklist</a></strong>.
+                            {% endif %}
+                            {% if timeline.timeline_type == 'story' %}
+                                created a <strong><a href="{{ path_for('storyDetails', { story_id: timeline.timeline_linked_id }) }}">learning story</a></strong>.
+                            {% endif %}
+                            {% if timeline.timeline_type == 'accident' %}
+                                reported an <strong><a href="{{ path_for('accidentDetails', { accident_id: timeline.timeline_linked_id }) }}">accident</a></strong>.
+                            {% endif %}
+                            {% if timeline.timeline_type == 'record' %}
+                                created a <strong><a href="{{ path_for('childRecord', { child_id: child.child_id }) }}">daily record entry</a></strong>.
+                            {% endif %}
+                            {% if timeline.timeline_type == 'summary' %}
+                                created a <strong>learning summary entry</strong>.
+                            {% endif %}
+                            {% if timeline.timeline_type == 'monthlyPlan' %}
+                                created a <strong>monthly plan entry</strong>.
+                            {% endif %}
+                            <br>
+                            <span class="text-muted">
+                                {{ timeline.posted_at }}
+                                {% if timeline.timeline_public == 1 %}
+                                    <i class="fa fa-globe ml-2" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Visible to everyone."></i>
+                                {% else %}
+                                    <i class="fa fa-lock ml-2" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Only visible to school staff."></i>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% if timeline.timeline_comment %}
+                        <p>{{ timeline.timeline_comment }}</p>
+                    {% endif %}
+                    {% if medias[timeline.timeline_id] %}
+                        <div class="card-columns mt-4">
+                            {% for media in medias[timeline.timeline_id] %}
+                                <div class="card">
+                                    <a href="{{ media.media_full_url }}" data-lightbox="{{ timeline.timeline_linked_id }}"><img class="card-img img-fluid" src="{{ media.media_thumbnail_url }}" alt="image"></a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if comments[timeline.timeline_id] %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Discussion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comment in comments[timeline.timeline_id] %}
+                                <tr>
+                                    <td class="media small">
+                                        <img class="rounded-circle d-flex mr-3" width="35" height="35" src="{{ comment.user_avatar_url|default(comment.user_email|gravatar) }}"  data-toggle="tooltip" data-placement="top" title="{{ comment.user_first_name }} {{ comment.user_last_name }}" alt="User image">
+                                        <div class="media-body">
+                                            <p>{{ comment.body }}</p>
+                                            <span class="text-muted">{{ comment.comment_created_at }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                {% if child.child_status == 'A' %}
+                    <div class="card-footer">
+                        <div id="button-{{ timeline.timeline_id }}" style="display: block;">
+                            <a role="button" onclick="toggleInput({{ timeline.timeline_id }})">
+                                <small><i class="fas fa-comments" aria-hidden="true"></i> <strong>Comment</strong></small>
+                            </a>
+                        </div>
+                        <div class="text-right" id="comment-{{ timeline.timeline_id }}" style="display: none;">
+                            <form method="post" action="{{ path_for('timelineComment') }}">
+                                <div class="form-group">
+                                    <input class="form-control" type="text" name="comment" id="comment" placeholder="Write your comment here." required>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-secondary btn-sm" type="button" onclick="toggleInput({{ timeline.timeline_id }})">Cancel</button>
+                                    <button class="btn btn-primary btn-sm" type="submit">Post</button>
+                                </div>
+                                <input type="hidden" name="timeline_id" value="{{ timeline.timeline_id }}" required>
+                                <input type="hidden" name="child_id" value="{{ timeline.child_id }}" required>
+                                <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                                <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                            </form>
+                        </div>
+                        <script>
+                            function toggleInput(id) {
+                                var commentInput = document.getElementById('comment-' + id)
+                                var commentButton = document.getElementById('button-' + id)
+
+                                if (commentButton.style.display === 'block') {
+                                    commentInput.style.display = 'block'
+                                    commentButton.style.display = 'none'
+                                } else {
+                                    commentInput.style.display = 'none'
+                                    commentButton.style.display = 'block'
+                                }
+                            }
+                        </script>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div id="special" class="col-12 col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header danger">
+                Special Attention
+            </div>
+            <div class="card-block">
+                {% if child.child_notes %}
+                    {{ child.child_notes }}
+                {% else %}
+                    <em>No observations.</em>
+                {% endif %}
+            </div>
+            {% if child.child_status == 'A' %}
+                <div class="card-footer">
+                    <button class="btn btn-default btn-block" type="button" role="button" data-toggle="modal" data-target="#notesModal">Add Notes</button>
+                    <form method="post" action="{{ path_for('childEditNotes', { child_id: child.child_id }) }}">
+                        <div class="modal fade" id="notesModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Special Attention</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Here you can save and share information about {{ child.child_name }} that needs special attention. For example allergies can be important information that others should be made aware of.</p>
+                                        <div class="form-group">
+                                            <label class="form-control-label" for="notes">Special Attention:</label>
+                                            <textarea class="form-control" name="notes" id="notes" rows="6" maxlength="255">{{ child.child_notes }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+        <div class="card mb-4">
+            <div class="card-header success">
+                Profile Information
+            </div>
+            <div class="card-block">
+                <dl class="row">
+                    <dt class="col-4">Address</dt>
+                    <dd class="col-8">{{ child.child_street }}<br>{{ child.child_city }} {{ child.child_postal_code }}</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-4">Phone</dt>
+                    <dd class="col-8">{{ child.child_phone }}</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-4">Birthday</dt>
+                    {% if school.country_id == "US" %}
+                        <dd class="col-8">{{ child.child_birthday|date("d-m-Y") }}</dd>
+                    {% else %}
+                        <dd class="col-8">{{ child.child_birthday }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+            {% if school_user.role == 1 %}
+                <div class="card-footer">
+                    <button class="btn btn-default btn-block" type="button" role="button" data-toggle="modal" data-target="#editChildModal">Edit Profile</button>
+                    <form method="post" action="{{ path_for('childEdit', { child_id: child.child_id }) }}">
+                        <div class="modal fade" id="editChildModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Child</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label" for="room">Assigned Room:</label>
+                                            <div class="col-8">
+                                                <select class="form-control" name="room_id" id="room_id" required>
+                                                    {% for room in rooms %}
+                                                        <option value="{{ room.room_id }}" {% if room.room_id == child.room_id %}selected{% endif %}>{{ room.room_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <small class="form-text text-muted">You need to create at least one room first.</small>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row mb-5">
+                                            <label class="col-4 col-form-label" for="room">Profile Picture:</label>
+                                            <div class="col-8">
+                                                <input type="hidden" role="uploadcare-uploader" name="avatar" data-crop="400x400 upscale" data-images-only="true">
+                                            </div>
+                                        </div>
+                                        <h5>General Details</h5>
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label" for="name">Name:</label>
+                                            <div class="col-8">
+                                                <input class="form-control" type="text" name="name" id="name" value="{{ child.child_name }}" placeholder="Jane Doe" maxlength="64" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label">Gender:</label>
+                                            <div class="col-8">
+                                                <label class="custom-control custom-radio">
+                                                    <input class="custom-control-input" name="gender" type="radio" value="M" {% if child.child_gender == 'M' %}checked{% endif %} required>
+                                                    <span class="custom-control-indicator"></span>
+                                                    <span class="custom-control-description">Male</span>
+                                                </label>
+                                                <label class="custom-control custom-radio">
+                                                    <input class="custom-control-input" name="gender" type="radio" value="F" {% if child.child_gender == 'F' %}checked{% endif %} required>
+                                                    <span class="custom-control-indicator"></span>
+                                                    <span class="custom-control-description">Female</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row mb-5">
+                                            <label class="col-4 col-form-label" for="birthday">Date of Birth:</label>
+                                            <div class="col-8">
+                                                <input class="form-control" type="date" name="birthday" id="birthday" placeholder="YYYY-MM-DD" value="{{ child.child_birthday }}" min="1950-01-01" required>
+                                                <script>
+                                                    var date = new Date();
+                                                    document.getElementById('birthday').max = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+                                                    document.getElementById('birthday').min = new Date('1/1/' + (date.getFullYear()-100)).toISOString().split("T")[0];
+                                                </script>
+                                            </div>
+                                        </div>
+                                        <h5>Contact Information</h5>
+                                        <div class="form-group row">
+                                            <label class="col-md-4 col-form-label" for="street">Street Address:</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" id="street" name="street" value="{{ child.child_street }}" maxlength="64">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-md-4 col-form-label" for="city">City/Town:</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" id="city" name="city" value="{{ child.child_city }}" maxlength="32">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-md-4 col-form-label" for="postal_code">Postal Code:</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="text" id="postal_code" name="postal_code" value="{{ child.child_postal_code }}" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-md-4 col-form-label" for="phone">Phone:</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" type="tel" id="phone" name="phone" value="{{ child.child_phone }}" pattern="(((\+|00)|)(.\d{1,12}))" maxlength="32" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+        <div class="card mb-4">
+            <div class="card-header success">
+                Parents and Guardians
+            </div>
+            {% if parents %}
+                <ul class="list-group">
+                    {% for parent in parents %}
+                        <li class="list-group-item">
+                            <img class="rounded-circle d-flex mr-3" width="30" height="30" src="{{ parent.user_avatar_url|default(parent.user_email|gravatar) }}" alt="Parent image">
+                            {% if school_user.role == 1 or (parent.user_type == 'P' and parent.user_id == user.user_id) %}
+                                <a role="button" data-toggle="modal" data-target="#parentDeleteModal" data-userid="{{ parent.user_id }}">{{ parent.user_first_name }} {{ parent.user_last_name }}</a>
+                            {% else %}
+                                {{ parent.user_first_name }} {{ parent.user_last_name }}
+                            {% endif %}
+                            {% if parent.status == 'P' %} &nbsp; <span class="badge badge-default">Invited</span>{% endif %}
+                        </li>
+                    {% endfor %}
+                    <form method="post" action="{{ path_for('parentDelete', { child_id: child.child_id }) }}">
+                        <div class="modal fade" id="parentDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Remove Association</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>We apologize if the association was wrongly established. Please confirm that you want to remove the association with {{ child.child_name }}.</p>
+                                        <p>To re-create the association, a new invitation has to be sent by a school administrator.</p>
+                                        <input type="hidden" name="user_id" id="user_id" value="">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                    </form>
+                    <script>
+                        $('#parentDeleteModal').on('show.bs.modal', function (event) {
+                            var button = $(event.relatedTarget)
+                            var userId = button.data('userid')
+                            $(this).find('.modal-body input').val(userId)
+                        })
+                    </script>
+                </ul>
+            {% else %}
+                <div class="card-block">
+                    <p><em>Not yet invited.</em></p>
+                </div>
+            {% endif %}
+            {% if school_user.role == 1 and child.child_status == 'A' %}
+                <div class="card-footer">
+                    <button class="btn btn-default btn-block" type="button" role="button" data-toggle="modal" data-target="#parentModal">Add Parent or Guardian</button>
+                    <form method="post" action="{{ path_for('parentCreate', { child_id: child.child_id }) }}">
+                        <div class="modal fade" id="parentModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Add Parent or Guardian</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Enter the email address of the parent or guardian you want to invite. Only <strong>confirmed accounts</strong> registered on TeachKloud can be invited.</p>
+                                        <p>Parents only have access to observations, learning stories and accidents that you share with them. If you would not like to share a learning story with parents, you can uncheck the <em>Make this learning story visible to parents</em> at the bottom of your learning story.</p>
+                                        <div class="form-group mt-5">
+                                            <label class="form-control-label" for="email">Email Address:</label>
+                                            <input class="form-control" type="email" name="email" id="email" required>
+                                        </div>
+                                        <input type="hidden" name="child_id" value="{{ child.child_id }}">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Invite</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="pagination"></div>
+
+{% if school_user.role == 1 %}
+    <div class="mt-4">
+        {% if child.child_status == 'A' %}
+            <form method="post" action="{{ path_for('childArchive', { child_id: child.child_id }) }}">
+                <div class="modal fade" id="archiveModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Archive Profile</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>You can archive profiles of children and put them in read-only mode. Archived profiles are not charged in the monthly invoice anymore but you get to retain all their data.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger" id="submitButton">Archive Permanently</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            </form>
+            <a class="small text-muted" role="button" data-toggle="modal" data-target="#archiveModal">Archive Profile</a> &nbsp;&nbsp;
+
+
+
+
+
+        {% endif %}
+        <a class="small text-danger" role="button" data-toggle="modal" data-target="#deleteModal">Delete</a>
+        <form method="post" action="{{ path_for('childDelete', { child_id: child.child_id }) }}">
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Profile</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Deleting a child profile will also delete all associated observations, checklists and documents submitted by teachers.</p>
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">I understand that this cannot be undone</span>
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        </form>
+    </div>
+{% else %}
+    <p class="small text-muted">Please contact the administrator to change or delete profile data.</p>
+{% endif %}
+{% endblock %}

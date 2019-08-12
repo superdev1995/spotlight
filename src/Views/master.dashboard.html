@@ -1,0 +1,115 @@
+{% include 'master.header.html' %}
+
+<div class="container">
+    <div class="row">
+        <nav class="menu collapse show col-md-3 mb-2" id="navbarToggler">
+            {% if user.user_type == 'T' %}
+               <!-- <h6 class="nav-category text-muted mb-3"><i class="fa fa-fw fa-file" aria-hidden="true"></i> Enrolment</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('familyAndChild') }}">Family and Child</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('enrollmentPage') }}">Requests  <div id="enrollmentCounter"></div> </a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('enrollmentApprovedPage') }}">Approved Forms</a>
+                </div> -->
+                <h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-users" aria-hidden="true"></i> Children</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('waitingList') }}">Waiting List</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('child') }}">Child Profiles</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('storyCreate') }}">Learning Story</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('record') }}">Daily Records</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('timesheet') }}">Attendance</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('attendanceInsightsChildren') }}">Attendance Insights</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('broadcast') }}">Broadcasts</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('abc') }}">ABC</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('timesampling') }}">Time Sampling</a>
+                </div>
+                <h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-list-ol" aria-hidden="true"></i> Planning</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('monthlyYearSummary', {'year': current_year}) }}">Monthly Plans</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('weeklyYearSummary', {'year': current_year}) }}">Weekly Plans</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('summaryDailyPlan') }}">Daily Plans</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('runningRecords') }}">Running Records</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('calendar') }}">Calendar</a>
+                </div>
+                
+                    <h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-bar-chart" aria-hidden="true"></i> Activity Manager</h6>
+                    <div class="list-group">
+                        <a class="list-group-item list-group-item-action" href="{{ path_for('goalsAnalysis') }}">Goals Analysis</a>
+                        <a class="list-group-item list-group-item-action" href="{{ path_for('wordcloudchoice') }}">Emerging Interests</a>
+                    </div>
+                
+                <h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-cubes" aria-hidden="true"></i> Resources</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('resource') }}">Resource Library</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('parentLibrary') }}">Parent Library</a>
+                </div>
+                <h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-certificate" aria-hidden="true"></i> Compliance</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('compliance') }}">Self-Audit &nbsp; <span class="badge badge-primary">Pro</span></a>
+                    <!-- <div class="dropdown">
+                        <a class="list-group-item list-group-item-action dropdown-toggle" data-toggle="dropdown" >Infection control</a>
+                        <ul class="dropdown-menu">
+                            <a class="list-group-item list-group-item-action" href="{{ path_for('infectionLetters') }}"><li>Letters</li></a>
+                            <a class="list-group-item list-group-item-action" href=""><li>Audit Infectious Disease</li></a>
+                            <a class="list-group-item list-group-item-action" href=""><li>Specimen Diarrhoea and Vomiting Outbreak Action Checklist</li></a>
+                        </ul>
+                    </div> -->
+                    <div>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('gdpr') }}">GDPR Audit</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('policy') }}">Policies</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('riskAssessments') }}">Risk Assessments</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('fireDuties') }}">Assigned Fire Duties</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('generalRegister') }}">General Safety Register</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('logBook') }}">Fire Safety Log Book</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('emergencyInventory') }}">Inventory of Emergency Lighting Equipment</a>
+                </div>
+                <h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-cogs" aria-hidden="true"></i> Settings</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('availability') }}">Availability</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('school') }}">Pre-School Profile</a>
+                    {% if user_role.role == 1 %}
+                        <a class="list-group-item list-group-item-action" href="{{ path_for('paymentManagement') }}">Payment Management</a>
+                    {% endif %}
+                    <!-- <a class="list-group-item list-group-item-action" href="{{ path_for('bringtpay') }}">Bright Pay</a> -->
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('schoolChecklist') }}">Checklist Editor</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('teacher') }}">Teacher Directory</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('teacher_timesheet') }}">Teacher Timesheet</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('parentsDirectory') }}">Parent Directory</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('billing') }}">Billing</a>
+                </div>
+            {% else %}
+                <h6 class="nav-category text-muted mb-3">Navigation</h6>
+                <div class="list-group">
+                    <!-- <a class="list-group-item list-group-item-action" href="{{ path_for('familyAndChild') }}">Family and Child</a> -->
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('home') }}">Children</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('broadcast') }}">Broadcasts</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('riskAssessments') }}">Risk Assessments</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('runningRecordsParent') }}">Running Records</a>
+
+
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('parentEvents') }}">Events</a>
+                </div>
+				<h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-cubes" aria-hidden="true"></i> Resources</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('parentLibrary') }}">Parent Library</a>
+
+                </div>
+				<h6 class="nav-category text-muted mb-3 mt-4"><i class="fa fa-fw fa-certificate" aria-hidden="true"></i> Compliance</h6>
+				<div class="list-group">
+					<a class="list-group-item list-group-item-action" href="{{ path_for('policy') }}">Policies</a>
+				</div>
+            {% endif %}
+            {% if user.user_admin == 1 %}
+                <h6 class="nav-category text-muted mb-3 mt-4">Administration</h6>
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('admin') }}">Overview</a>
+                    <a class="list-group-item list-group-item-action" href="{{ path_for('adminActivities') }}">Activities Links</a>
+                </div>
+            {% endif %}
+        </nav>
+        <div class="col-md-9" id="printable">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+{% include 'master.footer.html' %}

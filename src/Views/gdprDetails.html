@@ -1,0 +1,140 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script src="/javascripts/pdfdownload.js"></script> 
+
+<div class="row">
+    <div class="col-8"><h4 class="mb-0">{{ title }}</h4></div>
+    <div class="col-4 text-right noprint">
+        <button class="btn btn-link" onclick="downloadPage()" role="button"><i class="fa fa-download" aria-hidden="true"></i></button>
+        <button class="btn btn-link" onclick="printPage()" role="button"><i class="fa fa-print" aria-hidden="true"></i></button>
+    </div>
+</div>
+<h6 class="mb-4 text-muted">Section: {{ question.category_name }}</h6>
+<div class="row bs-wizard mb-4 noprint">
+    {% for category in categories %}
+        {% if category.category_id == question.category_id %}
+            <div class="col-2 bs-wizard-step active">
+        {% else %}
+            <div class="col-2 bs-wizard-step disabled">
+        {% endif %}
+                <div class="text-center bs-wizard-stepnum small">{{ category.category_sort }}</div>
+                <div class="progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <a class="bs-wizard-dot"></a>
+                <div class="bs-wizard-info text-center small">{{ category.category_name }}</div>
+            </div>
+    {% endfor %}
+</div>
+<div class="progress mb-4 noprint">
+    <div class="progress-bar progress-bar-striped bg-success" role="progressbar"style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><strong>{{ progress }}%</strong></div>
+</div>
+<form action="{{ path_for('gdprCreate', { question_id: question.question_id }) }}" method="post">
+    <div class="card">
+        <div class="card-header success">
+            Question {{ question.question_sort }} of {{ category_count }}
+        </div>
+        <div class="card-block">
+            <p class="lead">{{ question.question_body | raw }}</p>
+            {% if question.question_description %}
+                <p>{{ question.question_description | raw }}</p>
+            {% endif %}
+            {% if open_ended %}
+                <div class="card-block">
+                    <div class="form-group">
+                        <textarea class="form-control noprint" name="answer" id="answer" rows="8"style="width:100%;">{{ school_answer.answer_body }}</textarea>
+                        <span id="hidden-body"></span>
+                    </div>
+                </div>
+            {% else %}
+                <ul class="list-unstyled">
+                {% for answer in answers %}
+                    <li>
+                        <label class="custom-control custom-radio">
+                            <input type="radio" class="custom-control-input" name="answer" value="{{ answer.question_answer_id }}" {% if answer.created_at %}checked{% endif %} required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">{{ answer.body }}</span>
+                        </label>
+                        {% if question.question_upload %}
+                            {% if question.question_multiple_choice %}
+                                <p>Upload a file to support your answer here (optional): <input type="hidden" role="uploadcare-uploader" name="uploads[]" data-crop="disabled" data-images-only="false"></p>
+                            {% endif %}
+                        {% endif %}
+                        {% if answer.file_url %}
+                            <p><a href="{{ answer.file_url }}" target="_blank"><i class="fa fa-paperclip" aria-hidden="true"></i> &nbsp; Existing attached file</a></p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card mb-4 mt-4">
+        <div class="card-header">
+            Additional Information:
+        </div>
+        <div class="card-block">
+            <div class="form-group">
+                <textarea class="form-control noprint" name="comment" id="comment" rows="4">{{ school_answer.additional_information }}</textarea>
+                <span id="hidden-comment"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row ml-0 noprint">
+        {% if school_answer.file_url == "" %}
+            <label class="col-3 col-form-label" for="register[{{ counter }}][file_url]">
+                Upload File
+            </label>
+            <div class="col-9">
+                <input type="hidden" role="uploadcare-uploader" name="file" data-images-only="false" />
+            </div>
+        {% else %}
+            <a class="btn btn-outline-primary btn-sm" role="button" href="{{ school_answer.file_url }}" style="padding: .65rem;"><i class="fa fa-file-pdf-o fa-fw"></i> Download attached file</a>
+            <form action="{{ path_for('gdprFileDelete', { question_id: question_id }) }}" method="post">
+                <div class="col-3">
+                    <button type="submit" class="form-control btn btn-outline-danger btn-sm" role="button" id="btn-delete"><i class="fa fa-trash-o mr-2" aria-hidden="true"></i> Delete attached file</button>
+                </div>
+                <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            </form>
+        {% endif %}
+    </div>
+    <div class="row mt-4 noprint">
+        <div class="col-6">
+            <button class="btn btn-primary" type="submit" role="button">
+                Save and Proceed &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </button>
+            <a href="{{ next_url }}" class="btn btn-outline-primary" role="button">
+                Skip &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="col-6 text-right">
+            <a class="btn btn-primary" role="button" href="{{ path_for('gdprSummary') }}">Summary</a>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<script>
+    function printPage(){
+        $("#hidden-body").html("<br>Your answer: <br><br><br>" + $("#answer").html() + "<br><hr><br>");
+        $("#hidden-comment").html("<br><br>" + $("#comment").html());
+        window.print();
+        setTimeout(function () { 
+            $("#hidden-body").html("");
+            $("#hidden-comment").html("");
+        }, 500);
+    }
+    
+    function downloadPage(){
+        $("#hidden-body").html("<br>Your answer: <br><br><br>" + $("#answer").html() + "<br><hr><br>");
+        $("#hidden-comment").html("<br><br>" + $("#comment").html());
+        downloadAsPdf();
+        setTimeout(function () { 
+            $("#hidden-body").html("");
+            $("#hidden-comment").html("");
+        }, 500);
+    }
+</script>
+{% endblock %}

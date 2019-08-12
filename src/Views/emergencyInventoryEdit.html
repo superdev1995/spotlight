@@ -1,0 +1,168 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% set counter = 1 %}
+<form action="{{ path_for('editEmergencyInventory') }}" method="post">
+    <div class="row">
+        <div class="col-12 col-sm-6">
+            <h4 class="mb-3">{{ title }}</h4>
+        </div>
+        <div class="col-12 col-sm-6 mb-2 ml-auto text-right">
+            <a class="btn btn-outline-primary" href="{{ path_for('emergencyInventory') }}" role="button">Back
+                to Display</a>
+            <button class="btn btn-primary" type="submit">Publish</button>
+        </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-block"> 
+                    <div class="card-block">
+                        <div class="row">
+                            <div class="col-12 text-right">
+                                <a href="" data-toggle="tooltip" class="add-item-btn"
+                                    	id="item-block" title="Add Emergency Item">
+                                	<span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="form-group" id="item-block-container">
+                        	{% for key, item in inventory %}
+                            <div class="card-block">
+            					<input type="hidden" name="inventory[{{ counter }}][id]" value="{{item.id}}">
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="inventory[{{ counter }}][location_of_equipment]">
+                							Location of Equipment
+                						</label>
+                						<div class="col-12 col-sm-9">
+							                <input type="text" class="form-control"
+								                name="inventory[{{ counter }}][location_of_equipment]"
+								                id="location_of_equipment"
+								                value="{{item.location_of_equipment}}" />
+						                </div>
+                					</div>
+					                <div class="form-group row">
+						                <label class="col-12 col-sm-3" for="inventory[{{ counter }}][number]">
+							                Number
+						                </label>
+						                <div class="col-12 col-sm-9">
+							                <input type="number" class="form-control"
+								                name="inventory[{{ counter }}][number]"
+								                id="number"
+							    	            value="{{ item.number }}" />
+					                	</div>
+				                	</div>
+                					<div class="form-group row">
+						                <label class="col-12 col-sm-3" for="inventory[{{ counter }}][type]">
+							                Type
+						                </label>
+						                <div class="col-12 col-sm-9">
+							                <input type="text" class="form-control"
+                								name="inventory[{{ counter }}][type]"
+                								id="type"
+                								value="{{ item.type }}" />
+            							</div>
+					                </div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="inventory[{{ counter }}][location]">
+                							Other comments
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<textarea class="form-control"
+                								name="inventory[{{ counter }}][location]"
+                								id="location" 
+                								rows="8">{{ item.location }}</textarea>
+                						</div>
+                					</div>
+                					<button class="btn btn-danger btn-sm btn-delete"
+                						role="button"
+               							data-toggle="modal"
+                						data-target="#deleteModal">Delete</button>
+                				</div>
+                                {% set counter = counter + 1 %}
+                                {% endfor %}
+                        	</div>
+                    	</div>
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+	
+    <script>
+        var counter = {{ counter }};
+		
+        $("#item-block-container").on("click", ".btn-delete", function (e) {
+            e.preventDefault();
+
+            $(this).closest(".card-block").remove();
+            
+        });
+
+        $(".add-item-btn").on("click", function (e) {
+            e.preventDefault();
+
+        	// hide table when adding a new row
+        	$("#item-block-container").append('<div class="card-block">\n' +
+            	'<input type="hidden" name="inventory[' + counter + '][id]" value="">\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="inventory[' + counter + '][location_of_equipment]">\n' +
+                'Location of Equipment\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="inventory[' + counter + '][location_of_equipment]"\n' +
+                'id="location_of_equipment"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="inventory[' + counter + '][number]">\n' +
+                'Number\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="number" class="form-control"\n' +
+                'name="inventory[' + counter + '][number]"\n' +
+                'id="number"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="inventory[' + counter + '][type]">\n' +
+                'Type\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="inventory[' + counter + '][type]"\n' +
+                'id="type"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="inventory[' + counter + '][location]">\n' +
+                'Location\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="inventory[' + counter + '][location]"\n' +
+                'id="location"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<button class="btn btn-danger btn-sm btn-delete"\n' +
+                'role="button"\n' +
+                'data-toggle="modal"' +
+                'data-target="#deleteModal">Delete</button>' +
+                '</div>\n'
+            );
+
+            counter++;
+    
+        
+        });
+
+    </script>
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    
+</form>
+{% endblock %}

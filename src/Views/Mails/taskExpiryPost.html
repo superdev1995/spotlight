@@ -1,0 +1,21 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>Your TeachKloud trial for <strong>{{ school_name }}</strong> has ended! We hope you enjoyed using TeachKloud.</p>
+<p>If you’d like to continue saving time and money please update your <a href="https://{{ settings.mailer.domain }}{{ path_for('billing') }}">billing information</a>.</p>
+<br>
+<p>Our subscription plans start at <strong>just 1 Euro per child per month</strong>. You’ll be joining a community of preschool teachers sharing knowledge and giving children child-centred learning experiences.</p>
+<ul>
+    <li>Spend more time with children and less time on paperwork!</li>
+    <li>Document childrens learning easily and quickly</li>
+    <li>Do child observations and make tailor action plans based on these</li>
+    <li>Keep up to date on regulations</li>
+    <li>Save time and money, reduce hours spent on non-contact time</li>
+    <li>Quickly do health and safety checks with tailor made recommendations</li>
+    <li>Support family involvement and child-centred practices</li>
+    <li>Integrate your curriculum framework at the touch of a button!</li>
+</ul>
+<p>Have any questions or feedback? Just visit our <a href="https://teachkloud.kayako.com/">help desk</a> for live chat and instant answers. We’re always here to help!</p>
+<p>Thanks for trying TeachKloud!</p>
+{% endblock %}

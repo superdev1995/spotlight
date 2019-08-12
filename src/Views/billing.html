@@ -1,0 +1,351 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+{% if not subscription_status %}
+    <div class="alert alert-warning mb-4">
+        Aww! You are no longer enjoying the premium features. Please update your subscription below.
+    </div>
+{% endif %}
+<div class="card mb-4">
+    <div class="card-header success">
+        Subscription Status
+    </div>
+    {% if subscriptions %}
+        <div class="card-block">
+            <div class="my-4 text-center">
+                <span class="lead"><strong>{{ amount }} EUR</strong> per month</span><br>
+                <span class="small text-muted text-center">Based on {{ child_count }} child profiles in your school.</span>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="w-30">Plan</th>
+                    <th class="w-15">Period Start</th>
+                    <th class="w-15">Period End</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for id, subscription in subscriptions %}
+                    <tr>
+                        <td>
+                            {{ subscription.name }} 
+                            <br>
+                            {% if subscription.cancelled %}<span class="badge badge-default">Paused</span>{% endif %}
+                        </td>
+                        <td>{{ subscription.start }}</td>
+                        <td>{{ subscription.end }}</td>
+                        <td>
+                            <div class="d-none d-lg-block ml-auto text-right">
+                                {% if subscription.cancelled %}
+                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#resubscribeModal" data-id="{{ id }}">Resubscribe</button>
+                                {% else %}
+                                    {% if month=='06' or month=='07' or month=='08' %}
+                                        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#unsubscribeModal" data-id="{{ id }}">Pause</button>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="d-block d-lg-none ml-auto text-right">
+                                <div class="btn-group dropleft">
+                                    <button style="border-color: transparent;" class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        {% if subscription.cancelled %}
+                                            <button class="dropdown-item" data-toggle="modal" data-target="#resubscribeModal" data-id="{{ id }}">Resubscribe</button>
+                                        {% else %}
+                                            {% if month=='6' or month=='7' or month=='8' %}
+                                                <button class="dropdown-item" data-toggle="modal" data-target="#unsubscribeModal" data-id="{{ id }}">Pause</button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form action="{{ path_for('billingUnsubscribe') }}" method="post">
+            <div class="modal fade" id="unsubscribeModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Pause Subscription</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>If you don’t need to use TeachKloud for a while you can pause your monthly billing. When you pause your account it will <strong>continue until the end of the billing cycle</strong>. You can leave your account paused for as long as you need, and when you’re ready to start again, just re-subscribe to reactivate your account.</p>
+                            <p>If you are cancelling because you are unsatisfied, we would love to hear what we can improve on or how we can help.</p>
+                            <input type="hidden" name="subscription_id" id="subscription_id" value="">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Confirm</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <script>
+            $('#unsubscribeModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget)
+                var subscription = button.data('id')
+
+                $(this).find('#subscription_id').val(subscription)
+            })
+        </script>
+        <form action="{{ path_for('billingResubscribe') }}" method="post">
+            <div class="modal fade" id="resubscribeModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Resume Subscription</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>We are thrilled to see you back. Click the confirm button to resume your subscription at the aforementioned monthly rate. If you have a coupon code, you can enter it here and we will automatically apply a discount to your subscription.</p>
+                            <div class="form-group">
+                                <label for="coupon">Coupon Code (optional)</label>
+                                <input class="form-control" type="text" maxlength="32" name="coupon">
+                            </div>
+                            <input type="hidden" name="subscription_id" id="resubscription_id" value="">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Confirm</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <script>
+            $('#resubscribeModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget)
+                var subscription = button.data('id')
+
+                $(this).find('#resubscription_id').val(subscription)
+            })
+        </script>
+        <div class="card-block">
+            <span class="text-muted text-center">
+                If you would like to pause your subscription, billing can only be paused in July and August. 
+            </span>
+        </div>
+    {% else %}
+        <div class="card-block">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="fa-ul lead">
+                        <li><i class="fa-li fa fa-check text-success"></i> Health and safety self-assessment and suggestions based on your self-assessment</li>
+                        <li><i class="fa-li fa fa-check text-success"></i> Unlimited learning stories linked to your curriculum</li>
+                        <li><i class="fa-li fa fa-check text-success"></i> Unlimited child observations and records</li>
+                        <li><i class="fa-li fa fa-check text-success"></i> Unlimited accident and incident reporting</li>
+                        <li><i class="fa-li fa fa-check text-success"></i> Unlimited policy creation</li>
+                        <li><i class="fa-li fa fa-check text-success"></i> Health and safety checks with updates on changes in regulations</li>
+                        <li><i class="fa-li fa fa-check text-success"></i> Parent engagement and communication</li>
+                        <li><i class="fa-li fa fa-check text-success"></i> Teaching materials and resources updated regularly by TeachKloud and the TeachKloud community</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <div class="my-4 text-center">
+                        <span class="lead"><strong>&euro;{{ amount | number_format(2) }}</strong> per month.</span><br>
+                        <span class="small text-muted text-center">Based on &euro;{{ settings.feePerChild | number_format(2) }} per child. Add more child profiles below.</span>
+                    </div>
+                    <p class="text-center">
+                        <button class="btn btn-primary mb-2" data-toggle="modal" data-target="#subscribeModal">Start Subscription</button>
+                        <button class="btn btn-outline-primary mb-2" data-toggle="modal" data-target="#createChildModal">Add Children</button>
+                    </p>
+                    <div class="text-center">
+                        <p class="small">You can always add more children as your service grows. Your bill is automatically calculated based on the children you have in your service.</p>
+                        <p><a href="https://stripe.com/docs/security/stripe" target="_blank"><img class="mt-5" width="119" height="26" src="/images/stripe.png" alt="Stripe logo"></a></p>
+                        <p><img width="250" src="/images/major-credit-cards.png" alt="Credit card image"></p>
+                    </div>
+                    <form action="{{ path_for('billingSubscribe') }}" method="post" id="payment-form">
+                        <div class="modal fade" id="subscribeModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Subscription</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="mb-5">Enter your billing details below. Payments are securely processed through <a href="https://stripe.com/about" target="_blank">Stripe</a>, one of the most reputable payment processors available. TeachKloud <strong>never</strong> stores your billing or credit card information on our servers.</p>
+                                        <div class="row form-group">
+                                            <div class="col-md-6">
+                                                <label for="card">Card Number</label>
+                                                <input class="form-control" id="card" type="text" maxlength="20" data-stripe="number" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="cvc">Security Code (CVC)</label>
+                                                <input class="form-control" id="cvc" type="text" maxlength="4" data-stripe="cvc" required>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-md-6">
+                                                <label for="month">Expiration month</label>
+                                                <select class="form-control" id="month" data-stripe="exp-month" required>
+                                                    <option value="01">01 - January</option>
+                                                    <option value="02">02 - February</option>
+                                                    <option value="03">03 - March</option>
+                                                    <option value="04">04 - April</option>
+                                                    <option value="05">05 - May</option>
+                                                    <option value="06">06 - June</option>
+                                                    <option value="07">07 - July</option>
+                                                    <option value="08">08 - August</option>
+                                                    <option value="09">09 - September</option>
+                                                    <option value="10">10 - October</option>
+                                                    <option value="11">11 - November</option>
+                                                    <option value="12">12 - December</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="year">Expiration year</label>
+                                                <select class="form-control" id="year" data-stripe="exp-year" required>
+                                                    {% for year in years %}
+                                                        <option value="{{ year }}">{{ year }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <p class="mt-5">If you have a coupon code, you can enter it here and we will automatically apply a discount to your subscription.</p>
+                                        <div class="form-group">
+                                            <label for="coupon">Coupon Code (optional)</label>
+                                            <input class="form-control" type="text" maxlength="32" name="coupon">
+                                        </div>
+                                        <span class="payment-errors text-danger"></span>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Pay</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+                    <script type="text/javascript">
+                        Stripe.setPublishableKey('{{ settings.stripe.publicKey }}')
+
+                        function stripeResponseHandler(status, response) {
+                            var $form = $('#payment-form')
+
+                            if (response.error) {
+                                $form.find('.payment-errors').text(response.error.message)
+                                $form.find('button').prop('disabled', false)
+                            } else {
+                                var token = response.id
+
+                                $form.append($('<input type="hidden" name="stripeToken">').val(token))
+                                $form.get(0).submit()
+                            }
+                        }
+
+                        jQuery(function($) {
+                            $('#payment-form').submit(function(event) {
+                                var $form = $(this)
+
+                                $form.find('button').prop('disabled', true)
+                                Stripe.card.createToken($form, stripeResponseHandler)
+
+                                return false
+                            })
+                        })
+                    </script>
+                    <form method="post" action="{{ path_for('billing') }}">
+                        <div class="modal fade" id="createChildModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Add Children</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="lead mb-4">Add all the children in your service now. You can always add more or modify later.</p>
+                                        <div class="form-group row">
+                                            <label class="col-12 col-4 col-sm-4 col-form-label">Child’s Name:</label>
+                                            <div class="col-12 col-sm-8">
+                                                <input class="form-control" type="text" name="name[]" maxlength="64" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label">Child’s Name:</label>
+                                            <div class="col-8">
+                                                <input class="form-control" type="text" name="name[]" maxlength="64">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label">Child’s Name:</label>
+                                            <div class="col-8">
+                                                <input class="form-control" type="text" name="name[]" maxlength="64">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label">Child’s Name:</label>
+                                            <div class="col-8">
+                                                <input class="form-control" type="text" name="name[]" maxlength="64">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label">Child’s Name:</label>
+                                            <div class="col-8">
+                                                <input class="form-control" type="text" name="name[]" maxlength="64">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <div class="text-muted small">Each new child adds <strong>&euro;{{ settings.feePerChild | number_format(2) }}</strong> to your monthly charge.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+<form action="{{ path_for('billingEdit') }}" method="post">
+    <div class="card mb-4">
+        <div class="card-header">
+            Change Billing Information
+        </div>
+        <div class="card-block">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="email">School Administrator Billing Email Address:</label>
+                        <ul class="list-unstyled">
+                            {% for administrator in administrators %}
+                                <li><strong>{{ administrator.user_first_name }} {{ administrator.user_last_name }}</strong><br>{{ administrator.user_email }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="vat_id">VAT ID:</label>
+                        <input class="form-control" name="vat_id" id="vat_id" type="text" maxlength="32" value="{{ school.school_vat_id }}">
+                        <p class="form-text text-muted small">We will not charge VAT if you enter a valid VAT ID.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endblock %}

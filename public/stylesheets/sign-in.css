@@ -1,0 +1,248 @@
+/*
+  SIGN UP PAGE --------------------------------------------------------
+*/
+
+#mainContainer {
+  margin: auto;
+}
+
+/*Classes for spaces between various parts of site and other*/
+
+.headingCards {
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+.cardPadding {
+  padding: 25px;
+}
+
+.dividingSpace {
+  margin-bottom: 30px;
+}
+
+.dividingSpaceHeading {
+  margin-bottom: 22px;
+}
+
+/*Social media card and its links*/
+
+#socialMedia .card,
+#socialMediaLogIn .card {
+  margin-top: 22px;
+}
+
+.socialMediaButton {
+  width: 50px;
+  height: 50px;
+  font-size: 50px;
+  padding: 0;
+  text-align: center;
+  line-height: 50px;
+  float: left;
+  display: block;
+}
+
+.socialMediaButton:first-child {
+  color: #55acee;
+  margin-right: 10px;
+}
+
+.socialMediaButton:nth-child(2) {
+  color: #006193;
+  margin-right: 10px;
+}
+
+.socialMediaButton:nth-child(3) {
+  color: #385899;
+}
+
+#socialMedia a:nth-of-type(4),
+#socialMedia a:nth-of-type(5),
+#socialMediaLogIn a:nth-of-type(4),
+#socialMediaLogIn a:nth-of-type(5) {
+  height: 43.75px;
+  cursor: pointer;
+  margin-top: 3.125px;
+  box-sizing: border-box;
+  border: 1px solid #02b875;
+  border-radius: 4px;
+  line-height: 43.75px;
+  font-size: 15px;
+  float: right;
+  display: flex;
+  padding: 0 11.875px 0 11.875px;
+}
+
+/*Main heading with image icon*/
+
+#mainHeading {
+  text-align: center;
+  font-size: 2.2rem;
+}
+
+#mainHeading img {
+  height: 30.8px;
+  width: 30.8px;
+  line-height: 30.8px;
+  margin-left: 17px;
+  margin-bottom: 2.6px;
+}
+
+/*Column for image and main image*/
+
+#mainImage {
+  overflow: hidden;
+  border: 0;
+  height: 350px;
+}
+
+#mainImage img {
+  height: 100%;
+  object-fit: cover;
+}
+
+#mainImage .card-img-overlay {
+  top: auto;
+}
+
+#mainImage p {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  text-align: justify;
+}
+
+/*Column and Card for feature list*/
+
+.signUpListIcon {
+  height: 24.5px;
+  width: 30px;
+  float: left;
+  text-align: center;
+  line-height: 24.5px;
+  font-size: 14px;
+}
+
+#featureListColumn .list-group-flush:first-child .list-group-item:first-child {
+  border-top: 0;
+}
+
+#featureListColumn .col-12:nth-of-type(2) li:first-of-type {
+  border-top: 1px solid rgba(0, 0, 0, 0.125) !important;
+}
+
+#featureListColumn .list-group-flush:last-child .list-group-item:last-child {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+#featureListColumn .list-group-item {
+  display: block;
+  margin-bottom: -1px;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+#featureListColumn .list-group-flush .list-group-item {
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+
+/*Column and Card for basic questions and answers*/
+
+#questionBox h1 {
+  font-size: 2.5rem;
+}
+
+#questionBox h6 {
+  font-weight: 500;
+}
+
+.questionBoxIcons{
+  max-width: 60px;
+}
+
+
+/*---------------------*/
+
+@media (min-width: 576px) {
+  #mainContainer {
+    width: 1140px;
+  }
+}
+
+@media (min-width: 768px) {
+  #featureListColumn .col-12:nth-of-type(2) li:first-of-type {
+    border-top: 0 !important;
+  }
+}
+
+@media (min-width: 992px) {
+  #imageColumn {
+    order: 1;
+  }
+  #formColumn {
+    order: 2;
+  }
+  #mainHeading {
+    text-align: left;
+  }
+  #mainImage {
+    height: 541.85px;
+  }
+}
+
+/*
+  LOG IN PAGE --------------------------------------------------------
+*/
+
+.logInSmallTitle {
+  font-size: 14.5px;
+}
+
+.logInListItemText {
+  line-height: 18px;
+  color: #526971;
+}
+
+#passwordRenewBox {
+  float: right;
+  height: 35.4px;
+  line-height: 35.4px;
+  font-size: 14px;
+}
+
+.logInListIcon {
+  height: 18px;
+  width: 20px;
+  float: left;
+  text-align: center;
+  margin-bottom: 10.5px;
+  line-height: 18px;
+}
+
+#logInHeadingCard {
+  background: #10a05c;
+  border-radius: calc(0.25rem - 1px) 0 0 calc(0.25rem - 1px);
+}
+
+#logInUserModeSwitch {
+  border: 1px solid #4eac5e;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+#logInUserModeSwitch label {
+  border-radius: 0;
+  border: none;
+  background: #10a05c;
+}
+
+#logInUserModeSwitch label:first-of-type.active {
+  background: #fee140;
+}
+
+#logInUserModeSwitch label:nth-of-type(2).active {
+  background: #fa709a;
+}

@@ -1,0 +1,91 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-6 col-lg-6 pt-2">
+                <h5>{{ basic_info.name }} : {{ basic_info.date|date('m/d/Y') }}</h5>
+            </div>
+            
+            <div class="col-2 col-lg-3 pt-2">
+                {% if basic_info.plan_img_url %}
+                    <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ basic_info.plan_img_url }}" alt="image">
+                {% endif %}
+            </div>
+            {% if user.user_type == 'T' %}
+            <div class="col-4 col-lg-3 ml-auto text-right">
+                <a class="btn btn-primary" href="{{ path_for('editDailyPlan', { daily_plan_id: basic_info.daily_plan_id }) }}">Edit Daily Plan</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <strong>
+                This plan is associated with the following
+                {% if basic_info.assoc == 'school' %}
+                    school(s):
+                {% elseif basic_info.assoc == 'room' %}
+                    room(s):
+                {% elseif basic_info.assoc =='child' %}
+                    child(ren):
+                {% endif %}
+                </strong>
+            </div>
+            {% for assoc in associations %}
+            <div class="col-3">
+                {{ assoc.name }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if blocks %}
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-2">
+                <b>Time</b>
+            </div>
+            <div class="col-10">
+                <b>Description</b>
+            </div>
+        </div>
+        {% for block in blocks %}
+        <div class="row">
+            <div class="col-2">
+                {{ block.time_block }}
+            </div>
+            <div class="col-10">
+                {{ block.description }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if videos %}
+<div class="card mb-4">
+    <div class="card-header">
+        Videos
+    </div>
+    <div class="card-block">
+        {% for video in videos %}
+        <video style="height: 120px" class="mr-3 mt-3" controls>
+            <source src="{{ video.video_url }}">
+        </video>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

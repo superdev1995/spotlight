@@ -1,0 +1,274 @@
+{% extends 'master.default.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <form action="{{ path_for('schoolCreate') }}" enctype="multipart/form-data" method="post">
+            <div class="card">
+                <img width="100%" src="/images/classroom.jpg" alt="Classroom image">
+                <div class="card-block">
+                    <h4 class="card-title mt-3">Create New Pre-School &nbsp; <span class="badge badge-primary">30 Day Trial</span></h4>
+                    <h6 class="card-subtitle mb-5 text-muted">Collaborate with teachers and parents, and save time staying compliant.</h6>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="name">Pre-School Name:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" id="name" name="name" maxlength="64" autofocus required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="type">Operation:</label>
+                        <div class="col-md-8">
+                            <select class="form-control" id="type" name="type" required>
+                                <option value="" disabled selected hidden>Please select</option>
+                                <option value="P">Private Setting</option>
+                                <option value="C">Community Setting</option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="country">Country:</label>
+                        <div class="col-md-8">
+                            <select class="form-control" id="country" name="country" onchange="showSettings(this)" required>
+                                <option value="" disabled selected hidden>Please select</option>
+                                {% for country in countries_all %}
+                                    <option value="{{ country.country_id }}">{{ country.country_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Choose wisely as the country <strong>cannot be changed</strong> later on. We are starting out in a few countries and hope to offer TeachKloud in your country soon.</small>
+                        </div>
+                    </div>
+                    <div class="country US country UV"  style="display: none;">
+                        <div class="form-group row ">
+                            <label class="col-md-4 col-form-label" for="country_subdivision">State:</label>  
+                            <div class="col-md-8">
+                                <select class="form-control" id="country_subdivision" name="country_subdivision">
+                                    <option value="" disabled selected hidden>Please select</option>
+                                    {% for country_subdivision in country_subdivisions %}
+                                        <option value="{{ country_subdivision.country_subdivision_id }}" class="country US" style="display: none;" >{{ country_subdivision.country_subdivision_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="country US" style="display: none;">
+                        <div class="form-group row ">
+                            <label class="col-md-4 col-form-label" for="time">Hours:</label>  
+                            <div class="col-md-8">
+                                <select class="form-control" id="time" name="time" required>
+                                    <option value="FD">Full Day</option>
+                                    <option value="PD">Part Day</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="category_id">Type of Pre-School:</label>
+                        <div class="col-md-8">
+                            <div class="country">
+                                <input class="form-control" type="text" placeholder="Select your country first." disabled>
+                            </div>
+                            {% for category in categories %}
+                                <div class="country {{ category.country_id }}" style="display: none;">
+                                    <label class="custom-control custom-radio">
+                                        <input name="category_id" type="radio" value="{{ category.category_id }}" class="custom-control-input" onchange="showInputText('{{ category.country_id }}', {% if category.category_name != 'Other' %}true{% else %}false{% endif %})" disabled required>
+                                        <span class="custom-control-indicator"></span>
+                                        <span class="custom-control-description">{{ category.category_name }}</span>
+                                    </label>
+                                    <p class="small">{{ category.category_description }}</p>
+                                    {% if category.category_name == "Other" %}
+                                        <input name="custom_school_category" class="custom-school-category {{ category.country_id }} form-control" type="text" value="" maxlength="250" disabled>
+                                        <br>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="country US country UV" style="display: none;">
+                        <div class="form-group row ">
+                            <label class="col-md-4 col-form-label" for="Curriculum">Curriculum or program:</label>  
+                            <div class="col-md-8">
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="Head Start Preschool Program" class="custom-control-input" data-radio-group="curriculum" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Head Start Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="Montessori Preschool Program" class="custom-control-input" data-radio-group="curriculum" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Montessori Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="Waldorf Preschool Program" class="custom-control-input" data-radio-group="curriculum" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Waldorf Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="Reggio Emilia Preschool Program" class="custom-control-input" data-radio-group="curriculum" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Reggio Emilia Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="HighScope Preschool Program" class="custom-control-input" data-radio-group="curriculum" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">HighScope Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="Creative Curriculum" class="custom-control-input" data-radio-group="curriculum" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Creative Curriculum</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="Bank Street Preschool Program" class="custom-control-input" data-radio-group="curriculum" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Bank Street Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="curriculum" type="radio" value="" class="custom-control-input" data-radio-group="curriculum" data-radio-option="curriculum_other" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Other</span>
+                                    </label>
+                                    <p class="small">Please specify</p>
+                                    <input data-radio-parent-group="curriculum" data-radio-parent-option="curriculum_other" class="form-control" type="text" id="curriculum_option_other" name="custom_curriculum" maxlength="250" disabled>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="country US country UV" style="display: none;">
+                        <div class="form-group row ">
+                            <label class="col-md-4 col-form-label" for="Curriculum">Age range:</label>  
+                            <div class="col-md-8">
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0-2" class="custom-control-input" data-radio-group="rage_age" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">0-2</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0-6" class="custom-control-input" data-radio-group="rage_age" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">0-6</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0-8" class="custom-control-input" data-radio-group="rage_age" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">0-8</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="2-6" class="custom-control-input" data-radio-group="rage_age" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">2-6</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="3-6" class="custom-control-input" data-radio-group="rage_age" data-radio-option="" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">3-6</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0" class="custom-control-input" data-radio-group="rage_age" data-radio-option="rage_age_other" onchange="showSuboptions(this)" disabled required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Other</span>
+                                    </label>
+                                    <p class="small">Please specify</p>
+                                    <input data-radio-parent-group="rage_age" data-radio-parent-option="rage_age_other" class="form-control" type="text" id="other_age" name="other_age" maxlength="6" disabled>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        function showSettings(selectObject) {
+                            $( ".country" ).css( "display", "none" );
+                            $( ".country .custom-control-input" ).attr( "disabled", true );
+                            $( ".country .custom-control-input" ).attr( "checked", false );
+                            $( "." + selectObject.value ).css( "display", "block" );
+                            $( "." + selectObject.value + " .custom-control-input" ).attr( "disabled", false );
+                            $( ".custom-school-category" ).attr( "disabled", true );
+                            $( ".custom-school-category" ).attr( "checked", false );
+                            $( ".custom-school-category" ).removeAttr( "name" );
+                            $( ".custom-school-category" ).val( "" );
+                            $( ".custom-school-category." + selectObject.value ).attr( "name", "custom_school_category" );
+                        }
+                        function showInputText(selector, value) {
+                            $( ".custom-school-category." + selector ).attr("disabled", value);
+                        }
+                        function showSuboptions(obj) {
+                            $( "*[data-radio-parent-group='" + obj.dataset.radioGroup + "']" ).attr("disabled", true);
+                            $( "*[data-radio-parent-option='" + obj.dataset.radioOption + "']" ).attr("disabled", false);
+                        }
+                    </script>
+                    <hr class="my-4">
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="street">Street Address:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" id="street" name="street" maxlength="64" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="city">City or Town:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" id="city" name="city" maxlength="64" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="postal_code">Postal Code:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" id="postal_code" name="postal_code" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="phone">Phone Number:</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="tel" id="phone" name="phone" maxlength="32" pattern="(((\+|00)|)(.\d{1,12}))" required>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">Create School</button>
+                </div>
+            </div>
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,228 @@
+{% extends 'master.dashboard.html' %} {% block body %}
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous" media="print">
+<h4 class="mb-5">{{ title }} {{ info.nameC }} {{ info.date }}</h4>
+<div class="card mb-4">
+    <div class="tab-pane card-block plan-details active">
+        <form action="{{ path_for('revenue') }}/mail/{{ info.idC }}/{{ info.idT }}/{{ info.date }}" method="post">
+        <div class="form-group">
+                <div class="card col-md-12 pb-3 mb-3">
+                    <div class="card-header success row mb-3">
+                        Bill From
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="type">Busines Logo:</label>
+                        <div class="col-md-8">
+                            <div class="media">
+                                <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ info.url_logo|default(user.user_email|gravatar) }}" alt="Teacher image">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Full Name</label>
+                        <input type="text" readonly="readonly"   readonly="readonly" name="business_name" value="{{ info.nameT }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">City</label>
+                        <input type="text" readonly="readonly"   readonly="readonly" name="business_city" value="{{ info.cityT }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Eircode</label>
+                        <input type="text" readonly="readonly"   readonly="readonly" name="business_PC" value="{{ info.postalCodeT }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Business Phone number</label>
+                        <input type="text" readonly="readonly" name="business_phone" value="{{ info.phoneT }}" class="col-8 form-control" pattern="(((\+|00)|)(.\d{1,12}))">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Email</label>
+                        <input type="text"   readonly="readonly" name="business_email" value="{{ info.emailT }}" class="col-8 form-control">
+                    </div>
+                </div>
+                <div class="card col-md-12 pb-3 mb-3">
+                    <div class="card-header success row mb-3">
+                        Bill to
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Full Name</label>
+                        <input type="text"   readonly="readonly" name="client" value="{{ info.nameC }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Addess</label>
+                        <input type="text"   readonly="readonly" name="client_address" value="{{ info.streetC }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">City</label>
+                        <input type="text"   readonly="readonly" name="client_city" value="{{ info.cityC }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Eircode</label>
+                        <input type="text"   readonly="readonly" name="client_PC" value="{{ info.postalCodeC }}" class="col-8 form-control">
+                    </div>
+                </div>
+                <div class="card col-md-12 pb-3 mb-3">
+                    <div class="card-header success row mb-3">
+                        Bill Information
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Invoice Number</label>
+                        <input type="number"   readonly="readonly" name="invoice_number" value="{{ info.invoiceNumber }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Date</label>
+                        <input type="date"   readonly="readonly" name="date" value="{{ info.date }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">VAT Reg No.</label>
+                        <input type="number"   readonly="readonly" name="reg_no" value="{{ info.vatRegNo }}" class="col-8 form-control">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Currency</label>
+                        <select disabled name="currency" title="Please choose your currency" class="col-8 form-control">
+                            {% if info.currency == "€" %}
+                                <option selected value="€">€</option>
+                            {% else %}
+                                <option value="€">€</option>
+                            {% endif %}
+                            {% if info.currency == "$" %}
+                                <option selected value="$">$</option>
+                            {% else %}
+                                <option value="$">$</option>
+                            {% endif %}
+                            {% if info.currency == "£" %}
+                                <option selected value="£">£</option>
+                            {% else %}
+                                <option value="£">£</option>
+                            {% endif %}
+                            {% if info.currency == "¥" %}
+                                <option selected value="¥">¥</option>
+                            {% else %}
+                                <option value="¥">¥</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    {% for data in billing %}
+                        <div class="row">
+                            <hr class=" col-md-8 bg-faded">
+                        </div>
+                        <div id="table{{ data.id }}">
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">Your Fee (per hour)</label>
+                                <input type="number" value="{{data.fee}}"   readonly="readonly" name="fee{{ data.id }}" class="col-8 form-control" min="0" title="What is your hourly fee rate?">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">Hours</label>
+                                <input type="number" value="{{data.hours}}"   readonly="readonly" name="hours{{ data.id }}" class="col-8 form-control" min="0" title="Please put in the total number of hours the child spent in your setting (including hours spent under the ECCE Scheme)">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">ECCE</label>
+                                <select disabled name="ecce{{ data.id }}" class="col-8 form-control" title="3 hours is free for this child if participating in the ECCE Scheme">
+                                    {% if data.ecce == "yes" %}
+                                        <option selected value="yes">YES</option>
+                                    {% else %}
+                                        <option value="yes">YES</option>
+                                    {% endif %}
+                                    {% if data.ecce == "no" %}
+                                        <option selected value="no">NO</option>
+                                    {% else %}
+                                        <option value="no">NO</option>
+                                    {% endif %}   
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">Type (ACS)</label>
+                                <select disabled name="tec{{ data.id }}" class="col-8 form-control" title="Please choose what scheme, if any, are applicable">
+                                    {% if data.tec == " " %}
+                                        <option selected value=" "> </option>
+                                    {% else %}
+                                        <option value=" "> </option>
+                                    {% endif %}
+                                    {% if data.tec == "FT" %}
+                                        <option selected value="FT">Full Day</option>
+                                    {% else %}
+                                        <option value="FT">Full Day</option>
+                                    {% endif %}
+                                    {% if data.tec == "PT" %}
+                                        <option selected value="PT">Part Time</option>
+                                    {% else %}
+                                        <option value="PT">Part Time</option>
+                                    {% endif %}
+                                    {% if data.tec == "SP" %}
+                                        <option selected value="SP">Sessional</option>
+                                    {% else %}
+                                        <option value="SP">Sessional</option>
+                                    {% endif %}
+                                    {% if data.tec == "HFP" %}
+                                         <option selected value="HSP">Half Sesion</option>
+                                    {% else %}
+                                        <option value="HSP">Half Sesion</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">Band (ACS)</label>
+                                <select disabled name="acsz{{ data.id }}" class="col-8 form-control" title="Please select the Band which this childs parent falls under">
+                                    {% if data.childCareScheme == " " %}
+                                        <option selected value=" "> </option>
+                                    {% else %}
+                                        <option value=" "> </option>
+                                    {% endif %}
+                                    {% if data.childCareScheme == "A" %}
+                                        <option selected value="A">Band A</option>
+                                    {% else %}
+                                        <option value="A">Band A</option>
+                                    {% endif %}
+                                    {% if data.childCareScheme == "B" %}
+                                        <option selected value="B">Band B</option>
+                                    {% else %}
+                                        <option value="B">Band B</option>
+                                    {% endif %}
+                                    {% if data.childCareScheme == "D" %}
+                                        <option selected value="D">Band BB</option>
+                                    {% else %}
+                                        <option value="D">Band D</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">Extras</label>
+                                <input type="number" value="{{ data.extras }}"   readonly="readonly" name="extras{{ data.id }}" class="col-8 form-control" title="Did you organise an After School Club or Drama Class? You can put in any extra fees here in €">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-4 col-form-label">Discount</label>
+                                <input type="number" value="{{ data.discount }}"   readonly="readonly" name="discount{{ data.id }}" class="col-6 form-control" min="0" title="Leave this area blank if you do not wish to give a discount, % or an amount €">
+                                <select disabled name="type{{ data.id }}" class="col-2 form-control">
+                                    {% if data.discountType == "%" %}
+                                        <option selected value="%">%</option>
+                                    {% else %}
+                                        <option value="%">%</option>
+                                    {% endif %}
+                                    {% if data.discountType == "€" %}
+                                        <option selected value="€">€</option>
+                                    {% else %}
+                                        <option value="€">€</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endfor %}
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Total</label>
+                    <input type="text"   readonly="readonly" name="total" id="total" value="{{ info.total }}{{ info.currency }}" class="col-8 form-control">
+                </div>
+            </div>
+        </div>
+            <input type="hidden" value="{{ user.user_id }}" name="id_user">
+            <input type="hidden" value="{{ child.child_id }}" name="id_child">
+        <p class="text-right">
+            {% if user.user_type == "T" and info.status == "pending" %}
+                    <a href="{{ path_for('revenue') }}/paid/{{ info.idC }}/{{ info.idT }}/{{ info.date }}"><span class="btn btn-primary hidden-print">Paid</span></a>
+            {% endif %}
+            {% if user.user_type == "T" %}
+            <button class="btn btn-primary hidden-print" type="submit" id="mail">Mail</button>
+            {% endif %}
+            <input name="print" type="button" id="print" onClick="parent.print()" value="Print" class="btn btn-primary hidden-print">
+        </p>
+        </form>
+    </div>
+</div>
+{% endblock %}

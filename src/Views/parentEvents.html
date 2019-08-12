@@ -1,0 +1,21 @@
+
+{% extends 'master.dashboard.html' %}
+{% block body %}
+
+<!-- Code for show the events at the parents -->
+{% if eventsParent is defined %}
+    <ul>
+        {% for event in eventsParent %}
+            <li>
+                <p><strong>Title: </strong>{{event.title}}</p>
+                <p><strong>Start: </strong>{{event.start}}</p>
+                <p><strong>End: </strong>{{event.end}}</p>
+                <p><strong>Description: </strong>{{event.description}}</p>
+            </li><br/>
+        {% endfor %}
+    </ul>  
+{% else %}
+    <h4>The teacher don't shared events yet</h4>
+{% endif %}
+
+{% endblock %}

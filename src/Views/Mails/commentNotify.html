@@ -1,0 +1,9 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>{{ user.user_first_name }} {{ user.user_last_name }} left a comment on <strong>{{ child.child_name }}</strong>’s timeline.</p>
+<p style="font-size: 1.2rem">{{ comment }}</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('childDetails', { child_id: child.child_id }) }}">Send a Reply</a>
+{% endblock %}

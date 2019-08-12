@@ -1,0 +1,135 @@
+{% extends 'master.default.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-lg-6 offset-lg-3">
+        <h4 class="mb-5">{{ title }}</h4>
+        <form action="{{ path_for('accountEdit') }}" method="post">
+            <div class="card mb-4">
+                <div class="card-header">
+                    Change Account Details
+                </div>
+                <div class="card-block">
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="email">First Name</label>
+                        <div class="col-md-8">
+                            <input class="form-control" name="first_name" id="first_name" type="text" maxlength="64" value="{{ user.user_first_name }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="email">Last Name</label>
+                        <div class="col-md-8">
+                            <input class="form-control" name="last_name" id="last_name" type="text" maxlength="64" value="{{ user.user_last_name }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="type">Profile Picture:</label>
+                        <div class="col-md-8">
+                            <div class="media">
+                                <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ user.user_avatar_url|default(user.user_email|gravatar) }}" alt="User image">
+                                <div class="media-body">
+                                    <input type="hidden" role="uploadcare-uploader" name="avatar" data-crop="200x200 upscale" data-images-only="true">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label">Notification Settings</label>
+                        <div class="col-md-8">
+                            <div>
+                                <label class="custom-control custom-checkbox">
+                                    <input type="hidden" name="notify_comment" value="0">
+                                    <input type="checkbox" name="notify_comment" value="1" class="custom-control-input" {% if user.user_notify_comment %}checked{% endif %}>
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">Email notification for new timeline comments</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="custom-control custom-checkbox">
+                                    <input type="hidden" name="notify_record" value="0">
+                                    <input type="checkbox" name="notify_record" value="1" class="custom-control-input" {% if user.user_notify_record %}checked{% endif %}>
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">Email notification for new child records</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="custom-control custom-checkbox">
+                                    <input type="hidden" name="notify_story" value="0">
+                                    <input type="checkbox" name="notify_story" value="1" class="custom-control-input" {% if user.user_notify_story %}checked{% endif %}>
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">Email notification for new learning stories</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="custom-control custom-checkbox">
+                                    <input type="hidden" name="notify_checklist" value="0">
+                                    <input type="checkbox" name="notify_checklist" value="1" class="custom-control-input" {% if user.user_notify_checklist %}checked{% endif %}>
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">Email notification for new developmental observations</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+            </div>
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        </form>
+        <form action="{{ path_for('accountEmail') }}" method="post">
+            <div class="card mb-4">
+                <div class="card-header">
+                    Change Email Address
+                </div>
+                <div class="card-block">
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="email">New Email Address</label>
+                        <div class="col-md-8">
+                            <input class="form-control" name="email" id="email" type="email" maxlength="64" value="{{ user.user_email }}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+            </div>
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        </form>
+        <form action="{{ path_for('accountPassword') }}" method="post">
+            <div class="card mb-4">
+                <div class="card-header">
+                    Change Password
+                </div>
+                <div class="card-block">
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="password">Current Password</label>
+                        <div class="col-md-8">
+                            <input class="form-control" name="password" id="password" maxlength="32" type="password" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="password1">New Password</label>
+                        <div class="col-md-8">
+                            <input class="form-control" name="password1" id="password1" maxlength="32" type="password" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label" for="password2">Repeat New Password</label>
+                        <div class="col-md-8">
+                            <input class="form-control" name="password2" id="password2" maxlength="32" type="password" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+            </div>
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        </form>
+    </div>
+</div>
+{% endblock %}

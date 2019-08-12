@@ -1,0 +1,8 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>A new enrolment form has been filled for the child {{ child.child_name}}. Click here to view the enrolment form and make any changes or approved it.</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}/enrollment-page">See the enrolment</a>
+{% endblock %}

@@ -1,0 +1,1191 @@
+{% extends 'master.dashboard.html' %} {% block body %}
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous" media="print">
+<link rel="stylesheet" href="/stylesheets/bootstrap-datepicker3.css"/>
+<link rel="stylesheet" href="/stylesheets/invoice.css"/>
+<link rel="stylesheet" href="/stylesheets/bootstrap-multiselect.css">
+
+<script src="/javascripts/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="/javascripts/bootstrap-datepicker.min.js"></script>
+<script src="/javascripts/moment.min.js"></script>
+<script src="/javascripts/datepicker_edit.js"></script>
+
+
+<div class="row">
+    <div class="col-6">
+        <h4 class="mb-5">{{ title }}</h4>
+    </div>
+    <div class="col-6 text-right">
+        <a class="btn btn-primary" href="{{ path_for('invoice_list', {child_id: child.child_id}) }}">View All Invoices</a>
+    </div>
+</div>
+
+
+
+{# dump(school_user)#}
+{% if data.approved == 'no' or school_user.role == 1 %}
+
+<div class="card mb-4">
+    <div class="tab-pane card-block plan-details active">
+
+        <form action="{{ path_for('invoices') }}{{ child.child_id }}/{{ invoiceno }}" id="form" method="post">
+
+            {% if school_user.role == 1 %}
+
+                <div class="form-group row">
+                     <label for="approved" class="col-4 col-form-label">Send to Parent/Caregiver </label>
+                    <select id="approved" name="approved" class="col-8 form-control">
+                        <option value="yes">Yes</option>
+                        <option value="no" selected="">No</option>
+                    </select>
+                    
+                </div>
+
+            {% endif %}
+                <input type="hidden" name="approved_value" id="approved_val" value="{{data.approved}}" class="col-8 form-control" >
+            <div class="form-group">
+
+           <div class="card col-md-12 pb-3 mb-3">
+                <div class="card-header success row mb-3">
+                    Bill to
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Full Name</label>
+                    <input type="text" name="client" value="{{ child.child_name }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Address</label>
+                    <input type="text" name="client_address" value="{{ child.child_street }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">City</label>
+                    <input type="text" name="client_city" value="{{ child.child_city }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Eircode</label>
+                    <input type="text" name="client_PC" value="{{ child.child_postal_code }}" class="col-8 form-control">
+                </div>
+            </div>
+            <div class="card col-md-12 pb-3 mb-3">
+                <div class="card-header success row mb-3">
+                    Bill Information
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Invoice Number</label>
+                    <input type="text" disabled name="invoiceNumber" value="{{ invoiceno }}" class="col-8 form-control">
+                    
+                </div>
+                <div class="form-group row">
+                    <div class="form-group col-md-4">
+                        <label for="date_from" >Period</label>
+                     </div>
+
+                    <div class="form-group col-md-3" style="padding-left: 0px;">
+                        <label class="control-label" for="date_from">Date From</label>
+                        <div class="input-group date" id="dp3" data-date-format="mm-dd-yyyy">
+                            <input id="date_from" name="date_from" value="{{ date_from }}" class="form-control totaltime" type="text" >
+                            <span class="input-group-addon btn"><i class="fa fa-calendar" id="butt"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-3" style="padding-left: 0px;">
+                        <label for="date_to">Date To</label>
+                        <div class="input-group date" id="dp4" data-date-format="mm-dd-yyyy">
+                            <input id="date_to" name="date_to" value="{{ date_to }}" class="form-control totaltime" type="text">
+                            <span class="input-group-addon btn"><i class="fa fa-calendar" id="butt"></i></span>
+                        </div>
+                     </div>
+
+
+                </div>
+
+                 <div class="form-group row">
+                    <label class="col-4 col-form-label">Number of days</label>
+                    <input type="text" name="open_days" id="open_days" value="{{data.open_days}}" placeholder="Number of open days" class="col-8 form-control">
+                 </div>
+
+
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">VAT Reg No.</label>
+                    <input type="text" name="vatRegNo" value="{{ data.vatRegNo }}" class="col-8 form-control">
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Currency</label>
+                    <select id="currency"  title="Please choose your currency" class="col-8 form-control">
+                        <option selected value="€">€</option>
+                        <option value="£">£</option>
+                        <option value="$">USD $</option>
+                        <option value="A$">AUS $</option>
+                    </select>
+                    <input type="hidden" id="currency_val" name="currency" value="{{ data.currency }}" >
+                </div>
+              
+                <div id="table3">
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" >Your Fee (per hour)</label>
+                        <input type="text" value="{{ data.fee }}" name="fee" id="fee" class="col-8 form-control" min="0" title="What is your hourly fee rate?" required>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label">Hours</label>
+                        <input type="number" value="{{ data.hours }}" name="hours" id="hours" required class="col-8 form-control" min="0" title="Please put in the total number of hours the child spent in your setting (including hours spent under the ECCE Scheme)">
+                    </div>
+                    {% if country_id == 'IE' %}
+
+                    <div>
+                        <select id="multiselect" multiple="multiple">
+                            <option value="ECCE">ECCE</option>
+                            <option value="CCSU">CCSU</option>
+                            <option value="CCSR">CCSR</option>
+                            <option value="CCSRT">CCSR(T)</option>
+                            <option value="CETS">CETS</option>
+                            <option value="ASCC">ASCC</option>
+                            <option value="CEC_PS">CEC PS</option>
+                            <option value="CEC_AS">CEC AS</option>
+                            <option value="CCS">CCS</option>
+                            <option value="CCSP">CCSP</option>
+                        </select>
+                        <a onclick="getSelectedValues()" class="btn btn-secondary">Show</a>
+                    </div>
+
+                    <div class="scheme ECCE" style="display:none">
+                    <div class="form-group row">
+                        <div class="form-group col-md-4">
+                            <label >ECCE Scheme</label>
+                        </div>
+                       <div class="form-group col-md-6" style="padding-left: 0px;">
+                             <label for="ecce" >ECCE Yes/No </label>
+                            <select  id="ecce" class="col-4 form-control" title="3 hours is free for this child if participating in the ECCE Scheme">
+                                <option value="yes">YES</option>
+                                <option value="no" selected="">NO</option>
+                            </select>
+
+                        </div>
+                        <div class="form-group col-md-2" style="padding-left: 0px;">
+                            <label for="ecce_val" >ECCE Value</label>
+                            <span class="minus" >
+                                <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                            </span>
+                            <input type="text" name="ecce_value" id="ecce_val" value="{{data.ecce_value}}" class="col-8 form-control" >
+                        </div>
+                    </div>
+                    </div>
+                    <div class="scheme CCSU" style="display:none">
+                    <div class="form-group row">
+                        <div class="form-group col-md-4">
+                          <label >CCSU Scheme</label>
+                        </div>
+                          <div class="form-group col-md-3" style="padding-left: 0px;">
+                              <a class="infobulle"><i class="fas fa-question-circle"></i>
+                               <span>
+                                   Full-day payment : (5hrs +)<br>
+                                   Part-time payment : (3:31 - 5:00hrs)<br>
+                                   Sessional payment : (2:16 - 3:30hrs)<br>
+                                   Half session payment : (1:00 - 2:15hrs)
+                               </span>
+                              </a>
+                              <label for="ccsu_type" >Type (CCSU)</label>
+                              <select  id="ccsu_type" name="ccsu_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                              <option selected="" value="0">Clear</option>
+                              <option value="FD">Full Time</option>
+                              <option value="PT">Part Time</option>
+                              <option value="SE">Sessional</option>
+                              <option value="HS">Half Sessional</option>
+
+                          </select>
+                          <input type="hidden" id="ccsu_type_val" value="{{ data.ccsu_type }}" >
+                         </div>
+                         <div class="form-group col-md-3" style="padding-left: 0px;">
+
+                          </div>
+                          <div class="form-group col-md-2" style="padding-left: 0px;">
+                                  <label for="ccsu_val" >CCSU Value</label>
+                                  <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                    </span>
+                                  <input type="text" name="ccsu_value" id="ccsu_val" value="{{ data.ccsu_value }}" class="col-8 form-control" >
+                          </div>
+                      </div>
+                    </div>
+                    <div class="scheme CCSR" style="display:none">
+                    <div class="form-group row">
+                        <div class="form-group col-md-4">
+                          <label >CCSR Scheme</label>
+                        </div>
+                          <div class="form-group col-md-3" style="padding-left: 0px;">
+                              <a class="infobulle"><i class="fas fa-question-circle"></i>
+                               <span>
+                                   Part-time payment : (3:31 - 5:00hrs)<br>
+                                   Sessional payment : (2:16 - 3:30hrs)
+                               </span>
+                              </a>
+                              <label for="ccsr_type" >Type (CCSR)</label>
+                              <select  id="ccsr_type" name="ccsr_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                              <option selected="" value="0">Clear</option>
+
+                              <option value="PT">Part Time</option>
+                              <option value="SE">Sessional</option>
+
+                          </select>
+                          <input type="hidden" id="ccsr_type_val" value="{{ data.ccsr_type }}" >
+                         </div>
+                         <div class="form-group col-md-3" style="padding-left: 0px;">
+
+                          </div>
+                          <div class="form-group col-md-2" style="padding-left: 0px;">
+                                  <label for="ccsr_val" >CCSR Value</label>
+                                  <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                    </span>
+                                  <input type="text" id="ccsr_val" name="ccsr_value" value="{{data.ccsr_value}}" class="col-8 form-control" >
+
+                          </div>
+                    </div>
+                </div>
+                <div class="scheme CCSRT" style="display:none">
+                    <div class="form-group row">
+                    <div class="form-group col-md-4">
+                        <label >CCSR(T) Scheme</label>
+                    </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <a class="infobulle"><i class="fas fa-question-circle"></i>
+                               <span>
+                                   Part-time payment : (3:31 - 5:00hrs)<br>
+                                   Sessional payment : (2:16 - 3:30hrs)
+                               </span>
+                              </a>
+                            <label for="ccsrt_type" >Type (CCSR(T))</label>
+                            <select  id="ccsrt_type" name="ccsrt_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                            <option selected="" value="0">Clear</option>
+
+                            <option value="PT">Part Time</option>
+                            <option value="SE">Sessional</option>
+
+                        </select>
+                        <input type="hidden" id="ccsrt_type_val" value="{{ data.ccsrt_type }}" >
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+
+                        </div>
+                        <div class="form-group col-md-2" style="padding-left: 0px;">
+                                <label for="ccsrt_val" >CCSR(T) Value</label>
+                                <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                </span>
+                                <input type="text" id="ccsrt_val" name="ccsrt_value" value="{{ data.ccsrt_value }}" class="col-8 form-control" >
+                        </div>
+                    </div>
+                </div>
+                <div class="scheme CETS" style="display:none">
+                    <div class="form-group row">
+                        <div class="form-group col-md-4">
+                        <label >CETS Scheme</label>
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <a class="infobulle"><i class="fas fa-question-circle"></i>
+                               <span>
+                                   Full-day payment : (5hrs +)<br>
+                                   Part-time payment : (3:31 - 5:00hrs)
+                               </span>
+                            </a>
+                            <label for="cets_type" >Type (CETS)</label>
+                            <select  id="cets_type" name="cets_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                            <option selected="" value="0">Clear</option>
+                            <option value="FT">Full Time</option>
+                            <option value="PT">Part Time</option>
+                            <option value="AS">After School</option>
+                            <option value="ASWT">After School with Transport</option>
+                        </select>
+                        <input type="hidden" id="cets_type_val" value="{{ data.cets_type }}" >
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;"></div>
+                        <div class="form-group col-md-2" style="padding-left: 0px;">
+                                <label for="cets_val" >CETS Value</label>
+                                <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                </span>
+                                <input type="text" id="cets_val" name="cets_value" value="{{ data.cets_value }}" class="col-8 form-control" >
+                        </div>
+                    </div>
+                </div>
+                <div class="scheme ASCC" style="display:none">
+                    <div class="form-group row">
+                        <div class="form-group col-md-4">
+                            <label >ASCC Scheme</label>
+                        </div>
+                            <div class="form-group col-md-3" style="padding-left: 0px;">
+                                <label for="ascc_type" >Type (ASCC)</label>
+                                <select name="ascc_type"  id="ascc_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                                <option selected="" value="0">Clear</option>
+
+                                <option value="AS">After School</option>
+                                <option value="ASWT">After School with Transport</option>
+                            </select>
+                            <input type="hidden" id="ascc_type_val" value="{{ data.ascc_type }}" >
+                            </div>
+                            <div class="form-group col-md-3" style="padding-left: 0px;"></div>
+                            <div class="form-group col-md-2" style="padding-left: 0px;">
+                                    <label for="ascc_val" >ASCC Value</label>
+                                    <span class="minus" >
+                                            <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                    </span>
+                                    <input type="text" name="ascc_value" id="ascc_val" value="{{ data.ascc_value }}" class="col-8 form-control" >
+                            </div>
+                    </div>
+                </div>
+                <div class="scheme CEC_PS" style="display:none">
+                    <div class="form-group row">
+                    <div class="form-group col-md-4">
+                        <label >CEC PS Scheme</label>
+                    </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <a class="infobulle"><i class="fas fa-question-circle"></i>
+                               <span>
+                                   Part-time payment : (3:31 - 5:00hrs)
+                               </span>
+                              </a>
+                            <label for="cecps_type" >Type (CEC PS)</label>
+                            <select name="cecps_type"  id="cecps_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                            <option selected="" value="0">Clear</option>
+                            <option value="PT">Part Time</option>
+
+                        </select>
+                        <input type="hidden" id="cecps_type_val" value="{{ data.cecps_type }}" >
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;"></div>
+                        <div class="form-group col-md-2" style="padding-left: 0px;">
+                                <label for="cecps_val" >CEC PS Value</label>
+                                <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                </span>
+                                <input type="text" name="cecps_value" id="cecps_val" value="{{ data.cecps_value }}" class="col-8 form-control" >
+                        </div>
+                    </div>
+                </div>
+                <div class="scheme CEC_AS" style="display:none">
+                    <div class="form-group row">
+                    <div class="form-group col-md-4">
+                        <label >CEC AS Scheme</label>
+                    </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <label for="cecas_type" >Type (CEC AS)</label>
+                            <select  id="cecas_type" name="cecas_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                            <option selected="" value="0">Clear</option>
+                            <option value="AS">After School</option>
+
+                        </select>
+                        <input type="hidden" id="cecas_type_val" value="{{ data.cecas_type }}" >
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;"></div>
+                        <div class="form-group col-md-2" style="padding-left: 0px;">
+                                <label for="cecas_val" >CEC AS Value</label>
+                                <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                </span>
+                                <input type="text" id="cecas_val" name="cecas_value" value="{{ data.cecas_value }}" class="col-8 form-control" >
+                        </div>
+                    </div>
+                </div>
+                <div class="scheme CCS" style="display:none">
+                    <div class="form-group row">
+                    <div class="form-group col-md-4">
+                        <label >CCS Scheme</label>
+                    </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <a class="infobulle"><i class="fas fa-question-circle"></i>
+                               <span>
+                                   Full-day payment : (5hrs +)<br>
+                                   Part-time payment : (3:31 - 5:00hrs)<br>
+                                   Sessional payment : (2:16 - 3:30hrs)<br>
+                                   Half session payment : (1:00 - 2:15hrs)
+                               </span>
+                            </a>
+                            <label for="ccs_type" >Type (CCS)</label>
+                            <select  id="ccs_type" name="ccs_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                            <option selected="" value="0">Clear</option>
+                            <option value="FD">Full Day</option>
+                            <option value="PTA">Part Time a.m</option>
+                            <option value="PTP">Part Time p.m</option>
+                            <option value="SA">Sessional a.m</option>
+                            <option value="SP">Sessional p.m</option>
+                            <option value="HSA">Half Session a.m</option>
+                            <option value="HSP">Half Session p.m</option>
+
+                        </select>
+                        <input type="hidden" id="ccs_type_val" value="{{ data.ccs_type }}" >
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <label for="ccs_band" >Band (CCS)</label>
+                            <select name="ccs_band" id="ccs_band" class="col-8 form-control" title="Please select the Band which this childs parent falls under">
+                                <option selected="" value="0">Clear</option>
+                                <option value="A">Band A</option>
+                                <option value="AJ">Band AJ</option>
+                                <option value="B">Band B</option>
+                                <option value="D">Band D</option>
+                            </select>
+                            <input type="hidden" id="ccs_band_val" value="{{ data.ccs_band }}" >
+                        </div>
+                        <div class="form-group col-md-2" style="padding-left: 0px;">
+                                <label for="ccs_val" >CCS Value</label>
+                                <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                </span>
+                                <input type="text" id="ccs_val" name="ccs_value" value="{{ data.ccs_value }}" class="col-8 form-control" >
+                        </div>
+                    </div>
+                </div>
+                <div class="scheme CCSP" style="display:none">
+                    <div class="form-group row">
+                        <div class="form-group col-md-4">
+                            <label >CCSP Scheme</label>
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <a class="infobulle"><i class="fas fa-question-circle"></i>
+                               <span>
+                                   Full-day payment : (5hrs +)<br>
+                                   Part-time payment : (3:31 - 5:00hrs)<br>
+                                   Sessional payment : (2:16 - 3:30hrs)<br>
+                                   Half session payment : (1:00 - 2:15hrs)
+                               </span>
+                            </a>
+                            <label for="ccsp_type" >Type (CCSP)</label>
+                            <select  id="ccsp_type" name="ccsp_type" class="col-10 form-control" title="Please choose what scheme, if any, are applicable">
+                                <option selected="" value="0">Clear</option>
+                                <option value="FD">Full Day</option>
+                                <option value="PTA">Part Time a.m</option>
+                                <option value="PTP">Part Time p.m</option>
+                                <option value="SA">Sessional a.m</option>
+                                <option value="SP">Sessional p.m</option>
+                                <option value="HSA">Half Session a.m</option>
+                                <option value="HSP">Half Session p.m</option>
+                                <option value="UPTA">Universal Part Time a.m</option>
+                                <option value="UPTP">Universal Part Time p.m</option>
+                                <option value="USA">Universal Sessional a.m</option>
+                                <option value="USP">Universal Sessional p.m</option>
+                                <option value="UHA">Universal Half Sessional a.m</option>
+                                <option value="UHP">Universal Half Sessional p.m</option>
+                            </select>
+                            <input type="hidden" id="ccsp_type_val" value="{{ data.ccsp_type }}" >
+                        </div>
+                        <div class="form-group col-md-3" style="padding-left: 0px;">
+                            <label for="ccsp_band" >Band (CCSP)</label>
+                            <select name="ccsp_band" id="ccsp_band" class="col-8 form-control" title="Please select the Band which this childs parent falls under">
+                                <option selected="" value="0">Clear</option>
+                                <option value="A">Band A</option>
+                                <option value="AJ">Band AJ</option>
+                                <option value="B">Band B</option>
+                                <option value="D">Band D</option>
+                            </select>
+                            <input type="hidden" id="ccsp_band_val" value="{{ data.ccsp_band }}" >
+                        </div>
+                        <div class="form-group col-md-2" style="padding-left: 0px;">
+                                <label for="ccsp_val" >CCSP Value</label>
+                                <span class="minus" >
+                                        <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                </span>
+                                <input type="text" id="ccsp_val" name="ccsp_value" value="{{ data.ccsp_value }}" class="col-8 form-control" >
+                        </div>
+                    </div>
+                </div>
+                        {% endif %}
+                      <div id="tab_extras">
+                        {% for extras in data_extras %}
+                         <div class="form-group row">
+                            <div class="form-group col-md-4">
+                                    <label >Extras n°{{ loop.index0 +1 }}</label>
+                            </div>
+                            <div class="form-group col-md-6" style="padding-left: 0px;">
+                                    <label for="extras_desc" >Extra n°{{ loop.index0 +1 }} Description </label>
+                                    <input type="hidden" id="extras_id_{{ extras.id }}" name="extras_id[]" title="extras_id_{{ extras.id }}" value="{{ extras.id }}" >
+                                    <input type="text" id="extras_desc" name="extras_desc[]" value="{{ extras.extra_desc }}" title="Did you organise an After School Club or Drama Class? Add Description here " class="col-8 form-control extra" placeholder="Example School Club or Drama class" >
+                            </div>
+                            <div class="form-group col-md-2" style="padding-left: 0px;">
+                                    <label for="extras" >Extra n°{{ loop.index0 +1 }} Value</label>
+                                    <span class="minus" >
+                                            <i class="fa fa-plus fa-fw" aria-hidden="true"></i>
+                                    </span>
+                                    <input type="text" id="extras_val" name="extras_val[]" value="{{ extras.extra_val }}" class="col-8 form-control extras_count" title="Did you organise an After School Club or Drama Class? You can put in any extra fees in here ">
+
+                            </div>
+                         </div>
+                        {% endfor%}
+                      </div>
+                         <div class="form-group row"><div class="form-group col-md-4"></div>
+                         <div class="form-group col-md-6" style="padding-left: 0px;"></div>
+                         <div class="form-group col-md-2" style="padding-left: 0px;">
+                            <input class="btn-warning col-9 form-control" id="btn_extras" type="button" value="Add Extras"/>
+                            <input type="hidden" id="extras_sum" name="extras_sum">
+                         </div>
+                         </div>
+
+                        <input type="hidden" id="test" name="test" value="extras_id_{{ extras.id }}">
+                        <input type="hidden" id="extras_nb" name="extras_nb" value="{{ data_extras|length }}">
+                        <input type="hidden" id="extras_nb_before" name="extras_nb_before" value="{{ data_extras|length }}">
+
+                        <div class="form-group row">
+                            <div class="form-group col-md-4">
+                                    <label >Discount</label>
+                            </div>
+                            <div class="form-group col-md-3" style="padding-left: 0px;">
+                                    <label for="discount" >Discount Value </label>
+                                    <input type="text"  id="discount" name="discount" value="{{ data.discount }}" class="col-6 form-control" min="0" title="Leave this area blank if you do not wish to give a discount, % or an amount €">
+
+                            </div>
+                            <div class="form-group col-md-3" style="padding-left: 0px;">
+                               <label for="dis_type" >Discount Type </label>
+                               <select id="dis_type" name="discountType" class="col-10 form-control" value="{{ data.discountType }}" >
+                                <option value="%" selected="">%</option>
+                                <option value="€">€</option>
+                            </select>
+                            <input type="hidden" id="dis_type_val" value="{{ data.discountType }}" >
+                            </div>
+                            <div class="form-group col-md-2" style="padding-left: 0px;">
+                                    <label for="discountVal" >Discount Value </label>
+                                    <span class="minus" >
+                                            <i class="fa fa-minus fa-fw" aria-hidden="true"></i>
+                                    </span>
+                                    <input type="text"  id="discountVal" name="discountVal" value="{{ data.discountVal }}" class="col-8 form-control" min="0" title="Leave this area blank if you do not wish to give a discount, % or an amount €">
+
+                            </div>
+                        </div>
+
+                </div>
+
+                <div class="form-group row">
+                        <div class="form-group col-md-4">
+                                <label >Total</label>
+                          </div>
+                         <div class="form-group col-md-6" style="padding-left: 0px;">
+
+                         </div>
+                         <div class="form-group col-md-2" style="padding-left: 0px;">
+                                <span class="currency" >
+                                        <i id="icurr" class="fa fa-euro fa-fw" aria-hidden="true"></i>
+                                </span>
+                              <input type="text" name="total" id="total" value="{{ data.total }}" readonly="readonly" class="col-10 form-control bolder">
+
+                        </div>
+                </div>
+
+            </div>
+
+            <div style="float: right">
+                {% if school_user.role == 1 %}<p class="text-right">
+                    <button class="btn btn-primary hidden-print" type="submit" id="save">Save</button>
+                {% else %}<button class="btn btn-primary hidden-print" type="button" onclick=save_draft()>Save as draft</button>
+                <button class="btn btn-primary hidden-print" type="button" id="save" data-toggle="modal" data-target="#parentModal">Send to Parent</button>
+                {% endif %}
+                <input name="print" type="button" id="print" onClick="print_invoice()" value="Print" class="btn btn-primary hidden-print"></p>
+            </div>
+
+            <input type="hidden" value="1" name="addMessage">
+            <input type="hidden" value="{{ status }}" name="status">
+            <input type="hidden" value="{{ data.validate }}" name="validate" id="validate">
+            <input type="hidden" value="{{ child.school_id }}" name="school_id">
+            <input type="hidden" value="{{ user.user_id }}" name="id_user">
+            <input type="hidden" value="{{ child.child_id }}" name="id_child" id="id_child">
+            <input type="hidden" value="{{ id }}" name="id" id="id">
+            <input type="hidden" value="{{ invoice_id }}" id="invoice_id">
+            <input type="hidden" value="{{ invoiceno }}" name="invoiceNumber" id="invoiceNumber">
+            <input type="hidden" value="{{data.draft}}" name="draft" id="draft">
+            </div>
+
+            <div class="modal fade" id="parentModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Send to Parent</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>This cannot be undone, please confirm you would like to send this invoice to the parent associated with this account now</p>
+                                <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">I understand that this cannot be undone</span>
+                                </label>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="send_parent()">Send</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </form>
+        <div style="float: left">
+            <a class="text-right" href="{{ path_for('duplicate', {child_id: child.child_id, invoiceno: invoiceno, id:id } ) }}"><button class="btn btn-primary hidden-print" type="submit" id="duplicate">Duplicate</button></a>
+        </div>
+    </div>
+</div>
+{% else %}
+
+  <div class="col-lg-8 offset-lg-2">
+      <div class="text-center mb-5">
+          <img width="200" height="201" src="/images/tom.svg" alt="Background image">
+       </div>
+      <p class="text-center lead">This invoice has been validated by the administrator, you can not modify it anymore.</p>
+  </div>
+{% endif %}
+
+
+<input type="hidden" value="{{ scheme_data }}" id="scheme_data">
+<input type="hidden" value="{{ country_id }}" id="country_id">
+<input type="hidden" value="{{ child.child_id }}" name="id_child" id="child">
+
+
+<script type="text/javascript">
+
+</script>
+
+<script>
+
+    function save_draft(){
+        $('#draft').val("yes")
+        document.getElementById("form").submit();
+    }
+
+    function send_parent(){
+        $('#validate').val("yes")
+        $('#approved_val').val("yes")
+        $('#draft').val("no")
+        document.getElementById("form").submit();
+    }
+
+    function getSelectedValues() {
+        var selectedVal = $("#multiselect").val();
+        $( ".scheme" ).css( "display", "none" );
+        for(var i=0; i<selectedVal.length; i++){
+            $( "." + selectedVal[i] ).css( "display", "block" );
+        }
+    }
+
+
+    function print_invoice(){
+        var protocol = location.protocol;
+        var slashes = protocol.concat("//");
+        var host = slashes.concat(window.location.hostname);
+        var child_id =$("#id_child").val();
+        var invoice_id =$("#invoiceNumber").val();
+        var url = host + "/invoices/print/" + child_id + "/" + invoice_id ;
+        window.open(url, "_blank");
+    }
+
+    function send_invoice(){
+        var protocol = location.protocol;
+        var slashes = protocol.concat("//");
+        var host = slashes.concat(window.location.hostname);
+        var child_id =$("#id_child").val();
+        var invoice_id =$("#invoiceNumber").val();
+        var url = host + "/invoices/print/" + child_id + "/" + invoice_id ;
+        window.open(url, "_blank");
+
+    }
+    function calc_total(){
+        var schemedata = JSON.parse($("#scheme_data").val());
+
+        var discountVal = $("#discountVal").val();
+        var type = "";
+        var band = "";
+        var val = 0;
+        var scheme = "";
+        var hours = Number($("#hours").val());
+        var fee = Number($("#fee").val());
+        var extras = Number($("#extras_sum").val());
+        var discount = Number($("#discount").val());
+        var distype = $("#dis_type").val();
+        var days = $("#open_days").val();
+        var  weeks = Math.floor(days/5);
+        var scheme_val = 0;
+
+        //############ ECCE ##################
+        if($("#ecce").val() == "yes"){
+            val = findvalue("value_A" ,findscheme("ECCE","1",schemedata));
+            val = Number(val)*Number(days);
+            scheme_val += val;
+            $("#ecce_val").val(val.toFixed(2));
+
+        }else{
+            val = 0;
+            $("#ecce_val").val(val.toFixed(2));
+        }
+
+        //############ CCSU ##################
+        if($("#ccsu_type").val() != "0"){
+            type = $("#ccsu_type").val();
+            val = findvalue("value_A" ,findscheme("CCSU",type,schemedata));
+            val = Number(val)*Number(days);
+            scheme_val += val;
+            $("#ccsu_val").val(val.toFixed(2));
+        }else{
+            val = 0;
+            $("#ccsu_val").val(val.toFixed(2));
+        }
+
+        //############ CCSR ##################
+        if($("#ccsr_type").val() != "0") {
+            type = $("#ccsr_type").val();
+            val = findvalue("value_A" ,findscheme("CCSR",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+
+            scheme_val += val;
+            $("#ccsr_val").val(val.toFixed(2));
+        }else{
+            val = 0;
+            $("#ccsr_val").val(val.toFixed(2));
+
+        }
+
+        //############ CCSRT ##################
+        if($("#ccsrt_type").val() != "0"){
+            type = $("#ccsrt_type").val();
+
+            val = findvalue("value_A" ,findscheme("CCSRT",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+            scheme_val += val;
+            $("#ccsrt_val").val(val.toFixed(2));
+        }else{
+            val = 0;
+            $("#ccsrt_val").val(val.toFixed(2));
+        }
+
+        //#### CETS #########################
+        if($("#cets_type").val() != "0"){
+
+            type = $("#cets_type").val();
+            val = findvalue("value_A",findscheme("CETS",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+            scheme_val += val;
+            $("#cets_val").val(val.toFixed(2));
+
+        }else{
+            val = 0;
+            $("#cets_val").val(val.toFixed(2));
+        }
+
+        //#### ASCC #########################
+        if($("#ascc_type").val() != "0"){
+
+            type = $("#ascc_type").val();
+            val = findvalue("value_A",findscheme("ASCC",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+            scheme_val += val;
+            $("#ascc_val").val(val.toFixed(2));
+
+        }else{
+            val = 0;
+            $("#ascc_val").val(val.toFixed(2));
+        }
+
+        //#### CEC AS #########################
+        if($("#cecas_type").val() != "0"){
+
+            type = $("#cecas_type").val();
+            val = findvalue("value_A",findscheme("CEC AS",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+            scheme_val += val;
+            $("#cecas_val").val(val.toFixed(2));
+
+        }else{
+            val = 0;
+            $("#cecas_val").val(val.toFixed(2));
+        }
+
+        //#### CEC PS #########################
+        if($("#cecps_type").val() != "0"){
+
+            type = $("#cecps_type").val();
+            val = findvalue("value_A",findscheme("CEC PS",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+            scheme_val += val;
+            $("#cecps_val").val(val.toFixed(2));
+
+        }else{
+            val = 0;
+            $("#cecps_val").val(val.toFixed(2));
+        }
+
+        //#### CCSP #########################
+        if($("#ccsp_type").val() != "0" && $("#ccsp_band").val() != "0"){
+            type = $("#ccsp_type").val();
+            band = $("#ccsp_band").val();
+            val = findvalue("value_" + band,findscheme("CCSP",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+            scheme_val += val;
+
+            $("#ccsp_val").val(val.toFixed(2));
+
+        }else{
+            val = 0;
+            $("#ccsp_val").val(val.toFixed(2));
+        }
+
+        //#### CCS #########################
+        if($("#ccs_type").val() != "0" && $("#ccs_band").val() != "0"){
+            type = $("#ccs_type").val();
+            band = $("#ccs_band").val();
+            val = findvalue("value_" + band,findscheme("CCS",type,schemedata));
+            if(days > 0){
+                val = Number(val)*days;
+            }else{
+                val = 0;
+            }
+            scheme_val += val;
+            $("#ccs_val").val(val.toFixed(2));
+
+        }else{
+            val = 0;
+            $("#ccs_val").val(val.toFixed(2));
+        }
+
+        //#### TOTAL #########################
+        var total = 0;
+        if(fee > 0 && hours > 0){
+            total = fee*hours;
+            total = total + extras - scheme_val;
+            discount = getDiscount(total);
+            discount = (discount).toFixed(2);
+            $("#discountVal").val(discount);
+            total = total - discount;
+            $("#total").val((total).toFixed(2));
+        }
+
+    }
+
+     //#### TOTAL IF COUNTRY IS NOT IRELAND ###
+     function calc_total_normal(){
+
+        var discountVal = $("#discountVal").val();
+        var hours = Number($("#hours").val());
+        var fee = Number($("#fee").val());
+        var extras = Number($("#extras_sum").val());
+        var discount = Number($("#discount").val());
+        //var days = DayDifference($("#date_from").val(),$("#date_to").val());
+
+        //#### TOTAL #########################
+        var total = 0;
+        if(fee > 0 && hours > 0){
+            total = fee*hours;
+            total = total + extras;
+            discount = getDiscount(total);
+            discount = (discount).toFixed(2);
+            $("#discountVal").val(discount);
+            total = total - discount;
+            $("#total").val((total).toFixed(2));
+        }
+    }
+
+    function getDiscount(tot){
+        var discount_type = $("#dis_type").val();
+        var discount_value = Number($("#discount").val());
+        var ret = 0;
+
+        if(discount_type == "%" && discount_value > 0 ){
+            ret = (discount_value/100)*tot ;
+        }else{
+            ret = discount_value;
+        }
+        return ret;
+    }
+
+    function findvalue(keyname,scheme){
+       var val = scheme[keyname];
+       return val;
+    }
+
+    function findscheme(name,type, myArray)
+    {
+        for (var i=0; i < myArray.length; i++) {
+            if (myArray[i].scheme_name == name && myArray[i].scheme_type == type ) {
+                return myArray[i];
+            }
+        }
+    }
+
+    /*function DayDifference(d1,d2){
+        var dDate1 =new Date(d1);
+        var dDate2 =new Date(d2);
+        var iWeeks, iDateDiff, iAdjust = 0;
+        if (dDate2 < dDate1) return -1; // error code if dates transposed
+        var iWeekday1 = dDate1.getDay(); // day of week
+        var iWeekday2 = dDate2.getDay();
+        iWeekday1 = (iWeekday1 == 0) ? 7 : iWeekday1; // change Sunday from 0 to 7
+        iWeekday2 = (iWeekday2 == 0) ? 7 : iWeekday2;
+        if ((iWeekday1 > 5) && (iWeekday2 > 5)) iAdjust = 1; // adjustment if both days on weekend
+        iWeekday1 = (iWeekday1 > 5) ? 5 : iWeekday1; // only count weekdays
+        iWeekday2 = (iWeekday2 > 5) ? 5 : iWeekday2;
+
+        // calculate differnece in weeks (1000mS * 60sec * 60min * 24hrs * 7 days = 604800000)
+        iWeeks = Math.floor((dDate2.getTime() - dDate1.getTime()) / 604800000)
+
+        if (iWeekday1 <= iWeekday2) {
+        iDateDiff = (iWeeks * 5) + (iWeekday2 - iWeekday1)
+        } else {
+        iDateDiff = ((iWeeks + 1) * 5) - (iWeekday1 - iWeekday2)
+        }
+
+        iDateDiff -= iAdjust // take into account both days on weekend
+
+        return (iDateDiff + 1);
+
+    }*/
+
+    function change_currency(){
+       var currency =  $("#currency").val();
+       $("#currency_val").val(currency);
+       switch(currency){
+           case "€": $("#icurr").removeClass().addClass("fa fa-euro fa-fw"); break;
+           case "$": $("#icurr").removeClass().addClass("fa fa-dollar fa-fw"); break;
+           case "£": $("#icurr").removeClass().addClass("fa fa-gbp fa-fw"); break;
+           case "¥": $("#icurr").removeClass().addClass("fa fa-yen fa-fw"); break;
+       }
+    }
+
+    $(document).ready(function() {
+        LoadSelects();
+        BindControls();
+
+        var MaxInputs       = 4; //maximum input boxes allowed
+        var InputsWrapper   = $("#tab_extras"); //Input boxes wrapper ID
+
+        var x = InputsWrapper.length; //initlal text box count
+        var FieldCount = Number($("#extras_nb").val()); //to keep track of text box added
+
+        $("#btn_extras").click(function (e) {
+
+            if (FieldCount <= MaxInputs) {
+                FieldCount++; //text box added increment
+                $(InputsWrapper).append(
+                        '<div class="form-group row">'
+                        + '  <div class="form-group col-md-4"><label>Extras n°' + FieldCount + '</label></div>'
+                        + '  <div class="form-group col-md-6" style="padding-left: 0px;">'
+                        + '      <label for="extras_desc" >Extra n°' + FieldCount + ' Description </label>'
+                        + '      <input type="hidden" id="extras_id_' + FieldCount + '" name="extras_id_' + FieldCount + '" value="' + FieldCount + '" >'
+                        + '      <input type="text" id="extras_desc_' + FieldCount + '" name="extras_desc_' + FieldCount + '" title="Did you organise an After School Club or Drama Class? Add Description here " class="col-8 form-control extra" placeholder="Example School Club or Drama class" >'
+                        + '  </div>'
+                        + '  <div class="form-group col-md-2" style="padding-left: 0px;">'
+                        + '      <label for="extras_value" >Extra n°' + FieldCount + ' Value</label>'
+                        + '      <span class="minus"><i class="fa fa-plus fa-fw" aria-hidden="true"></i></span>'
+                        + '      <input type="text" id="extras_val_' + FieldCount + '" name="extras_val_' + FieldCount + '" class="col-8 form-control extras_count" title="Did you organise an After School Club or Drama Class? You can put in any extra fees in here ">'
+                        + '  </div>'
+                        + '</div>');
+                x++;
+                $('#extras_nb').val(FieldCount);
+              }
+            return false;
+        });
+
+        $('#multiselect').multiselect({
+            buttonWidth : '160px',
+            includeSelectAllOption : true,
+            nonSelectedText: 'Scheme Type'
+        });
+
+        $('.totaltime').on('changeDate',function(){
+        var start_date=$('#date_from').val()
+        var end_date=$('#date_to').val()
+        var child_id=$('#child').val()
+        $.post("https://dashboard.teachkloud.com/API/invoice/totaltime",
+            {start_date:start_date,
+            end_date:end_date,
+            child_id:child_id}
+            ,function(result){
+                $('#hours').val(result)})
+    })
+    });
+
+    function BindControls() {
+       var country_id = $("#country_id").val();
+
+       if(country_id == "IE"){
+            $("#open_days").change(calc_total);
+            $("#ccsu_type").change(calc_total);
+            $("#ccsr_type").change(calc_total);
+            $("#ccsrt_type").change(calc_total);
+            $("#ccsrt_type").change(calc_total);
+            $("#ascc_type").change(calc_total);
+            $("#ascc_band").change(calc_total);
+            $("#cecas_type").change(calc_total);
+            $("#cecas_band").change(calc_total);
+            $("#cecps_type").change(calc_total);
+            $("#cecps_band").change(calc_total);
+            $("#ccs_type").change(calc_total);
+            $("#ccs_band").change(calc_total);
+            $("#ccsp_type").change(calc_total);
+            $("#ccsp_band").change(calc_total);
+            $("#cets_type").change(calc_total);
+            $("#cets_band").change(calc_total);
+            $("#ecce").change(calc_total);
+            $("#date_from").change(calc_total);
+            $("#date_to").change(calc_total);
+            $("#fee").change(calc_total);
+            $("#hours").change(calc_total);
+            $("#discount").change(calc_total);
+            //$("#extras").change(calc_total);
+
+            var $form = $('#form'),
+            $sumDisplay = $('#extras_sum');
+            $form.delegate('.extras_count', 'change', function (){
+                var $summands = $form.find('.extras_count');
+                var sum = 0;
+                $summands.each(function (){
+                    var value = Number($(this).val());
+                    if (!isNaN(value)) sum += value;
+                });
+
+                $sumDisplay.val(sum);
+
+                $('extras_val_1').change(calc_total());
+                $form.delegate('#extras_val').change(calc_total);
+            });
+            $("#dis_type").change(calc_total);
+            $("#currency").change(change_currency);
+       }else{
+            $("#open_days").change(calc_total_normal);
+            $("#date_from").change(calc_total_normal);
+            $("#date_to").change(calc_total_normal);
+            $("#fee").change(calc_total_normal);
+            $("#hours").change(calc_total_normal);
+            $("#discount").change(calc_total_normal);
+            //$("#extras_value").change(calc_total_normal);
+
+            var $form = $('#form'),
+            $sumDisplay = $('#extras_sum');
+            $form.delegate('.extras_count', 'change', function (){
+                var $summands = $form.find('.extras_count');
+                var sum = 0;
+                $summands.each(function (){
+                    var value = Number($(this).val());
+                    if (!isNaN(value)) sum += value;
+                });
+
+                $sumDisplay.val(sum);
+
+                $('extras_val_1').change(calc_total_normal());
+                $form.delegate('#extras_val').change(calc_total_normal);
+            });
+
+            $("#dis_type").change(calc_total_normal);
+            $("#currency").change(change_currency);
+       }
+
+    }
+
+   function LoadSelects(){
+        var val = $("#currency_val").val();
+        $("#currency").val(val);
+
+        val = $("#approved_val").val();
+        if(val != "no"){
+            $("#approved").val("yes");
+        }
+        val = $("#ecce_val").val();
+        if(val != "0.00"){
+            $( ".ECCE").css( "display", "block" );
+            $("#ecce").val("yes");
+        }
+        val = $("#ccsu_type_val").val();
+        if(val != "0"){
+            $( ".CCSU").css( "display", "block" );
+            $("#ccsu_type").val(val);
+        }
+        val = $("#ccsr_type_val").val();
+        if(val != "0"){
+            $( ".CCSR").css( "display", "block" );
+            $("#ccsr_type").val(val);
+        }
+        val = $("#ccsrt_type_val").val();
+        if(val != "0"){
+            $( ".CCSRT").css( "display", "block" );
+            $("#ccsrt_type").val(val);
+        }
+        val = $("#cets_type_val").val();
+        if(val != "0"){
+            $( ".CETS").css( "display", "block" );
+            $("#cets_type").val(val);
+        }
+        val = $("#cets_band_val").val();
+        if(val != "0"){
+            $("#cets_band").val(val);
+        }
+        val = $("#ascc_type_val").val();
+        if(val != "0"){
+            $( ".ASCC").css( "display", "block" );
+            $("#ascc_type").val(val);
+        }
+        val = $("#ascc_band_val").val();
+        if(val != "0"){
+            $("#ascc_band").val(val);
+        }
+        val = $("#cecps_type_val").val();
+        if(val != "0"){
+            $( ".CEC_PS").css( "display", "block" );
+            $("#cecps_type").val(val);
+        }
+        val = $("#cecps_band_val").val();
+        if(val != "0"){
+            $("#cecps_band").val(val);
+        }
+        val = $("#cecas_type_val").val();
+        if(val != "0"){
+            $( ".CEC_AS").css( "display", "block" );
+            $("#cecas_type").val(val);
+        }
+        val = $("#cecas_band_val").val();
+        if(val != "0"){
+            $("#cecas_band").val(val);
+        }
+        val = $("#ccs_type_val").val();
+        if(val != "0"){
+            $( ".CCS").css( "display", "block" );
+            $("#ccs_type").val(val);
+        }
+        val = $("#ccs_band_val").val();
+        if(val != "0"){
+            $("#ccs_band").val(val);
+        }
+        val = $("#ccsp_type_val").val();
+        if(val != "0"){
+            $( ".CCSP").css( "display", "block" );
+            $("#ccsp_type").val(val);
+        }
+        val = $("#ccsp_band_val").val();
+        if(val != "0"){
+            $("#ccsp_band").val(val);
+        }
+        val = $("#dis_type_val").val();
+        if(val != "0"){
+            $("#dis_type").val(val);
+        }
+   }
+    
+</script>
+{% endblock %}

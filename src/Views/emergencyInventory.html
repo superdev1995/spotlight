@@ -1,0 +1,60 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script src="/javascripts/pdfdownload.js"></script> 
+
+    <div class="row">
+        <div class="col-12 col-sm-5">
+            <h4 class="mb-3">{{ title }}</h4>
+        </div>
+
+        <div class="col-12 col-sm-7 mb-2 text-right noprint">
+            <div class="btn-group dropdown">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-caret-down mr-1"></i>
+                    Options
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                    <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+                </div>
+            </div>
+            <a class="btn btn-primary noprint" href="{{ path_for('editEmergencyInventory') }}">Edit Inventory</a>
+        </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-block table-responsive"> 
+			 <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Location of Equipment</th>
+                    <th>Number</th>
+                    <th>Type</th>
+                    <th>Other comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, item in inventory %}
+                <tr>
+                    <td>
+                        {{ item.location_of_equipment }}
+                    </td>
+                    <td>
+                        {{ item.number }}
+                    </td>
+                    <td>
+                        {{ item.type }}
+                    </td>
+                    <td>
+                        {{ item.location }}
+                    </td>
+                </tr>
+        {% endfor %}
+            </tbody>
+        </table>
+
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+	
+    
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-0">{{ title }}</h4>
+<h6 class="mb-5 text-muted">Recommendations Based on Your Answers</h6>
+<div class="card mb-5">
+    <div class="card-header success">
+        Percentage Score
+    </div>
+    <div class="card-block text-center">
+        <h1>{{ score * 100 }}%</h1>
+    </div>
+</div>
+<div id="accordion" role="tablist" aria-multiselectable="true">
+    {% for category in categories %}
+        <div class="mb-4">
+            <h5>Section: {{ category.category_name }}</h5>
+            {% for question in questions if question.category_id == category.category_id %}
+                {% if question.school_categories == '' or (question.school_categories and school.category_id in question.school_categories|split(',')) %}
+                    <div class="card mb-1">
+                        <div class="card-header" role="tab" id="heading{{ question.question_id }}">
+                            {% if correct_questions[question.question_id] == true %}
+                                <i class="fa fa-check fa-fw text-success" aria-hidden="true"></i>
+                            {% else %}
+                                <i class="fa fa-times fa-fw text-danger" aria-hidden="true"></i>
+                            {% endif %}
+                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ question.question_id }}" aria-expanded="true" aria-controls="collapse{{ question.question_id }}">{{ question.question_body | raw }}</a>
+                        </div>
+                        <div id="collapse{{ question.question_id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ question.question_id }}">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                      <th class="w-50">Available Answers</th>
+                                      <th class="w-50">Your Answer(s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {% for id, answer in answers if id == question.question_id %}
+                                                <ul>
+                                                    {% for item in answer %}
+                                                        <li>{{ item.answer_body }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for id, answer in answers if id == question.question_id %}
+                                                <ul>
+                                                    {% for item in answer if item.created_at %}
+                                                        <li>{{ item.answer_body }} {% if item.file_url %}<p><a href="{{ item.file_url }}" target="_blank"><i class="fa fa-paperclip" aria-hidden="true"></i> &nbsp; Existing attached file</a></p>{% endif %}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            {% if correct_questions[question.question_id] == false %}
+                                <div class="card-block">
+                                    <h4>Recommendation</h4>
+                                    <p>{{ question.question_recommendation | raw }}</p>
+                                    {% if question.question_multiple_choice %}
+                                        <small>All of the above answers must be checked and ascertained.</small>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="card-footer">
+                                <a class="btn btn-primary" href="{{ path_for('complianceDetails', { question_id: question.question_id }) }}">Change My Answer</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

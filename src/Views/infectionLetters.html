@@ -1,0 +1,52 @@
+
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+
+<div class="list-group">
+    <form action="{{ path_for('infectionLettersCreate') }}" method="get">
+        <div class="list-group-item justify-content-between">
+            <div>
+                <h6 class="mb-0">Create a new letter</h6>
+            </div>
+            <div>
+                <a href="{{ path_for('infectionLettersCreate') }}"><button type="submit" name="create" class="btn btn-primary" role="button">Create</button></a>
+            </div>
+        </div>
+        
+        <div class="list-group-item justify-content-between">
+            <label class="col-form-label" for="sample">Edit a sample letter:</label>
+            <div class="col-md-8">
+                <select class="form-control" id="letter_sample" name="letter_sample" onchange="showSettings(this)">
+                    <option value="" selected > Please select</option>
+                    {% for sample in samples %}
+                        <option value="{{ sample.letter_sample_id }}">{{ sample.letter_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" name="edit_sample" class="btn btn-primary" role="button">Edit</button>
+            </div>
+        </div>
+        
+        {% if edit_l is not empty %}
+            <div class="list-group-item justify-content-between">
+                <label class="col-form-label" for="edit">Edit a saved letter:</label>
+                <div class="col-md-8">
+                    <select class="form-control" id="letter_edit" name="letter_edit" onchange="showSettings(this)">
+                        <option value="" selected > Please select</option>
+                        {% for edit in edit_l %}
+                            <option value="{{ edit.letter_id }}">{{ edit.letter_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" name="edit_letter" class="btn btn-primary" role="button">Edit</button>
+                </div>
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}

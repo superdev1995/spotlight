@@ -1,0 +1,298 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<div class="row mb-3">
+    <div class="col-12 col-lg-6 mt-2 text-lg-left text-right">
+        {% if school_user.role == 1 %}
+            <button class="btn btn-primary" data-toggle="modal" data-target="#createChildModal" role="button">Add Child</button>
+            <button class="btn btn-outline-primary" data-toggle="modal" data-target="#createRoomModal" role="button">Add Room</button>
+            <form method="post" action="{{ path_for('childCreate') }}">
+                <div class="modal fade" id="createChildModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add Child</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body" style="text-align: left;">
+                                <div class="form-group row mb-5">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="room">Assigned Room:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <select class="form-control" name="room_id" id="room_id" required>
+                                            <option value="" disabled selected hidden>Please select a room</option>
+                                            {% for room in rooms %}
+                                                <option value="{{ room.room_id }}">{{ room.room_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <small class="form-text text-muted">You need to create at least one room first.</small>
+                                    </div>
+                                </div>
+                                <h5>General Details</h5>
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="name">Name:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="text" name="name" id="name" placeholder="Jane Doe" maxlength="64" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label">Gender:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <label class="custom-control custom-radio">
+                                            <input class="custom-control-input" name="gender" type="radio" value="M" required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Male</span>
+                                        </label>
+                                        <label class="custom-control custom-radio">
+                                            <input class="custom-control-input" name="gender" type="radio" value="F" required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Female</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-5">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="birthday">Date of Birth:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="date" name="birthday" id="birthday" placeholder="YYYY-MM-DD" min="1950-01-01" required>
+                                        <script>
+                                                var date = new Date();
+                                                document.getElementById('birthday').max = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+                                                document.getElementById('birthday').min = new Date('1/1/' + (date.getFullYear()-100)).toISOString().split("T")[0];
+                                        </script>
+                                    </div>
+                                </div>
+                                <h5>Home Address</h5>
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="street">Street Address:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="text" id="street" name="street" maxlength="64">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="city">City/Town:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="text" id="city" name="city" maxlength="32">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="postal_code">Postal Code:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="text" id="postal_code" name="postal_code" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="phone">Phone:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="tel" id="phone" name="phone" pattern="(((\+|00)|)(.\d{1,12}))" maxlength="32">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <div class="text-muted small">Each new child adds <strong>{{ settings.feePerChild|number_format(2) }} EUR</strong> to your monthly charge.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            </form>
+            <form method="post" action="{{ path_for('roomCreate') }}">
+                <div class="modal fade" id="createRoomModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add Room</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body" style="text-align: left;">
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="room_name">New Room Name:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="text" name="name" id="room_name" maxlength="64" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-3 col-md-2 col-form-label" for="room_description">Short Description:</label>
+                                    <div class="col-12 col-sm-9 col-md-10">
+                                        <input class="form-control" type="text" name="description" id="room_description" maxlength="255" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+            </form>
+        {% endif %}
+    </div>
+    <div class="d-none d-lg-block col-12 col-lg-6 mt-2">
+        <form class="form-inline mb-4" action="{{ path_for('child') }}" method="get">
+            <div class="form-group ml-auto">
+                <label class="mr-2" for="search">Search child by name</label>
+                <div class="d-inline-block mr-2">
+                    <input class="form-control" type="text" name="search" id="search" maxlength="64" placeholder="Enter a name" required>
+                </div>
+                <div class="d-inline-block">
+                    <button class="btn btn-outline-primary" type="submit">Go</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="d-block d-lg-none col-12 mt-4">
+        <form class="mb-4" action="{{ path_for('child') }}" method="get">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control col-11" name="search" id="search" placeholder="Search child by name" aria-label="Search child by name" aria-describedby="basic-addon1" required>
+                <div class="input-group-append ml-2">
+                    <button class="btn btn-outline-primary" type="submit">Go</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% if children %}
+    {% for room in rooms %}
+        <h4 class="mb-0">{{ room.room_name }}</h4>
+        <h6 class="mb-4 text-muted">{{ room.room_description }}{% if school_user.role == 1 %} <a class="text-muted" href="{{ path_for('roomEdit', { room_id: room.room_id }) }}" aria-label="Edit Romm"><i class="fas fa-pen-square" aria-hidden="true"></i></a>{% endif %}</h6>
+        <div class="row d-flex flex-wrap mb-5">
+            {% for child in children if child.room_id == room.room_id %}    
+                <div class="d-none d-lg-block col-6 col-lg-4">
+                    <div class="card align-self-stretch mb-4" style="width:239.99px;height:392.99px">
+                        <div class="card-block text-center">
+                            {% if child.daysDiff is defined%}
+                                {% if ((child.daysDiff ==0) or (child.daysDiff ==1) or (child.daysDiff ==7))  %}
+                                    <h5 class="mt-2" style="color:#10a05c"> {{child.daysBday}}</h5>
+                                {% endif %}
+                            {% else %}
+                            <br/> <h5 style="padding-bottom: 2px"></h5>
+                            {% endif %}
+                            <br/>        
+                            <a href="{{ path_for('childDetails', {child_id: child.child_id}) }}">
+                                <img class="rounded-circle" width="50%" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+                            </a>
+                            <h5 class="mt-2">
+                                <a href="{{ path_for('childDetails', {child_id: child.child_id}) }}">{{ child.child_name }}</a>
+                                {% if child.child_gender == 'M' %}
+                                    <span class="fa-stack fa-sm">
+                                        <i class="fa fa-circle fa-stack-2x badge-male"></i>
+                                        <i class="fa fa-mars fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                {% endif %}
+                                {% if child.child_gender == 'F' %}
+                                    <span class="fa-stack fa-sm">
+                                        <i class="fa fa-circle fa-stack-2x badge-female"></i>
+                                        <i class="fa fa-venus fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                {% endif %}
+                            </h5>
+                            {% if school.country_id == "US" %}
+                                <p><span class="text-muted small">Birthday:</span><br>{{ child.child_birthday|date("d-m-Y") }}</p>
+                            {% else %}
+                                <p><span class="text-muted small">Birthday:</span><br>{{ child.child_birthday }}</p>
+                            {% endif %}
+                            <p><a href="{{ path_for('attendanceInsightsReport', {'year': current_year, 'month': current_month, 'child_id': child.child_id}) }}" class="btn btn-sm btn-info col-11 col-lg-8">Attendance Insights</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-block d-lg-none col-12">
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item" style="padding: 0.25rem 1.25rem;">
+                            <div class="media" style="width: 100%">
+                                <a style="width: 60px;" href="{{ path_for('childDetails', {child_id: child.child_id}) }}">
+                                        <img class="rounded-circle" width="100%" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+                                    </a>
+                                <div class="media-body ml-2">
+                                    <div class="child-list-info">
+                                        <h6 class="mt-2 mb-1">
+                                                <a href="{{ path_for('childDetails', {child_id: child.child_id}) }}">{{ child.child_name }}</a>
+                                                {% if child.child_gender == 'M' %}
+                                                    <span class="fa-stack fa-sm">
+                                                        <i class="fa fa-circle fa-stack-2x badge-male"></i>
+                                                        <i class="fa fa-mars fa-stack-1x fa-inverse"></i>
+                                                    </span>
+                                                {% endif %}
+                                                {% if child.child_gender == 'F' %}
+                                                    <span class="fa-stack fa-sm">
+                                                        <i class="fa fa-circle fa-stack-2x badge-female"></i>
+                                                        <i class="fa fa-venus fa-stack-1x fa-inverse"></i>
+                                                    </span>
+                                                {% endif %}
+                                            </h6>
+                                            {% if school.country_id == "US" %}
+                                                <p><span class="text-muted">Birthday: </span>{{ child.child_birthday|date("d-m-Y") }}</p>
+                                            {% else %}
+                                                <p><span class="text-muted">Birthday: </span>{{ child.child_birthday }}</p>
+                                            {% endif %}
+                                    </div>
+                                    <div class="child-list-options">
+                                        <div class="btn-group dropleft">
+                                                <button style="border-color: transparent;" class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                  <i class="fa fa-ellipsis-h"></i>
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                  <a class="dropdown-item" href="{{ path_for('attendanceInsightsReport', {'year': current_year, 'month': current_month, 'child_id': child.child_id}) }}">Attendance Insights</a>
+                                                </div>
+                                              </div>
+                                    </div>
+                                    <div style="clear: both;"></div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    {% if search %}
+        <p>No results. Sorry!</p>
+    {% else %}
+        <div class="col-lg-8 offset-lg-2">
+            <div class="text-center mb-5">
+                <img width="200" height="201" src="/images/tom.svg" alt="Backgroud image">
+            </div>
+            <p class="lead">The pre-school administrator has not created any child profiles for this pre-school, yet.</p>
+            <p class="lead">Let’s get started by creating the first child profile or ask your administrator to create one! You can then collaborate using all the wonderful features that TeachKloud has to offer.</p>
+        </div>
+    {% endif %}
+{% endif %}
+{% if archived_children %}
+    <h4 class="mb-0">Archived Profiles</h4>
+    <h6 class="mb-4 text-muted">Archived profiles are read-only.</h6>
+    <div class="row d-flex flex-wrap mb-5">
+        {% for child in archived_children %}
+            <div class="col-6 col-lg-4">
+                <div class="card align-self-stretch mb-4">
+                    <div class="card-block text-center">
+                        <a href="{{ path_for('childDetails', {child_id: child.child_id}) }}">
+                            <img class="rounded-circle" width="50%" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+                        </a>
+                        <h5 class="mt-2">
+                            <a href="{{ path_for('childDetails', {child_id: child.child_id}) }}">{{ child.child_name }}</a>
+                            {% if child.child_gender == 'M' %}
+                                <span class="fa-stack fa-sm">
+                                    <i class="fa fa-circle fa-stack-2x badge-male"></i>
+                                    <i class="fa fa-mars fa-stack-1x fa-inverse"></i>
+                                </span>
+                            {% endif %}
+                            {% if child.child_gender == 'F' %}
+                                <span class="fa-stack fa-sm">
+                                    <i class="fa fa-circle fa-stack-2x badge-female"></i>
+                                    <i class="fa fa-venus fa-stack-1x fa-inverse"></i>
+                                </span>
+                            {% endif %}
+                        </h5>
+                        <p><span class="text-muted small">Birthday:</span><br>{{ child.child_birthday }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<link rel="stylesheet" href="/stylesheets/bootstrap-multiselect.css">
+<script src="/javascripts/bootstrap-multiselect.js"></script>
+
+<div class="row">
+    <div class="col-6">
+        <h4 class="mb-5">{{ title }}</h4>
+    </div>
+
+    <div class="col-6">
+        <select id="multiselect" multiple="multiple">
+            {%for school in listschool %}
+            <option value="{{school.school_id}}" selected="selected" >{{school.school_name}}</option>
+            {% endfor %}
+    </select>
+    </div>
+
+
+    <!-- {% if school.stripe_connect_id == ""%}
+    <div class="col-3 text-right">
+        <a class="btn btn-primary" href="{{ path_for('school') }}">Add Stripe Account</a>
+    </div>
+    {% endif %} -->
+</div>
+
+{%for school in schools %}
+<div id="{{school.school_id}}" style="display: block">
+<div class="card mb-4">
+    <div class="card-header">
+        General Information
+    </div>
+
+    {% if school_user.role == 0 %}
+        <div class="alert alert-warning">
+            Is any information incorrect? Please contact your school administrator to amend.
+        </div>
+    {% endif %}
+    <div class="card-block">
+        <dl class="row">
+            <dd class="col-md-8 offset-md-4">
+                <div class="media">
+                    <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ school.school_avatar_url|default('/images/school.png') }}" alt="School image">
+                    <div class="media-body">
+                        <h4>{{ school.school_name }}</h4>
+                        <small>
+                            {% if school.school_type == 'P' %}Private Setting{% endif %}
+                            {% if school.school_type == 'C' %}Community Setting{% endif %}
+                        </small>
+                    </div>
+                </div>
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-md-4">Type of Pre-School:</dt>
+            <dd class="col-md-8">
+                {% if school.country_id == 'US' %}
+                    {{ schoolUS.category }}
+                    {% else %}
+                    {% for category in categories[school.school_id] %}
+                        {% if school.category_id == category.category_id %}
+                            {{ category.category_name }}<br>
+                            <small>{{ category.category_description }}</small>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<style>
+
+h3{
+     font-family: 'Josefin Sans', sans-serif;
+    font-weight: bold;
+}
+
+.box{
+    padding-top: 10px;
+    padding-bottom: 70px;
+
+}
+
+.box-part{
+    background: #f4f4f4;
+    border-radius:8px;
+    padding:20px 10px;
+}
+
+.box-part:hover{
+    background: #1f9f5e;
+}
+
+.box-part:hover .fa ,
+.box-part:hover .title ,
+.box-part:hover .text ,
+.box-part:hover a{
+    color:#f4f4f4;
+    -webkit-transition: all 1s ease-out;
+    -moz-transition: all 1s ease-out;
+    -o-transition: all 1s ease-out;
+    transition: all 1s ease-out;
+}
+
+.text{
+    margin-top:20px;
+}
+
+
+</style>
+
+<div class="card mb-2">
+    <div class="card-header">
+        Payment History for {{ "now"|date("F") }}
+    </div>
+  <!--<dl class="row">
+            <dt class="col-md-4">Amount:</dt>
+            <dd class="col-md-8">
+                {{ charge.data[i]['amount'] }}
+            </dd>
+        </dl>-->
+    <div class="tab-pane card-block plan-details active">
+        <div class="box">
+            <div class="container">
+             	<div class="row">
+                    {#dump(balance[school.school_id])#}
+	        		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+	        			<div class="box-part text-center">
+	        				<div class="title">
+	        					<h3> {{ (balance[school.school_id].available.0.amount/100) | number_format(2, '.', ',') ~ " " ~ currencyB[school.school_id] }}</h3>
+	        				</div>
+	        				<div class="text">
+	        					<span>Total balance</span>
+	        				</div>
+	        			</div>
+	        		</div>
+	        		 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+	        			<div class="box-part text-center">
+	        				<div class="title">
+                                <h3> {{ (balance[school.school_id]["pending"][0].amount/100) | number_format(2, '.', ',') ~ " " ~ currencyB[school.school_id] }}</h3>
+	        				</div>
+	        				<div class="text">
+	        					<span>Future payouts</span>
+	        				</div>
+	        			 </div>
+	        		</div>
+	        		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+	        			<div class="box-part text-center">
+	        				<div class="title">
+	        					<h3>0.00 €</h3>
+	        				</div>
+	        				<div class="text">
+	        					<span>In transit to bank</span>
+	        				</div>
+	        			 </div>
+	        		</div>
+	        	</div>
+            </div>
+        </div>
+     <!--<div class="row">
+         <div class="col-md-4">
+             <div class="card text-center" style="width: 16rem;">
+                 <div class="card-body">
+                     <h5 class="card-title">Total balance</h5>
+                     <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                 </div>
+             </div>
+         </div>
+         <div class="col-md-4">
+             <div class="card text-center" style="width: 16rem;">
+                 <div class="card-body">
+                     <h5 class="card-title">Future payouts</h5>
+                     <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                 </div>
+             </div>
+         </div>
+         <div class="col-md-4">
+             <div class="card text-center" style="width: 16rem;">
+                 <div class="card-body">
+                     <h5 class="card-title">In transit to bank</h5>
+                     <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                 </div>
+             </div>
+         </div>
+     </div>-->
+        <div class="row d-flex flex-wrap mb-5">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table id="mytable" class="table table-bordred table-striped">
+                    <thead>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Net</th>
+                        <th>Fee <i class="fa fa-info-circle" title="This includes : 1% Fee for Teachkloud and Stripe fee"></i> </th>
+                        <th>Refunded </th>
+                    <!--<th>Refund</th>-->
+                    </thead>
+                    <tbody>
+
+
+                    {% if charge[school.school_id].data|length >= 1 %}
+                    {% for i in 0..charge[school.school_id].data|length-1 %}
+                    {# dump(charge) #}
+                        {% if charge[school.school_id].data[i]['currency'] == 'eur' %} {% set currencyC = '€' %} {% else %} {% set currencyC = '$' %}{% endif %}
+                        <tr>
+                        <td>{{ charge[school.school_id].data[i]['created']|date("Y/m/d") }}</td>
+                        <td>{{ charge[school.school_id].data[i]['description'][:45] ~ '...' }}</td>
+                        <td>{{ (charge[school.school_id].data[i]['amount'] / 100) | number_format(2, '.', ',') ~ "" ~ currencyC }}</td>
+                        <td>{{ (balanceAll[school.school_id].data[i]['net'] / 100) | number_format(2, '.', ',') ~ "" ~ currencyC }}</td>
+                        <td>{{ (balanceAll[school.school_id].data[i]['fee'] / 100) | number_format(2, '.', ',') ~ "" ~ currencyC }}</td>
+                        <!--<td>{{ (charge.data[i]['amount_refunded'] / 100) | number_format(2, '.', ',') ~ " " ~ currencyC }}</td>-->
+                        {% if school.school_id == activeschool %}
+                        {% if charge[school.school_id].data[i]['amount_refunded'] == "0" %}
+                        <td>
+                            <a href="{{ path_for('chargeRefund', { charge_id: charge[school.school_id].data[i]['id'] }) }}" onclick="return confirm('Are you sure you want to refund ?');"><span style="color:#d9534f" class="fa fa-share-square fa-2x"></span></a>
+                            <input type="hidden" value="{{charge[school.school_id].data[i]['id']}}">
+                        </td>
+                        {% else %}
+                        <td>
+                            <span style="color:#5cb85c" class="fa fa-share-square fa-2x"></span>
+                        </td>
+                        {% endif %}
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                        </tr>
+                    {% endfor %}
+                    {% endif %}
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mb-2">
+    <div class="card-header">
+        Payout History
+    </div>
+  <!--<dl class="row">
+            <dt class="col-md-4">Amount:</dt>
+            <dd class="col-md-8">
+                {{ charge.data[i]['amount'] }}
+            </dd>
+        </dl>-->
+    <div class="tab-pane card-block plan-details active">
+        <div class="row d-flex flex-wrap mb-5">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table id="mytable1" class="table table-bordred table-striped">
+                        <thead>
+                        <th>Created</th>
+                        <th>Arrival date</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                        </thead>
+                        <tbody>
+                        {#dump(payout)#}
+                        {#dump(payout.data|length)#}
+                        {% if payout.data|length >= 1 %}
+                        {% for i in 0..payout[school.school_id].data|length-1 %}
+                            {% if payout[school.school_id].data[i]['currency'] == 'eur' %} {% set currencyC = '€' %} {% else %} {% set currencyC = '$' %}{% endif %}
+                            <tr>
+                                <td>{{ payout[school.school_id].data[i]['created']|date("Y/m/d") }}</td>
+                                <td>{{ payout[school.school_id].data[i]['arrival_date']|date("Y/m/d") }}</td>
+                                <td>{{ payout[school.school_id].data[i]['status'] | replace({'_': " "}) |capitalize }}</td>
+                                <td>{{ (payout[school.school_id].data[i]['amount'] / 100) | number_format(2, '.', ',') ~ " " ~ currencyC }}</td>
+                            </tr>
+                        {% endfor %}
+                        {% endif%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endfor %}
+<script>
+$(document).ready(function() {  
+    
+    $('#multiselect').multiselect({
+    //buttonWidth : '160px',
+    maxHeight:300,
+    nonSelectedText: 'View',
+    onChange: function(element, checked) {
+        if (checked === true) {
+            $('#'+element.val()).css("display","block")
+        }
+        if (checked === false) {
+            $('#'+element.val()).css("display","none")
+        }
+    }
+    });
+ });   
+</script>
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-0">{{ title }}</h4>
+<br/>
+<div class="progress mb-4">
+    <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><strong>{{ progress }}%</strong></div>
+</div>
+
+<form action="{{ path_for('auditSave', {question_sort: question.question_sort }) }}" method="post">
+    <div class="card">
+        <div class="card-header success">
+            Question {{ question.question_sort }} of {{ audit_count }}
+        </div>
+        
+        <div class="card-block">
+            <p class="lead">{{ question.question_body | raw }}</p>
+            {% if question.question_description %}
+                <p>{{ question.question_description | raw }}</p>
+            {% endif %}
+            <div class="form-group">
+                <div class="custom-controls-stacked">                 
+                    <label class="custom-control custom-radio">
+                            <input name="sendto" type="radio" name="answer" value="YES" class="custom-control-input">
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">Yes</span>
+                        </label>
+                    
+                        <label class="custom-control custom-radio">
+                            <input name="sendto" type="radio" name="answer" value="NO" class="custom-control-input">
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">No</span>
+                        </label>
+                    
+                        <label class="custom-control custom-radio">
+                            <input name="sendto" type="radio" name="answer" value="N/A" class="custom-control-input">
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">N/A</span>
+                        </label>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-6">
+            <button class="btn btn-primary" type="submit" role="button">Save and Proceed &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="col-6 text-right">
+            
+                
+            
+            
+            <button class="btn btn-outline-danger" type="button" role="button" data-toggle="modal" data-target="#resetModal">Reset</button>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<form action="{{ path_for('complianceReset') }}" method="post">
+    <div class="modal fade" id="resetModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reset Self-Audit Survey</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Resetting this self-audit survey will delete all your saved answers. This cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Confirm Reset</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endblock %}

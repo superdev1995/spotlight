@@ -1,0 +1,163 @@
+{% extends 'master.dashboard.html' %} {% block body %}
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+      integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous"
+      media="print" xmlns="http://www.w3.org/1999/html">
+<link rel="stylesheet" href="./../public/stylesheets/invoice.css">
+
+{# dump(school) #}
+<!--acct_1DbodlFnUOeuxiEl-->
+{% if thisinvoice %}
+
+    <div class="row">
+        <div class="col-6">
+            <h4 class="mb-5">{{ title }} n°{{thisinvoice.invoiceNumber}} for {{ child.child_name }}, {{ school.school_name }}</h4>
+            <h6>Status : {{thisinvoice.status|capitalize }}</h6>
+            {% if thisinvoice.validate == "yes" %}
+                <h6>Sent for Payment</h6>
+            {% endif %}
+        </div>
+        <div class="col-6 text-right">
+            <a class="btn btn-primary" href="{{ path_for('invoice_list', {child_id: child.child_id}) }}">View All Invoices</a>
+            {% if thisinvoice.status == "pending" and user.user_type == "P" and thisinvoice.approved == "yes" %}<button class="btn btn-warning" data-toggle="modal" data-target="#paymentModal">Pay the bill</button>{% endif %}
+            {% if school_user.role == "1" and thisinvoice.approved == "yes" and thisinvoice.status == "pending" and school.stripe_connect_id != "" %} <a class="btn btn-warning" href="{{ path_for('invoice_send', {child_id: child.child_id, id: thisinvoice.invoiceNumber} ) }}" onclick="return confirm('TeachKloud takes a 1% administration fee, are you sure you want to send the bill to parents?');">Send to parent</a>{% endif %}
+            {% if school_user.role == "1" and school.stripe_connect_id == "" %} <a class="btn btn-warning" href="{{ path_for('school') }}" title="You must create a stripe account before you can send the bill to parents">Create Stripe account</a>{% endif %}
+            {% if school_user.role == "1" and thisinvoice.approved == "no" %} <a class="btn btn-warning" href="{{ path_for('invoices', {child_id: child.child_id}) }}/{{ thisinvoice.invoiceNumber }}">Validate</a>{% endif %}
+            {% if school_user.role == "0" and user.user_type == "T" %} <a class="btn btn-warning" href="{{ path_for('invoice_send_admin', {child_id: child.child_id, id: thisinvoice.invoiceNumber} ) }}" title="The administrator must validate the invoice before being able to send it to the parents">Send to admin</a>{% endif %}
+
+
+        </div>
+
+
+    </div>
+
+    <div class="tab-pane card-block plan-details active">
+        {# dump(thisinvoice) #}
+        {# app.request.query.get("page") #}
+        <div class="col-12">
+            <iframe src="{{ path_for('invoices') }}print/{{thisinvoice.idC}}/{{ thisinvoice.invoiceNumber }}" width="100%" height="800px"></iframe>
+        </div>
+
+        <div style="float: right">
+            <a href="{{ path_for('invoices') }}print/{{thisinvoice.idC}}/{{ thisinvoice.invoiceNumber }}" target="_blank"><input name="print" type="button" id="print" value="Print" class="btn btn-primary hidden-print"></a>
+        </div>
+    </div>
+
+    <form action="{{ path_for('billingPayment') }}" method="post" id="paymentBill-form">
+        <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Payment</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-5">Enter your billing details below. Payments are securely processed through <a href="https://stripe.com/about" target="_blank">Stripe</a>, one of the most reputable payment processors available. TeachKloud <strong>never</strong> stores your billing or credit card information on our servers.</p>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="card">Card Number</label>
+                                <input class="form-control" id="card" type="text" maxlength="20" data-stripe="number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cvc">Security Code (CVC)</label>
+                                <input class="form-control" id="cvc" type="text" maxlength="4" data-stripe="cvc" required>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="month">Expiration month</label>
+                                <select class="form-control" id="month" data-stripe="exp-month" required>
+                                    <option value="01">01 - January</option>
+                                    <option value="02">02 - February</option>
+                                    <option value="03">03 - March</option>
+                                    <option value="04">04 - April</option>
+                                    <option value="05">05 - May</option>
+                                    <option value="06">06 - June</option>
+                                    <option value="07">07 - July</option>
+                                    <option value="08">08 - August</option>
+                                    <option value="09">09 - September</option>
+                                    <option value="10">10 - October</option>
+                                    <option value="11">11 - November</option>
+                                    <option value="12">12 - December</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="year">Expiration year</label>
+                                <select class="form-control" id="year" data-stripe="exp-year" required>
+                                    {% for year in years %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <span class="payment-errors text-danger"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Pay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <input type="hidden" value="paid" name="status">
+        <input type="hidden" value="{{ thisinvoice.id }}" name="id">
+        <input type="hidden" value="{{ thisinvoice.idC }}" name="idC">
+        <input type="hidden" value="{{ thisinvoice.nameC }}" name="nameC">
+        <input type="hidden" value="{{ thisinvoice.date_from }}" name="dateFrom">
+        <input type="hidden" value="{{ thisinvoice.date_to }}" name="dateTo">
+        <input type="hidden" value="{{ thisinvoice.invoiceNumber }}" name="invoiceNb">
+        <input type="hidden" value="{{ thisinvoice.total }}" name="total">
+        <input type="hidden" value="{{ thisinvoice.currency }}" name="currency">
+
+
+    </form>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript">
+        Stripe.setPublishableKey('{{ settings.stripe.publicKey }}')
+
+        function stripeResponseHandler(status, response) {
+            var $form = $('#paymentBill-form')
+
+            if (response.error) {
+                $form.find('.payment-errors').text(response.error.message)
+                $form.find('button').prop('disabled', false)
+            } else {
+                var token = response.id
+
+                $form.append($('<input type="hidden" name="stripeParentToken">').val(token))
+                $form.get(0).submit()
+            }
+        }
+
+        jQuery(function($) {
+            $('#paymentBill-form').submit(function(event) {
+                var $form = $(this)
+
+                $form.find('button').prop('disabled', true)
+                Stripe.card.createToken($form, stripeResponseHandler)
+
+                return false
+            })
+        })
+
+    </script>
+
+{% else %}
+    {% if search %}
+        <p>No results. Sorry!</p>
+    {% else %}
+        <div class="col-lg-8 offset-lg-2">
+            <div class="text-center mb-5">
+                <img width="200" height="201" src="/images/tom.svg" alt="Backgroud image">
+            </div>
+            <p class="lead">The pre-school administrator has not created this invoice for this child.</p>
+        </div>
+    {% endif %}
+{% endif %}
+
+{% endblock %}

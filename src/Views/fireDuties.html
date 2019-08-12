@@ -1,0 +1,70 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script src="/javascripts/pdfdownload.js"></script> 
+
+    <div class="row">
+        <div class="col-12 col-sm-5">
+            <h4 class="mb-3">{{ title }}</h4>
+        </div>
+
+        <div class="col-12 col-sm-7 mb-2 text-right noprint">
+            <div class="btn-group dropdown">
+                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-caret-down mr-1"></i>
+                    Options
+                </button>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                        <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+                    </div>
+                </div>
+                <a class="btn btn-primary noprint" href="{{ path_for('editFireDuties') }}">Edit Assigned Fire Duties</a>
+            </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-block table-responsive"> 
+			<table class="table table-striped table-sm table-register">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Telephone</th>
+                    <th>Fire Duties</th>
+                    <th>Other Comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, entry in duties %}
+                <tr>
+                    <td>
+                        {% if key == 'owner' %}
+  							Owner Details
+   						{% elseif key == 'manager' %}
+   							Fire Safety Manager
+   						{% elseif key == 'deputy' %}
+  							Deputy Fire Safety Manager
+   						{% endif %}
+                    </td>
+                    <td>
+                        {{ entry.name }}
+                    </td>
+                    <td>
+                        {{ entry.phone }}
+                    </td>
+                    <td>
+                        {{ entry.duties }}
+                    </td>
+                    <td>
+                        {{ entry.comments }}
+                    </td>
+                </tr>
+        {% endfor %}
+            </tbody>
+        </table>
+
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+	
+    
+{% endblock %}

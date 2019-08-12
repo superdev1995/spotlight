@@ -1,0 +1,46 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<form action="{{ path_for('roomEdit', { room_id: room.room_id }) }}" method="post">
+    <h4 class="mb-5">{{ title }}</h4>
+    <div class="form-group row">
+        <label class="col-sm-4 col-md-2 col-form-label" for="name">Room Name:</label>
+        <div class="col-sm-8 col-md-10">
+            <input class="form-control" type="text" name="name" id="name" maxlength="64" value="{{ room.room_name }}" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-4 col-md-2 col-form-label" for="description">Short Description:</label>
+        <div class="col-sm-8 col-md-10">
+            <input class="form-control" type="text" name="description" id="description" maxlength="255" value="{{ room.room_description }}" required>
+            <small class="form-text text-muted">I want to <a href="#" data-toggle="modal" data-target="#deleteRoomModal">delete the room</a> instead.</small>
+        </div>
+    </div>
+    <div class="my-3">
+        <button class="btn btn-primary" type="submit">Save</button>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<form method="post" action="{{ path_for('roomDelete', {room_id: room.room_id}) }}">
+    <div class="modal fade" id="deleteRoomModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Room</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please ensure that this room is empty before deleting. This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+{% endblock %}

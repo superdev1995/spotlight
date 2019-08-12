@@ -1,0 +1,28 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<ul class="list-group mb-4">
+    {% for parent in parents %}
+    <li class="list-group-item justify-content-between" style="padding: 0.25rem 1.25rem;">
+        <div class="media">
+            <img class="rounded-circle d-flex mr-3" width="30" height="30" style="margin-top:3px;"
+                 src="{{ parent.user_avatar_url|default(parent.user_email|gravatar) }}" alt="Parent image">
+            <div class="media-body">
+                <strong>{{ parent.user_first_name }} {{ parent.user_last_name }}</strong>
+                {% if parent.status == 'P' %}
+                <span class="badge badge-default ml-2">Account Pending</span>
+                {% endif %}
+                {% if parent.status == 'A' %}
+                <span class="badge badge-success ml-2">Account Confirmed</span>
+                {% endif %}
+                <div class="text-muted small">{{parent.child_name}}</div>
+            </div>
+        </div>
+
+    </li>
+    {%else%}
+    No parents to display
+    {% endfor %}
+</ul>
+{% endblock %}

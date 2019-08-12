@@ -1,0 +1,47 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col">
+                <label class="custom-control custom-radio">
+                    <input name="radio" type="radio" class="custom-control-input">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Bright Plans</span>
+                </label>
+                <label class="custom-control custom-radio">
+                    <input name="radio" type="radio" class="custom-control-input">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Custom Group Plans</span>
+                </label>
+                <label class="custom-control custom-radio">
+                    <input name="radio" type="radio" class="custom-control-input">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Individual Plan</span>
+                </label>
+            </div>
+            <div class="col-3">
+                <a class="btn btn-primary" href="">New Fee Plan</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+<div class="tab-pane card-block plan-details active">
+    <table id="mytable" class="table table-bordred table-striped">
+        <thead>
+            <th></th>
+            <th>Room Name</th>
+            <th>Plan invoice</th>
+            <th>View</th>
+            <th>Send invoice</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}

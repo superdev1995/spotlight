@@ -1,0 +1,76 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-0">{{ title }}</h4>
+<h6 class="mb-5 text-muted">Introduction</h6>
+    {% if school.stripe_id %}
+        <div class="card">
+            <div class="card-block">
+                The latest <strong>General Data Protection Regulation 2016 (GDPR)</strong>, effective from 25 May 2018, significantly increases the obligations and responsibilities for organisations and businesses in how they collect, use and protect personal data. Personal data means any information that can be linked to a living individual.  At the centre of the new law is the requirement for organisations and businesses to be fully transparent about how they are using and safeguarding personal data, and to be able to demonstrate accountability for their data processing activities. <br><br>
+
+                The Act imposes the following obligations on all organisations that handle personal data:<br><br>
+
+                <ul>
+                    <li>Obtain and process information fairly</li>
+                    <li>Keep it only for one or more specified, explicit, and lawful purpose(s)</li>
+                    <li>Use and disclose it only in ways compatible with the purposes for which it was initially given  </li>
+                    <li>Keep it safe and secure</li>
+                    <li>Keep it accurate, complete, and up-to-date</li>
+                    <li>Ensure that it is adequate, relevant, and not excessive</li>
+                    <li>Retain it for no longer than is necessary for the purpose or purposes for which it was initially given </li>
+                    <li>Give a copy of his/her personal data to an individual, on request.</li>
+                </ul><br><br>
+
+                It is therefore crucial for a pre-school to ensure that it is compliant with these obligations in relation to all categories of personal data that it handles. Please note that TeachKloud is not a legal entity and the information supplied in this audit and throughout TeachKloud does not constitute as legal advice. By selecting “Let’s Start” you agree to these conditions.<br><br>
+
+                <h4>Instructions</h4>
+
+                If you have not achieved a statement yet, please “this has not been achieved yet
+                select not achieved yet”. You can always return to the audit to update it. If the question does not relate to you, select next to skip the question. If you have additional information, you may detail this in the ‘additional information’ section. For the following questions please be as detailed as possible.
+
+                <p class="lead">This audit is broken down into 9 main parts and sub-sections</p><br><br>
+
+                <ul>
+                    <li>OVERVIEW OF PERSONAL DATA AS HELD BY THE SCHOOL</li>
+                    <li>RECORDS OF PROCESSING ACTIVITIES
+                        <ul>
+                            <li>STUDENT RECORDS</li>
+                            <li>CHILDREN RECORDS</li>
+                        </ul>
+                    </li>
+                    <li>REQUESTS FOR ACCESS, CORRECTION, DELETION OF RECORDS</li>
+                    <li>TRANSFERS TO THIRD PARTIES</li>
+                    <li>SCHOOL’S COMPUTER SYSTEM & SECURITY</li>
+                    <li>INTERNAL AWARENESS AND GOVERNANCE</li>
+                    <li>DATA SECURITY BREACH</li>
+                </ul>
+
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" href="{{ path_for('gdprDetails', { question_id: first_question.question_id }) }}">Let's Start</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning mb-4">
+            This feature is only available for providers who have a TeachKloud subscription.
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Health and Safety Self-Assessment tool based on the Early Years Regulations 2016
+            </div>
+            <div class="card-block">
+                <p>This Self-Assessment tool acts as an interactive checklist for your service regarding health and safety. You may upload pictures, documentary evidence and review areas for improvement upon completion.</p>
+                <p>This self-assessment covers 9 main areas:</p>
+                <ol>
+                    {% for category in categories %}
+                        <li>{{ category.category_name }}</li>
+                    {% endfor %}
+                </ol>
+                <p>Based on your self-assessment areas in which you may improve on are identified. This self-assessment does not act as legal advice nor does its completion ensure regulatory compliance.</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" href="{{ path_for('billing') }}">Billing Settings</a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

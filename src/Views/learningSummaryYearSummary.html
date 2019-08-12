@@ -1,0 +1,87 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>
+                        <a href="{{ path_for('learningSummaryYearSummary', {'year': year-1}) }}"> &larr; </a>
+                        {{ year }}
+                        <a href="{{ path_for('learningSummaryYearSummary', {'year': year+1}) }}"> &rarr; </a>
+                    </h4>
+                    click on any week to see your Learning Summary
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Weeks
+    </div>
+    <div class="card-block">
+        <div class="row">
+        {% for week_num, week in weeks %}
+        <div class="card-block col-6 col-lg-3 text-center">
+            <a {% if weeks_completed[week_num] is defined %}
+                href="{{ path_for('learningSummarySummary', {'week': week_num, 'year': year}) }}">
+                <button class="btn btn-primary" data-toggle="tooltip" data-html="true" 
+                    title="{% if weeks_completed[week_num].learning_summary_count %}
+                            Learning summaries: {{ weeks_completed[week_num].learning_summary_count }} <br>
+                            {% endif %}"
+                {% elseif weeks_drafts[week_num] is defined and weeks_drafts[week_num].learning_summary_count > 0 %}        
+                href="{{ path_for('learningSummarySummary', {'week': week_num, 'year': year}) }}">
+                <button class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="Create new plan or edit a draft"
+                {% else %}
+                href="{{ path_for('createLearningSummary', {'week': week_num, 'year': year}) }}">
+                <button class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="Create new plan"
+                {% endif %}
+                    style="width: 150px; height: 100px; cursor: pointer; text-align: center;">
+                    <strong>Week {{week_num}}</strong><br />
+                    {{week.start_date}} - {{week.end_date}}
+                    {% if weeks_drafts[week_num].learning_summary_count  %}
+                    <br><span class="badge badge-pill badge-danger">Draft</span> 
+                    {% endif %}
+                </button>
+            </a>
+            
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+    <div class="card-block">
+        <div class="row">
+        {% for week_num, week in weeks %}
+        <div class="col-6 col-sm-3 text-center mt-3">
+            <a {% if week.learning_summary_id %}
+                    data-toggle="tooltip" data-html="true" title="
+                    Learning Summary: {{ week.summarry_count}}<br />"
+               {% endif %}
+                    class="btn btn-week-summary m-1
+                {% if week.in_session == 1 %}
+                btn-primary
+                {% else %}
+                btn-secondary
+                {% endif %}"
+               {% if week.learning_summary_id %}
+               href="{{ path_for('learningSummarySummary', {'week': week_num, 'year': year}) }}"
+               {% else %}
+               href="{{ path_for('createLearningSummary', {'week': week_num, 'year': year}) }}"
+               {% endif %}>
+
+                <strong>Week {{week_num}}</strong><br />
+                {{week.start_date}} <br />-<br /> {{week.end_date}}
+                <!--In session: {% if week.in_session == 1 %}Yes{% else %}No{% endif %}<br />-->
+            </a>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

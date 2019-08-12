@@ -1,0 +1,32 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h3 class="mb-5">{{ title }}</h3>
+<div class="card">
+    <div class="card-block">
+        <h4>Policies</h4>
+        <div class="card-block">
+            {% for policy in policies %}
+                <h5 class="mb-2">
+                    <a href="{{ path_for('policyDetails', { policy_id : policy.policy_id }) }}">{{ policy.policy_name }}</a>
+                </h5>
+                <a href="{{ path_for('policyVersions', { policy_id : policy.policy_id }) }}" style="float:right;">
+                    <u>Show previous versions</u>
+                </a><br>
+                <div class="row" style="margin-left:30px;">
+                    {% for user_id, user in users %}
+                        <div class="col-4  mt-2">{{ user.user_first_name }} {{ user.user_last_name }}
+                            {% if policy.policy_id in user.policies %}
+                                <i class="fa fa-check fa-fw ml-2" style="color:green;"></i>
+                            {% else %}
+                                <i class="fa fa-times fa-fw ml-2" style="color:red"></i>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

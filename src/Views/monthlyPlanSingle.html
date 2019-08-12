@@ -1,0 +1,136 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% if child %}
+    {% embed 'childDetailsHeader.html' %}{% endembed %}
+{% endif %}
+<link rel="stylesheet" href="/stylesheets/lightbox.min.css" media="screen">
+<script src="/javascripts/lightbox.min.js"></script>
+<script src="/javascripts/pdfdownload.js"></script> 
+
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12 col-lg-4 pt-2">
+                <h4>{{ plan.month_textual }}, {{ plan.year }}</h4>
+            </div>
+            {% if user.user_type == 'T' %}
+            <div class="col-12 col-lg-8 mb-2 text-right noprint">
+                <div class="btn-group dropleft">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-caret-left mr-2"></i>
+                        Options
+                    </button>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" onclick="downloadAsPdf()" role="button">Download</button>
+                        <button class="dropdown-item" onclick="window.print()" role="button">Print</button>
+                    </div>
+                </div>
+                <a class="btn btn-outline-primary" href="{{ path_for('monthlyPlanSummary', {year: year, month: month}) }}" role="button">
+                    <span class="d-none d-sm-block">Back to Selected Month</span>
+                    <span class="d-block d-sm-none">Back</span>
+                </a>
+                <a class="btn btn-primary" href="{{ path_for('editMonthlyPlan', { monthly_plan_id: plan.monthly_plan_id }) }}">
+                    <span class="d-none d-sm-block">Edit Monthly Plan</span>
+                    <span class="d-block d-sm-none">Edit Plan</span>
+                </a>
+            </div>
+            {% elseif child %}
+            <div class="col-12 col-lg-8 mb-2 text-right noprint">
+                <a class="btn btn-outline-primary" href="{{ path_for('childMonthlyPlanSummary', { child_id: child.child_id, year: year, month: month}) }}" role="button">
+                    <span class="d-none d-sm-block">Back to Selected Month</span>
+                    <span class="d-block d-sm-none">Back</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header success">
+        Monthly Plan Details
+    </div>
+    <div class="card-block">
+        <div class="row">
+            {% for block_id, block in country_form %}
+                {% if attribute(plan, block.associated_table_column) %}
+                <div class="col-9 mb-4">
+                    <h5>{{ block.label }}</h5>
+                    <div class="ml-3">
+                        {{ attribute(plan, block.associated_table_column) }}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+            {% if plan.medias %}
+            <div class="col-9 mb-4">
+                <div class="card-columns mt-4">
+                    {% for media in plan.medias %}
+                    <div class="card">
+                        <a href="{{ media.media_full_url }}" data-lightbox="media"><img class="card-img-top img-fluid" src="{{ media.media_thumbnail_url }}" alt="image"></a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% if videos %}
+        <div class="row">
+            <h5 class ="col-12">Videos</h5>
+            <div class="col-12">
+                {% for video in videos %}
+                    <video style="height: 120px" class="mr-3 mt-3" controls>
+                        <source src="{{ video.video_url }}">
+                    </video>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if plan.comment %}
+    <div class="card mb-4">
+        <div class="card-header success">
+            Optional Comment
+        </div>
+        <div class="card-block">
+            <p>{{plan.comment}}</p>
+        </div>
+    </div>
+{% endif %}
+
+{% if categories %}
+<div class="card mb-4">
+    <div class="card-header success">
+        Monthly Plan Goals
+    </div>
+    <div class="card-block">
+        {% for category_id, category in categories %}
+            <div class="tab-content">
+
+                <h5 class="mt-4">{{ category.framework_name }}
+                    {% if category.framework_month_min is not null %}
+                        {{ category.framework_month_min }} - {{ category.framework_month_max}} mo
+                    {% endif %}
+                    : {{ category.category_group }}
+                    : {{ category.category_name }}</h5>
+
+                {% if category.category_description %}
+                <p>Description: {{ category.category_description }}</p>
+                {% endif %}
+
+                <div><strong>Goals</strong>:
+                {% for goal in category.goals %}
+                    <p class="ml-3">{{ goal.goal_description }}</p>
+                {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

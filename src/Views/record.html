@@ -1,0 +1,248 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<link rel="stylesheet" href="/stylesheets/lightbox.min.css" media="screen">
+<script src="/javascripts/lightbox.min.js"></script>
+
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12 col-sm-7">
+                <form class="form-inline">
+                    Filter history:
+                    <select class="form-control mx-2" name="week" onchange="this.form.submit()">
+                        <option selected disabled>By Week</option>
+                        {% for week_number, week in weeks %}
+                            <option value="{{ week_number }}" {% if current_week == week_number %}selected{% endif %}>{{ week[0] }} &mdash; {{ week[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            {% if user.user_type == 'T' %}
+                <div class="col-12 col-sm-4 mt-2 ml-auto text-right">
+                    <a class="btn btn-primary" href="{{ path_for('recordCreate') }}">Add Daily Records</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user.user_type == 'T' and drafts %}
+<br>
+<h5 class="mb-4">Drafts</h5>
+    {% for draft in drafts %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-6">
+                    <span class="badge badge-pill badge-danger">Draft</span> 
+                    &nbsp;&nbsp;Record Batch
+                </div>
+                <div class="col-6 text-right">
+                    <div> {{ draft.updated_at|date('m/d/Y')  }} at {{ draft.updated_at|date('H:i')  }} </div>
+                </div>  
+            </div>
+        </div>
+        <div class="card-block">
+            <div class="row">
+                <div class="col-10 col-lg-9">
+                    <div class="row">
+                        <div class="col-12 col-lg-5">
+                            <strong>
+                                <a href="{{ path_for('recordCreate', { 'draft_id': draft.draft_record_batch_id }) }}">
+                                    ID: {{ draft.draft_record_batch_id }}
+                                </a>
+                            </strong>
+                        </div>
+                        {% if draft.children %}
+                        <div class="col-12 col-lg-7">
+                            {% for child in draft.children %}
+                            <a href="{{ path_for('childDetails', { child_id: child.child_id }) }}"><img class="rounded-circle mr-1" width="30" height="30" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" data-toggle="tooltip" data-placement="top" title="{{ child.child_name }}" alt="Child image"></a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-3 d-none d-lg-block ml-auto text-right">
+                    <a class="btn btn-success btn-sm" href="{{ path_for('recordCreate', { 'draft_id': draft.draft_record_batch_id }) }}">Edit</a>
+                    <button class="btn btn-danger btn-sm" role="button" data-toggle="modal" data-target="#deleteDraftModal" data-id="{{ draft.draft_record_batch_id }}">Delete</button>
+                </div>
+                <div class="col-2 d-block d-lg-none ml-auto text-right">
+                    <div class="btn-group dropleft">
+                        <button style="border-color: transparent;" class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-ellipsis-h"></i>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="{{ path_for('recordCreate', { 'draft_id': draft.draft_record_batch_id }) }}">Edit</a>
+                            <button class="dropdown-item" role="button" data-toggle="modal" data-target="#deleteDraftModal" data-id="{{ draft.draft_record_batch_id }}">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+<form method="post" action="{{ path_for('deleteDraftRecordBatch') }}">
+    <div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Draft</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you certain that you want to delete this draft?</p>
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">I understand that this cannot be undone</span>
+                    </label>
+                    <input type="hidden" name="draft_id" id="draft_id" >
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<script>
+    $('#deleteDraftModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+        
+        $(this).find('#draft_id').val(id);
+    });
+</script>
+<br>
+<h4 class="mb-4">Daily Records</h4>
+{% endif %}
+
+{% if dates %}
+    {% for date, times in dates %}
+        <h5 class="mt-5 mb-4"><i class="fa fa-calendar" aria-hidden="true"></i> &nbsp; {{ date|date('l') }}, {{ date }}</h5>
+        <div class="list-group">
+            {% for time, records in times %}
+                <div class="list-group-item">
+                    <div class="col-3">
+                        <h5>{% if time != 0 %}<i class="fa fa-clock-o" aria-hidden="true"></i> &nbsp; {{ time|date('G:i') }}{% else %}Others{% endif %}</h5>
+                    </div>
+                    <div class="col-9">
+                        {% for record_id, record in records %}
+                            <div class="my-3">
+                                <h5 class="mb-1"><strong>{{ types[record.record_type] }}</strong></h5>
+                                <p class="text-muted">
+                                    {{ record.record_user.user_first_name }} {{ record.record_user.user_last_name }} created at {{ record.created_at }}
+                                    {% if record.record_public == 1 %}
+                                        <i class="fa fa-globe ml-2" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Visible to everyone."></i>
+                                    {% else %}
+                                        <i class="fa fa-lock ml-2" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Only visible to school staff."></i>
+                                    {% endif %}
+                                </p>
+                                {% if record.record_type == 'mood' %}
+                                    <p class="lead">Today I was {{ record_params[record_id].mood }}.</p>
+                                {% endif %}
+                                {% if record.record_type == 'meal' %}
+                                    <p class="lead">Today I ate {{ record_params[record_id].amount }} of my {{ record_params[record_id].meal }}.</p>
+                                    <p class="lead">{{ record_params[record_id].meal }}: {{ record_params[record_id].food}}</p>
+                                {% endif %}
+                                {% if record.record_type == 'nap' %}
+                                    <p class="lead">Today I slept from {{ record.record_time|date('G:i') }} until {{ record_params[record_id].end|date('G:i') }}.</p>
+                                {% endif %}
+                                {% if record.record_type == 'toilet' %}
+                                    <p class="lead">Today I went to the toilet.</p>
+                                {% endif %}
+                                {% if record.record_type == 'diaper' %}
+                                    <p class="lead">Today my diaper was changed and it was {{ record_params[record_id].condition }}.</p>
+                                {% endif %}
+                                {% if record.record_type == 'medication' %}
+                                    <p class="lead">Today I took {{ record_params[record_id].amount }} {{ record_params[record_id].unit }} of  {{ record_params[record_id].name }}.</p>
+                                {% endif %}
+                                {% if record.record_comment %}
+                                    <p>{{ record.record_comment }}</p>
+                                {% endif %}
+                                {% if record.record_medias %}
+                                    <div class="card-columns mt-4">
+                                        {% for media in record.record_medias %}
+                                            <div class="card">
+                                                <a href="{{ media.media_full_url }}" data-lightbox="media"><img class="card-img-top img-fluid" src="{{ media.media_thumbnail_url }}" alt="image"></a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {% if record.record_children %}
+                                <div class="row">
+                                    {% for child in record.record_children %}
+                                    <div class="col-2" style="text-overflow: clip; overflow: hidden;">
+                                        <a href="{{ path_for('childDetails', { child_id: child.child_id }) }}" ><img class="rounded-circle mr-2" width="30" height="30" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+                                            <div style="font-size: 12px">{{ child.child_name }}</div>
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% if user.user_type == 'T' %}
+                                <a class="btn btn-success btn-sm" href="{{ path_for('recordEdit', { record_id: record_id }) }}">Edit</a>
+                                <button class="btn btn-danger btn-sm" role="button" data-toggle="modal" data-target="#deleteModal" data-id="{{ record_id }}">Delete</button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    {% if user.user_type == 'T' %}
+        <form method="post" action="{{ path_for('recordDelete') }}">
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Daily Record</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Deleting a daily record will also delete all associated media files.</p>
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">I understand that this cannot be undone</span>
+                            </label>
+                            <input type="hidden" name="record_id" id="record_id" value="">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        </form>
+        <script>
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+
+                $(this).find('#record_id').val(id);
+            });
+        </script>
+    {% endif %}
+{% else %}
+    <div class="col-lg-8 offset-lg-2">
+        <div class="text-center mb-5">
+            <img width="200" height="201" src="/images/richard.svg" alt="backgroud image">
+        </div>
+        <p class="lead">There are no records found for this week or child. Use the selection above to filter by week or child.</p>
+    </div>
+{% endif %}
+{% endblock %}

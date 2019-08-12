@@ -1,0 +1,304 @@
+{% extends 'master.dashboard.html' %} {% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="row">
+    {% set total_m = 0 %}
+    {% set totalPaid_m = 0 %}
+    {% set totalPaid_1 = 0 %}
+    {% set totalPaid_2 = 0 %}
+    {% set totalPaid_3 = 0 %}
+    {% set totalPaid_4 = 0 %}
+    {% set totalPaid_5 = 0 %}
+    {% set totalPaid_6 = 0 %}
+    {% set totalPaid_7 = 0 %}
+    {% set totalPaid_8 = 0 %}
+    {% set totalPaid_9 = 0 %}
+    {% set totalPaid_10 = 0 %}
+    {% set totalPaid_11 = 0 %}
+    {% set totalPaid_12 = 0 %}
+    {% for data in billing %}
+        {% if data.date != previous %}
+            {% set text = data.date|split('-') %}
+            <a href="{{ path_for('revenue') }}/{{ data.idC }}/{{ data.idT }}/{{ data.date }}" class="col-md-4 mb-3">
+                <div class="card col-md-12">
+                     {% if data.read == "no" %}
+                    <div class="card-footer bg-warning text-white row mb-3">
+                            <span class="text-center col-md-12 font-weight-bold">Send</span>
+                    </div>
+                    {% else %}
+                    <div class="card-footer bg-info text-white row mb-3">
+                            <span class="text-center col-md-12 font-weight-bold">Read</span>
+                    </div>
+                    {% endif %}
+                     <div class="row">
+                         <span class="col-md-6 text-left">Invoice Nº</span>
+                         <span class="col-md-6 text-left">{{ data.invoiceNumber }}</span>
+                     </div>
+                    <div class="row">
+                        <span class=" col-md-6 text-left">Child Name</span>
+                        <span class=" col-md-6 text-left">{{ data.nameC }}</span>
+                    </div>
+                    <div class="row">
+                        <span class="col-md-6 text-left">Date</span>
+                        <span class="col-md-6 text-left">{{ data.date }}</span>
+                    </div>
+                    <div class="row">
+                        <hr class=" col-md-8 bg-faded">
+                    </div>
+                    <div class="row">
+                        <span class="col-md-6 text-left">Total</span>
+                        <span class="col-md-6 text-right">{{ data.total }}{{ data.currency }}</span>
+                    </div>
+                    {% if data.status == "pending" %}
+                    <div class="card-footer bg-danger text-white row mt-3">
+                            <span class="text-center col-md-12 font-weight-bold">Pending</span>
+                    </div>
+                    {% else %}
+                    <div class="card-footer bg-success text-white row mt-3">
+                            <span class="text-center col-md-12 font-weight-bold">Paid</span>
+                    </div>
+                    {% endif %}
+                </div>
+                </a>
+                {% if graphics['month_n'] == text[1] %}
+                    {% if graphics['year_n'] == text[0] %}
+                        {% set total_m = total_m + data.total %}
+                        {% if data.status != "pending" %}
+                            {% set totalPaid_m = totalPaid_m + data.total %}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {%endif%}
+            {% set previous = data.date %}
+    {% endfor %}
+</div>
+<form action="{{ path_for('revenue') }}" method="post">
+    <div class="row">
+        <select name="month" class="col-2 form-control ml-5 mr-1">
+                {% if graphics['month'] == "Jan" %}
+                <option value="Jan" selected>January</option>
+                {% else %}
+                <option value="Jan">January</option>
+                {% endif %}
+                {% if graphics['month'] == "Feb" %}
+                <option value="Feb" selected>February</option>
+                {% else %}
+                <option value="Feb">February</option>
+                {% endif %}
+                {% if graphics['month'] == "Mar" %}
+                <option value="Mar" selected>March</option>
+                {% else %}
+                <option value="Mar">March</option>
+                {% endif %}
+                {% if graphics['month'] == "Apr" %}
+                <option value="Apr" selected>April</option>
+                {% else %}
+                <option value="Apr">April</option>
+                {% endif %}
+                {% if graphics['month'] == "May" %}
+                <option value="May" selected>May</option>
+                {% else %}
+                <option value="May">May</option>
+                {% endif %}
+                {% if graphics['month'] == "Jun" %}
+                <option value="Jun" selected>June</option>
+                {% else %}
+                <option value="Jun">June</option>
+                {% endif %}
+                {% if graphics['month'] == "Jul" %}
+                <option value="Jul" selected>July</option>
+                {% else %}
+                <option value="Jul">July</option>
+                {% endif %}
+                {% if graphics['month'] == "Aug" %}
+                <option value="Aug" selected>August</option>
+                {% else %}
+                <option value="Aug">August</option>
+                {% endif %}
+                {% if graphics['month'] == "Sep" %}
+                <option value="Sep" selected>September</option>
+                {% else %}
+                <option value="Sep">September</option>
+                {% endif %}
+                {% if graphics['month'] == "Oct" %}
+                <option value="Oct" selected>October</option>
+                {% else %}
+                <option value="Oct">October</option>
+                {% endif %}
+                {% if graphics['month'] == "Nov" %}
+                <option value="Nov" selected>November</option>
+                {% else %}
+                <option value="Nov">November</option>
+                {% endif %}
+                {% if graphics['month'] == "Dec" %}
+                <option value="Dec" selected>December</option>
+                {% else %}
+                <option value="Dec">December</option>
+                {% endif %}
+        </select>
+        <input type="submit" name="search" value="Search" class="btn btn-primary noprint mb-1">
+    </div>
+</form>
+<div id="monthly" class="row mb-4" style="height: 30% ; min-height: 200px">
+</div>
+<form action="{{ path_for('revenue') }}" method="post">
+    <div class="row">
+        <select name="year" class="col-2 form-control ml-5 mr-1">
+             {% for data in billing %}
+                {% set text = data.date|split('-') %}
+                {% if text[0] != previous %}
+                    {% if graphics['year'] == text[0] %}
+                        <option value="{{ text[0] }}" selected>{{text[0]}}</option>
+                    {% else %}
+                        <option value="{{ text[0] }}">{{text[0]}}</option>
+                    {% endif %}
+                {% endif %}
+                {% set previous = text[0] %}
+            {% endfor %}
+            
+            
+            {% for data in billing %}
+                {% if data.date != previous %}
+                    {% set text = data.date|split('-') %}
+                        {% if graphics['year'] == text[0] %}
+                        {% if 1 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_1 = totalPaid_1 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 2 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_2 = totalPaid_2 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 3 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_3 = totalPaid_3 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 4 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_4 = totalPaid_4 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 5 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_5 = totalPaid_5 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 6 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_6 = totalPaid_6 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 7 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_7 = totalPaid_7 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 8 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_8 = totalPaid_8 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 9 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_9 = totalPaid_9 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 10 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_10 = totalPaid_10 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 11 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_11 = totalPaid_11 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                        {% if 12 == text[1] %}
+                            {% if data.status != "pending" %}
+                                {% set totalPaid_12 = totalPaid_12 + data.total %}
+                            {% endif %}
+                        {% endif %}
+                    {%endif%}
+                {%endif%}
+            {% set previous = data.date %}
+        {% endfor %}
+            
+            
+        </select>
+        <input type="submit" name="search2" value="Search" class="btn btn-primary noprint mb-1">
+    </div>
+</form>
+<div id="anual" class="row" style="height: 40% ; min-height: 250px">
+</div>
+<script>
+    Highcharts.chart('monthly', {
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: 'Monthly'
+        },
+        xAxis: {
+            categories: ['{{graphics['month']}}']
+        },
+        yAxis: {
+            min: 0,
+            max: {{ total_m }},
+            title: {
+                text: 'money'
+            },
+            tickInterval: 1
+        },
+        legend: {
+            reversed: true
+        },
+        plotOptions: {
+            series: {
+                stacking: 'normal'
+            }
+        },
+        series: [{
+            name: 'paid',
+            data: [{{ totalPaid_m }}]
+        }]
+    });
+
+    Highcharts.chart('anual', {
+
+        title: {
+            text: 'Annual'
+        },
+
+        xAxis: {
+            title: {
+                text: 'Monyth'
+            },
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        },
+
+        yAxis: {
+            title: {
+                text: 'Money'
+            },
+            type: 'logarithmic',
+            minorTickInterval: 1
+        },
+
+       plotOptions: {
+            line: {
+                dataLabels: {
+                    enabled: true
+                },
+                enableMouseTracking: false
+            }
+        },
+
+        series: [{
+            data: [{{ totalPaid_1 }}, {{ totalPaid_2 }} , {{ totalPaid_3 }} , {{ totalPaid_4 }} , {{ totalPaid_5 }} , {{ totalPaid_6 }} , {{ totalPaid_7 }} , {{ totalPaid_8 }} , {{ totalPaid_9 }} , {{ totalPaid_10 }} , {{ totalPaid_11 }} , {{ totalPaid_12 }}],
+            name: "{{ graphics['year'] }}",
+        }]
+    });
+</script>
+{% endblock %}

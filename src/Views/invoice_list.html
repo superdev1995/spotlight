@@ -1,0 +1,112 @@
+{% extends 'master.dashboard.html' %} {% block body %}
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+      integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous"
+      media="print" xmlns="http://www.w3.org/1999/html">
+<link rel="stylesheet" type="text/css" href="/stylesheets/invoice_list.css">
+
+{# dump(admin)#}
+
+{% if child %}
+    {% if billing %}
+    <div class="row">
+        <div class="col-6">
+            <h4 class="mb-5"> {% if user.user_id == admin.user_id %}All {%endif%}{{ title }} for {{ child.child_name }}, {{ school.school_name }} </h4>
+        </div>
+        <div class="col-6 text-right">
+            <a class="btn btn-primary" href="{{ path_for('weeklyYearInvoice', {'year': year}) }}">Invoices per week</a>
+        </div>
+    </div>
+
+    <div class="tab-pane card-block plan-details active">
+        <div class="row d-flex flex-wrap mb-5">
+            {% for invoice in billing if billing.idC == billing.idC %}
+            {% if invoice.approved == 'yes' or user.user_type == 'T' %}
+            <div class="col-6 col-lg-4">
+                <h6 class="mb-4 text-muted">{% if user.user_type == 'T' %}
+                    <div class="pos_edit">
+                        <a class="text-muted" href="{{ path_for('invoices', {child_id: child.child_id}) }}/{{ invoice.invoiceNumber }}">
+                            <i class="fa fa-pencil-square fa-2x" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </h6>
+
+                {#dump(invoice)#}
+                {%if invoice.status == "pending"%}
+                <div class="promoBox warning-ribbon">{% else%}
+                    <div class="promoBox success-ribbon">{% endif%}
+
+                        <div class="card align-self-stretch mb-4">
+                            <div class="paid">
+                                {%if invoice.status == "pending"%}
+                                <aside>
+                                    <div class="center">Unpaid</div>
+                                </aside>
+                                {% else%}
+                                <aside>
+                                    <div class="center">Paid</div>
+                                </aside>
+                                {% endif%}
+                            </div>
+                            <div class="card-block text-center">
+                                <h5 class="mt-2">
+                                    <a href="{{ path_for('invoices') }}paypage/{{invoice.idC}}/{{ invoice.invoiceNumber }}">Bill
+                                        n°{{ invoice.invoiceNumber }}</a>
+                                </h5>
+                                <a href="{{ path_for('invoices') }}paypage/{{invoice.idC}}/{{ invoice.invoiceNumber }}">
+                                    <img class="bill" id="bill" width="100%" src="/images/bill.png" alt="Bill image">
+                                </a></a>
+
+                                <h6 class="dateFromTo">
+                                    From <strong>{{ invoice.date_from }}</strong> to <strong>{{ invoice.date_to}}</strong><br/><br/>
+                                    {% if user.user_type == 'T' %} Sent to Parent : {{ invoice.approved|capitalize }} <br /><br />{%endif %}
+                                    {% if user.user_id == admin.user_id %} Created by : {{ invoice.user_first_name ~ " " ~ invoice.user_last_name }}{% endif %}
+                                </h6>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-6">
+            <h4 class="mb-5">Billing list</h4>
+        </div>
+        <div class="col-6 text-right">
+            {% if user.user_type == 'T' %}<a class="btn btn-primary"
+                                             href="{{ path_for('invoices', {child_id: child.child_id}) }}">Create Bill</a>{%
+            endif %}
+        </div>
+    </div>
+    <div class="col-lg-8 offset-lg-2">
+        <div class="text-center mb-5">
+            <img width="200" height="201" src="/images/tom.svg" alt="Background image">
+        </div>
+        <p class="text-center lead">There is no bill generated for this child at this time.</p>
+    </div>
+    {% endif %}
+
+{% else %}
+{% if search %}
+<p>No results. Sorry!</p>
+{% else %}
+<div class="col-lg-8 offset-lg-2">
+    <div class="text-center mb-5">
+        <img width="200" height="201" src="/images/tom.svg" alt="Background image">
+    </div>
+    <p class="lead">The pre-school administrator has not created any child profiles for this pre-school, yet.</p>
+
+    <p class="lead">Let’s get started by creating the first child profile or ask your administrator to create one! You
+        can then collaborate using all the wonderful features that TeachKloud has to offer.</p>
+</div>
+{% endif %}
+{% endif %}
+
+{% endblock %}

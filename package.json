@@ -1,0 +1,24 @@
+{
+  "name": "teacher",
+  "version": "1.0.0",
+  "description": "Web application based on the [Slim Framework](https://www.slimframework.com/) with a MySQL database.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "babel": "babel public/javascripts/js6 -o ./public/javascripts/dist.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://tony710@bitbucket.org/teachkloud/starlight-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/teachkloud/starlight-app#readme"
+}

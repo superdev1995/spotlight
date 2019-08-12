@@ -1,0 +1,112 @@
+        <footer class="my-5">
+            <div class="container text-muted small">
+                <ul class="list-inline">
+                    <li class="list-inline-item">&copy; TeachKloud&reg;</li>
+                    <li class="list-inline-item"><a href="{{ path_for('terms') }}">Terms</a></li>
+                    <li class="list-inline-item"><a href="{{ path_for('privacy') }}">Privacy</a></li>
+                </ul>
+            </div>
+        </footer>
+        <script>
+            function autoCollapseMenu (deviceWidth) {
+                var menu = $('nav.menu');
+                if(deviceWidth < 768) {
+                    menu.removeClass('show');
+                }
+                else {
+                    menu.addClass('show');
+                }
+            }
+            function replaceTabsToPills (deviceWidth) {
+                var replaceTabsToPills = $('ul.nav');
+                if(deviceWidth <= 1000) {
+                    $('ul.nav').addClass('flex-column');
+                    if($('ul.nav').hasClass('nav-tabs')) {
+                        $('ul.nav').removeClass('nav-tabs');
+                        $('ul.nav').addClass('nav-pills');
+                    }
+                }
+                else {
+                    if(!$('ul.nav').hasClass('dont-replace')){
+                        $('ul.nav').removeClass('flex-column');
+                        if($('ul.nav').hasClass('nav-pills')) {
+                            $('ul.nav').removeClass('nav-pills');
+                            $('ul.nav').addClass('nav-tabs');
+                        }
+                    }
+                }
+            }
+
+            $('.navbar-toggler').on('click', function(e){
+                e.preventDefault();
+                var deviceWidth = $(window).width();
+                
+                $('div.navbar-collapse').collapse('toggle');
+                if(deviceWidth < 768) {
+                    $('nav.menu').collapse('toggle');
+                }
+
+            });
+
+            $( window ).on('load', function() {
+                var deviceWidth = $(window).width();
+                autoCollapseMenu(deviceWidth);
+                var table = $('.table-responsive').find('table');
+                $(table).append('<span class="floating-left"><i class="fa fa-caret-left"></i></span><span class="floating-right"><i class="fa fa-caret-right"></i></span>');
+                checkTableScroll();
+                $('#hide-all').hide();
+            });
+
+            function checkTableScroll() {
+                var table = $('.table-responsive');
+                $(table).each(function() {
+                    var fullWidth = $(this).prop('scrollWidth');
+                    var outerWidth = $(this).outerWidth();
+                    var clientWidth = $(this).prop('clientWidth');
+                    var currentWidth = $(this).scrollLeft();
+    
+                    if (clientWidth < fullWidth) {
+                        if ((fullWidth-outerWidth) == currentWidth) {
+                            $(this).find('.floating-right').hide();
+                        }
+                        else if (currentWidth == 0) {
+                            $(this).find('.floating-left').hide();
+                        }
+                        else {
+                            $(this).find('.floating-right').show();
+                            $(this).find('.floating-left').show();
+                        }
+                    }
+                    else {
+                        $(this).find('.floating-right').hide();
+                        $(this).find('.floating-left').hide();
+                    }
+                });
+            }
+
+            $('.table-responsive').on('scroll', function(){
+                checkTableScroll();
+            });
+
+            $( window ).on('load resize', function() {
+                var deviceWidth = $(window).width();
+                replaceTabsToPills(deviceWidth);
+            });
+        </script>
+        <style>
+                .floating-left{
+                    position: absolute;
+                    z-index:2;
+                    top: 45%;
+                    left: 15px;
+                }
+                .floating-right{
+                    position: absolute;
+                    z-index:2;
+                    top: 45%;
+                    right: 15px;
+                }
+        </style>
+        <script>(function(d,a){function c(){var b=d.createElement("script");b.async=!0;b.type="text/javascript";b.src=a._settings.messengerUrl;b.crossOrigin="anonymous";var c=d.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c)}window.kayako=a;a.readyQueue=[];a.newEmbedCode=!0;a.ready=function(b){a.readyQueue.push(b)};a._settings={apiUrl:"https://teachkloud.kayako.com/api/v1",teamName:"TeachKloud",homeTitles:[{"locale":"en-us","translation":"Hello! 👋"}],homeSubtitles:[{"locale":"en-us","translation":"Welcome to TeachKloud. Let's chat — start a new conversation below."}],messengerUrl:"https://teachkloud.kayakocdn.com/messenger",realtimeUrl:"wss://kre.kayako.net/socket",widgets:{presence:{enabled:true},twitter:{enabled:false,twitterHandle:"null"},articles:{enabled:false,sectionId:1}},styles:{primaryColor:"#fa709a",homeBackground:"-134deg, #23A975 0%, #BAD33B 100%",homePattern:"https://assets.kayako.com/messenger/pattern-2--dark.svg",homeTextColor:"#FFFFFF"}};window.attachEvent?window.attachEvent("onload",c):window.addEventListener("load",c,!1)})(document,window.kayako||{});</script>
+    </body>
+</html>

@@ -1,0 +1,9 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>You have been invited to view the child profile of <strong>{{ child.child_name }}</strong> from {{ school.school_name }}. Please click the below button to confirm your association.</p>
+<p>After that, you will be able to track your child’s learning and collaborate with your child’s preschool teachers.</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('parentInvite', { token_id: token_id }) }}">Confirm</a>
+{% endblock %}

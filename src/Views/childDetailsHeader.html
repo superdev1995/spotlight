@@ -1,0 +1,118 @@
+<div class="noprint">
+    <div class="row">
+        <div class="offset-md-4 col-md-4 text-center">
+            <img class="rounded-circle" width="50%" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+            <h4>
+                {{ child.child_name }}
+                {% if child.child_gender == 'M' %}
+                    <span class="fa-stack fa-sm">
+                        <i class="fa fa-circle fa-stack-2x badge-male"></i>
+                        <i class="fa fa-mars fa-stack-1x fa-inverse"></i>
+                    </span>
+                {% endif %}
+                {% if child.child_gender == 'F' %}
+                    <span class="fa-stack fa-sm">
+                        <i class="fa fa-circle fa-stack-2x badge-female"></i>
+                        <i class="fa fa-venus fa-stack-1x fa-inverse"></i>
+                    </span>
+                {% endif %}
+            </h4>
+        </div>
+        <div class="col-md-4 text-right">
+            {% if school_user and child.child_status == 'A' %}
+                <span class="dropdown">
+                    <a class="dropdown-toggle" role="button" id="dropdownMenuButton" tabindex="1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Create
+                        <span class="fa-stack fa-lg">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                        </span>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="{{ path_for('recordCreate') }}?child_id={{ child.child_id }}">Daily Record</a>
+                        <a class="dropdown-item" href="{{ path_for('storyCreate') }}?child_id={{ child.child_id }}">Learning Story</a>
+                        <a class="dropdown-item" href="{{ path_for('checklistCreate', { child_id: child.child_id }) }}">Observation Checklist</a>
+                        <a class="dropdown-item" href="{{ path_for('accidentCreate') }}?child_id={{ child.child_id }}">Accident</a>
+                        <a class="dropdown-item" href="{{ path_for('learningSummaryYearSummary', {'year': current_year}) }}">Learning Summary</a>
+
+                        {% if user_type == 'T'  %}
+                        <a class="dropdown-item" href="{{ path_for('invoices',{ child_id: child.child_id }) }}">Billing</a>
+                        {% endif %}
+                    </div>
+                </span>
+                <a href="{{ path_for('timesheet') }}" data-toggle="tooltip" title="Add Attendance">
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-calendar fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% if child.child_status == 'D' %}
+        <div class="alert alert-warning my-4">
+            This is an archived child profile. Changes or new entries are no longer possible.
+        </div>
+    {% endif %}
+    <div class="card mt-4 mb-4">
+        <div class="card-block">
+            <ul class="nav nav-pills nav-justified dont-replace">
+                <li class="nav-item">
+                    <a class="nav-link {% if navigation == 'timeline' %}active{% endif %}" href="{{ path_for('childDetails', { child_id: child.child_id }) }}">Timeline</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if navigation == 'records' %}active{% endif %}" href="{{ path_for('childRecord', { child_id: child.child_id }) }}">Daily Records</a>
+                </li>
+                {% if user.user_type == 'P' %}
+                <li class="nav-item" >
+                    <a class="nav-link {% if navigation == 'monthlyPlans' %}active{% endif %}" href="{{ path_for('childMonthlyYearSummary', {'child_id': child.child_id, 'year': current_year}) }}">Plans &nbsp;</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if navigation == 'stories' %}active{% endif %}" href="{{ path_for('story', { child_id: child.child_id }) }}">Learning Stories &nbsp; <span class="badge badge-default">{{ story_count }}</span></a>
+                </li>
+                {% if school_user %}
+                <li class="nav-item">
+                    <a class="nav-link {% if navigation == 'checklists' %}active{% endif %}" href="{{ path_for('checklist', { child_id: child.child_id }) }}">Checklists &nbsp; <span class="badge badge-default">{{ checklist_count }}</span></a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if navigation == 'accidents' %}active{% endif %}" href="{{ path_for('accident', { child_id: child.child_id }) }}">Accidents &nbsp; <span class="badge badge-default">{{ accident_count }}</span></a>
+                </li>
+
+                {% if user.user_type == 'P' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path_for('invoices') }}list/{{ child.child_id }}">Bills &nbsp;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function swapTimelineAndSpecial (deviceWidth) {
+        var timelineBlock = $('#timeline');
+        var specialBlock = $('#special');
+        if(deviceWidth <= 976) {
+            if(!$(timelineBlock).hasClass('replaced')) {
+                timelineBlock.replaceWith(specialBlock.clone());
+                specialBlock.replaceWith(timelineBlock);
+                $('#timeline').addClass('replaced');
+            }
+        }
+        else {
+            if(timelineBlock.hasClass('replaced')) {
+                specialBlock.replaceWith(timelineBlock.clone());
+                timelineBlock.replaceWith(specialBlock);
+                $('#timeline').removeClass('replaced');
+            }
+        }
+    }
+    
+    $( window ).on('load resize', function() {
+        var deviceWidth = $(window).width();
+        swapTimelineAndSpecial(deviceWidth);
+    });
+
+</script>

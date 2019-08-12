@@ -1,0 +1,267 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<form action="{{ path_for('schoolEdit') }}" enctype="multipart/form-data" method="post">
+    <h4 class="mb-5">{{ title }}</h4>
+    <div class="card mb-4">
+        <div class="card-header">
+            General Information
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="name">Pre-School Name:</label>
+                <div class="col-md-8">
+                    <input type="hidden" name="school_id" value="{{ school.school_id }}">
+                    <input class="form-control" type="text" id="name" name="name" value="{{ school.school_name }}" maxlength="64" autofocus required>
+                </div>
+            </div>
+            <div class="form-group row my-5">
+                <label class="col-md-4 col-form-label" for="type">Logo:</label>
+                <div class="col-md-8">
+                    <div class="media">
+                        <img class="rounded-circle d-flex mr-3" width="100" height="100" src="{{ school.school_avatar_url|default('/images/school.png') }}" alt="School image">
+                        <div class="media-body">
+                            <input type="hidden" role="uploadcare-uploader" name="avatar" data-crop="200x200 upscale" data-images-only="true">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="type">Operation:</label>
+                <div class="col-md-8">
+                    <select class="form-control" id="type" name="type" required>
+                        <option value="" disabled selected hidden>Please select</option>
+                        <option value="P" {% if school.school_type == 'P' %}selected{% endif %}>Private Setting</option>
+                        <option value="C" {% if school.school_type == 'C' %}selected{% endif %}>Community Setting</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="country">Country:</label>
+                <div class="col-md-8">
+                    <select class="form-control" id="country" name="country" disabled required>
+                        {% for country in countries %}
+                            <option value="{{ country.country_id }}" {% if school.country_id == country.country_id %}selected{% endif %}>{{ country.country_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="category_id">Type of Pre-School:</label>
+                <div class="col-md-8">
+                    {% for category in categories %}
+                        <label class="custom-control custom-radio">
+                            <input name="category_id" type="radio" value="{{ category.category_id }}" class="custom-control-input" {% if school.category_id == category.category_id %}checked{% endif %} required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">{{ category.category_name }}</span>
+                            {% if category.category_name =="Other please specify :" %}
+                                            &nbsp;<input class="form-control" type="text" id="other_type" name="other_type" maxlength="200" required value="{{ schoolUS.category }}">
+                                        {% endif %}
+                        </label>
+                        <p class="small">{{ category.category_description }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if school.country_id == 'US' %}
+            <div class="form-group row ">
+                            <label class="col-md-4 col-form-label" for="time">Hours:</label>  
+                            <div class="col-md-8">
+                                <select class="form-control" id="time" name="time" required>
+                                    <option value="FD" {% if schoolUS.hours == 'FD' %}selected{% endif %}>Full Day</option>
+                                    <option value="PD" {% if schoolUS.hours == 'PD' %}selected{% endif %}>Part Day</option>
+                                </select>
+                            </div>
+                        </div>
+               <div class="form-group row ">
+                            <label class="col-md-4 col-form-label" for="Curriculum">Curriculum or program:</label>  
+                            <div class="col-md-8">
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="Curriculum" type="radio" value="Head Start Preschool Program" class="custom-control-input" {% if schoolUS.curriculum == 'Head Start Preschool Program' %}checked{% endif %}  required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Head Start Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="Curriculum" type="radio" value="Montessori Preschool Program" class="custom-control-input"  {% if schoolUS.curriculum == 'Montessori Preschool Program' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Montessori Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="Curriculum" type="radio" value="Waldorf Preschool Program" class="custom-control-input" {% if schoolUS.curriculum == 'Waldorf Preschool Program' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Waldorf Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="Curriculum" type="radio" value="Reggio Emilia Preschool Program" class="custom-control-input" {% if schoolUS.curriculum == 'Reggio Emilia Preschool Program' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Reggio Emilia Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="Curriculum" type="radio" value="HighScope Preschool Program" class="custom-control-input" {% if schoolUS.curriculum == 'HighScope Preschool Program' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">HighScope Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="Curriculum" type="radio" value="Creative Curriculum" class="custom-control-input" {% if schoolUS.curriculum == 'Creative Curriculum' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Creative Curriculum</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="Curriculum" type="radio" value="Bank Street Preschool Program" class="custom-control-input" {% if schoolUS.curriculum == 'Bank Street Preschool Program' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Bank Street Preschool Program</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                            </div>
+                        </div>
+             <div class="form-group row ">
+                            <label class="col-md-4 col-form-label" for="Curriculum">Age range:</label>  
+                            <div class="col-md-8">
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0-2" class="custom-control-input" {% if schoolUS.curriculum == '0-2' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">0-2</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0-6" class="custom-control-input" {% if schoolUS.curriculum == '0-6' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">0-6</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0-8" class="custom-control-input" {% if schoolUS.curriculum == '0-8' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">0-8</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="2-6" class="custom-control-input" {% if schoolUS.curriculum == '2-6' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">2-6</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="3-6" class="custom-control-input" {% if schoolUS.curriculum == '3-6' %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">3-6</span>
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                                <div>
+                                    <label class="custom-control custom-radio">
+                                            <input name="rage_age" type="radio" value="0" class="custom-control-input" {% if schoolUS.curriculum == 0 %}checked{% endif %} required>
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Other please specify : &nbsp;</span>
+                                            <input class="form-control col-md-3" type="text" id="other_age" name="other_age" maxlength="6" required value="{{ schoolUS.age_range }}">
+                                    </label>
+                                    <p class="small"></p>
+                                </div>
+                            </div>
+                        </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            Address
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="phone">Phone Number:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="tel" id="phone" name="phone" value="{{ school.school_phone }}" maxlength="32" pattern="(((\+|00)|)(.\d{1,12}))" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="street">Street Address:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="street" name="street" value="{{ school.school_street }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="city">City or Town:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="city" name="city" value="{{ school.school_city }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="postal_code">Postal Code:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="postal_code" name="postal_code" value="{{ school.school_postal_code }}" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Stripe Connect
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="phone">Email :</label>
+                <div class="col-md-8">
+                    {# dump(admin)#}
+                    <input class="form-control" type="text" id="stripe_email" name="stripe_email" value="{{ admin.user_email }}" maxlength="32">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="street">Street Address:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="stripe_street" name="stripe_street" value="{{ school.school_street }}" maxlength="64">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="city">City or Town:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="stripe_city" name="stripe_city" value="{{ school.school_city }}" maxlength="64">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="postal_code">Postal Code:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="stripe_postal_code" name="stripe_postal_code" value="{{ school.school_postal_code }}" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})">
+                </div>
+            </div>
+        </div>
+
+            <input type="text" name="stripe_connect_id" value="{{ school.stripe_connect_id }}">
+
+    </div>
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+</form>
+{% endblock %}

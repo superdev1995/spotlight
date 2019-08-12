@@ -1,0 +1,8 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>The risk assessment that was carried out on {{ assessment_date }} is due to be revised on {{ risk_date }}.</p>
+<br/>
+<p>Please review it <a href="https://{{ settings.mailer.domain }}{{ path_for('editRiskAssessment', { assessment_id: assessment_id }) }}">here</a>.
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-1">{{ title }}</h4>
+    <div class="col-4 text-right noprint">
+        <button class="btn btn-link" onclick="downloadPage()" role="button"><i class="fa fa-download" aria-hidden="true"></i></button>
+        <button class="btn btn-link" onclick="printPage()" role="button"><i class="fa fa-print" aria-hidden="true"></i></button>
+    </div>
+{% if first_conducted %}<h6 class="mb-0">First conducted: {{ first_conducted }}</h6>{% endif %}
+{% if last_conducted %}<h6 class="mb-4">Last conducted: {{ last_conducted }}</h6>{% endif %}
+<div id="accordion" role="tablist" aria-multiselectable="true">
+    {% for category in categories %}
+        <div class="mb-4">
+            <h5>Section: {{ category.category_name }}</h5>
+            {% for id, question in questions if question.question.category_id == category.category_id %}
+                {% if question.question.school_categories == '' or (question.question.school_categories and school.category_id in question.question.school_categories|split(',')) %}
+                    <div class="card mb-1">
+                        <div class="card-header" role="tab" id="heading{{ question.question.question_id }}">
+                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ question.question.question_id }}" aria-expanded="true" aria-controls="collapse{{ question.question.question_id }}">
+                                {% if question.question.question_multiple_choice and question.selected_answer.answer_body == 'This has not been achieved yet' %}
+                                <i class="fa fa-times fa-fw text-danger" aria-hidden="true"></i>
+                                {% else %}
+                                <i class="fa fa-check fa-fw text-success" aria-hidden="true"></i>
+                                {% endif %}
+                                {{ question.question.question_body | raw }}
+                            </a>
+                        </div>
+                        <div id="collapse{{ question.question.question_id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ question.question.question_id }}">
+                            
+                            {% if question.answer and not ((not question.question.question_multiple_choice) and question.answer.answer_body == '') %}
+                                <div class="card-block">
+                                    <h5>Your answer</h5>
+                                    <div class="ml-5">
+                                        {% if question.question.question_multiple_choice %}
+                                            {{ question.selected_answer.answer_body }}
+                                        {% else %}
+                                            {{ question.answer.answer_body }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="card-block">Not answered</div>
+                            {% endif %}
+                            
+                            {% if question.answer.additional_information %}
+                                <hr>
+                                <div class="card-block">
+                                    <h5>Additional information</h5>
+                                    <div class="ml-5">{{ question.answer.additional_information }}</div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="card-footer">
+                                <a class="btn btn-primary" href="{{ path_for('gdprDetails', { question_id: question.question.question_id }) }}">Change My Answer</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

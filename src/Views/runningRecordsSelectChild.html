@@ -1,0 +1,37 @@
+{% extends 'master.default.html' %}
+
+{% block body %}
+<div class="row">
+    {% if children %}
+    <div class="col-lg-8 offset-lg-2 text-center mb-5">
+        <p class="lead">Select your child to view Running Records.</p>
+    </div>
+    <div class="col-lg-6 offset-lg-3">
+        <div class="list-group">
+            {% for child in children %}
+            <a class="list-group-item" href="{{ path_for('runningRecordForChild', { child_id: child.child_id }) }}">
+                <div class="justify-content-between">
+                    <div class="media">
+                        <img class="rounded-circle d-flex mr-3" width="50" height="50" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image">
+                        <div class="media-body">
+                            <h5 class="mb-0">{{ child.child_name }}</h5>
+                            <span class="text-muted">{{ child.school_name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="col-lg-6 offset-lg-3">
+        <div class="text-center mb-5">
+            <img width="200" height="265" src="/images/sally.svg" alt="Backgroud image">
+        </div>
+        <p class="lead"><strong>Hi {{ user.user_first_name }}!</strong></p>
+        <p class="lead">It’s great to welcome you to the TeachKloud family. TeachKloud allows you and your child’s teachers to share special moments and important information about your child.</p>
+        <p>Please ask your pre-school’s administrator to invite you to view your child’s profile. Tell them your email address on TeachKloud to do so.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

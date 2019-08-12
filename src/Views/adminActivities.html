@@ -1,0 +1,449 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card">
+    <div class="card-block">
+            <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" id="pills-ireland-tab" data-toggle="pill" href="#pills-ireland" role="tab" aria-controls="pills-ireland" aria-selected="true">Ireland</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-gb-tab" data-toggle="pill" href="#pills-gb" role="tab" aria-controls="pills-gb" aria-selected="false">GB</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-australia-tab" data-toggle="pill" href="#pills-australia" role="tab" aria-controls="pills-australia" aria-selected="false">Australia</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-usa-tab" data-toggle="pill" href="#pills-usa" role="tab" aria-controls="pills-usa" aria-selected="false">USA</a>
+                    </li>
+                  </ul>
+                  <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-ireland" role="tabpanel" aria-labelledby="pills-ireland-tab">
+                        <nav class="nav nav-pills nav-justified">
+                          <a class="nav-item nav-link active" id="pills-aistear-tab" data-toggle="pill" href="#pills-aistear" role="tab" aria-controls="pills-aistear" aria-selected="true">Aistear</a>
+                          <a class="nav-item nav-link" id="pills-siolta-tab" data-toggle="pill" href="#pills-siolta" role="tab" aria-controls="pills-siolta" aria-selected="false">Síolta</a>
+                          <a class="nav-item nav-link" id="pills-montessori-ie-tab" data-toggle="pill" href="#pills-montessori-ie" role="tab" aria-controls="pills-montessori-ie" aria-selected="false">Montessori</a>
+                        </nav>
+                        <div class="tab-content" id="pills-tabContent">
+                            <div class="tab-pane fade show active" id="pills-aistear" role="tabpanel" aria-labelledby="pills-aistear-tab">
+                              <div class="row">
+                                <div class="col-12 my-2 text-right ml-auto">
+                                  <a href="{{ path_for('adminEditActivities', { framework_name: 'Aistear' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                                </div>
+                              </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                      <thead>
+                                          <th width="100">
+                                              Goal ID
+                                            </th>
+                                            <th width="70%">
+                                              Goal description
+                                            </th>
+                                            <th></th>
+                                      </thead>
+                                      <tbody>
+                                        {% for goal in goals %}
+                                          {% if goal.framework_name == "Aistear" %}
+                                          <tr>
+                                            <td>{{goal.goal_id}}</td>
+                                            <td>{{goal.goal_description}}</td>
+                                            <td>
+                                              {% if goal.activities %}
+                                              <div class="dropdown">
+                                                  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Links
+                                                    <i class="fa fa-caret-down ml-1"></i>
+                                                  </button>
+                                                  <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                                {% for ext_goal in goal.activities %}
+                                                  {% if ext_goal.activity_url %}
+                                                  <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                  {% else %}
+                                                  <a class="dropdown-item" href="#">No Link</a>
+                                                  {% endif %}
+                                                {% endfor %}
+                                                </div>
+                                              </div>
+                                              {% endif %}
+                                            </td>
+                                          </tr>
+                                          {% endif %}
+                                        {% endfor %}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-siolta" role="tabpanel" aria-labelledby="pills-siolta-tab">
+                                <div class="row">
+                                  <div class="col-12 my-2 text-right ml-auto">
+                                    <a href="{{ path_for('adminEditActivities', { framework_name: 'Síolta' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                                  </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                      <thead>
+                                        <th width="100">
+                                          Goal ID
+                                        </th>
+                                        <th width="70%">
+                                          Goal description
+                                        </th>
+                                        <th></th>
+                                      </thead>
+                                      <tbody>
+                                        {% for goal in goals %}
+                                          {% if goal.framework_name == "Síolta" %}
+                                          <tr>
+                                            <td>{{goal.goal_id}}</td>
+                                            <td>{{goal.goal_description}}</td>
+                                            <td>
+                                                {% if goal.activities %}
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                      Links
+                                                      <i class="fa fa-caret-down ml-1"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                                  {% for ext_goal in goal.activities %}
+                                                    {% if ext_goal.activity_url %}
+                                                    <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                    {% else %}
+                                                    <a class="dropdown-item" href="#">No Link</a>
+                                                    {% endif %}
+                                                  {% endfor %}
+                                                  </div>
+                                                </div>
+                                                {% endif %}
+                                              </td>
+                                          </tr>
+                                          {% endif %}
+                                        {% endfor %}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                            </div>
+                            <div class="tab-pane fade" id="pills-montessori-ie" role="tabpanel" aria-labelledby="pills-montessori-ie-tab">
+                                <div class="row">
+                                  <div class="col-12 my-2 text-right ml-auto">
+                                    <a href="{{ path_for('adminEditActivities', { framework_name: 'Montessori', country_id: 'IE' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                                  </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                      <thead>
+                                        <th width="100">
+                                          Goal ID
+                                        </th>
+                                        <th width="70%">
+                                          Goal description
+                                        </th>
+                                        <th></th>
+                                      </thead>
+                                      <tbody>
+                                        {% for goal in goals %}
+                                          {% if goal.framework_name == "Montessori" and goal.country_id == 'IE' %}
+                                          <tr>
+                                            <td>{{goal.goal_id}}</td>
+                                            <td>{{goal.goal_description}}</td>
+                                            <td>
+                                                {% if goal.activities %}
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                      Links
+                                                      <i class="fa fa-caret-down ml-1"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                                  {% for ext_goal in goal.activities %}
+                                                    {% if ext_goal.activity_url %}
+                                                    <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                    {% else %}
+                                                    <a class="dropdown-item" href="#">No Link</a>
+                                                    {% endif %}
+                                                  {% endfor %}
+                                                  </div>
+                                                </div>
+                                                {% endif %}
+                                              </td>
+                                          </tr>
+                                          {% endif %}
+                                        {% endfor %}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-gb" role="tabpanel" aria-labelledby="pills-gb-tab">
+                        <nav class="nav nav-pills nav-justified">
+                          <a class="nav-item nav-link active" id="pills-eyfs-tab" data-toggle="pill" href="#pills-eyfs" role="tab" aria-controls="pills-eyfs" aria-selected="true">EYFS</a>
+                          <a class="nav-item nav-link" id="pills-montessori-gb-tab" data-toggle="pill" href="#pills-montessori-gb" role="tab" aria-controls="pills-montessori-gb" aria-selected="false">Montessori</a>
+                        </nav>
+                        <div class="tab-content" id="pills-tabContent">
+                          <div class="tab-pane fade show active" id="pills-eyfs" role="tabpanel" aria-labelledby="pills-eyfs-tab">
+                              <div class="row">
+                                <div class="col-12 my-2 text-right ml-auto">
+                                  <a href="{{ path_for('adminEditActivities', { framework_name: 'EYFS' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                                </div>
+                              </div>
+                              <div class="table-responsive">
+                                  <table class="table">
+                                    <thead>
+                                        <th width="100">
+                                            Goal ID
+                                          </th>
+                                          <th width="70%">
+                                            Goal description
+                                          </th>
+                                          <th></th>
+                                    </thead>
+                                    <tbody>
+                                      {% for goal in goals %}
+                                        {% if goal.framework_name == "EYFS" %}
+                                        <tr>
+                                          <td>{{goal.goal_id}}</td>
+                                          <td>{{goal.goal_description}}</td>
+                                          <td>
+                                              {% if goal.activities %}
+                                              <div class="dropdown">
+                                                  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Links
+                                                    <i class="fa fa-caret-down ml-1"></i>
+                                                  </button>
+                                                  <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                                {% for ext_goal in goal.activities %}
+                                                  {% if ext_goal.activity_url %}
+                                                  <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                  {% else %}
+                                                  <a class="dropdown-item" href="#">No Link</a>
+                                                  {% endif %}
+                                                {% endfor %}
+                                                </div>
+                                              </div>
+                                              {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                      {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                          </div>
+                          <div class="tab-pane fade" id="pills-montessori-gb" role="tabpanel" aria-labelledby="pills-montessori-gb-tab">
+                              <div class="row">
+                                <div class="col-12 my-2 text-right ml-auto">
+                                  <a href="{{ path_for('adminEditActivities', { framework_name: 'Montessori', country_id: 'GB' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                                </div>
+                              </div>
+                              <div class="table-responsive">
+                                  <table class="table">
+                                    <thead>
+                                      <th width="100">
+                                        Goal ID
+                                      </th>
+                                      <th width="70%">
+                                        Goal description
+                                      </th>
+                                      <th></th>
+                                    </thead>
+                                    <tbody>
+                                      {% for goal in goals %}
+                                        {% if goal.framework_name == "Montessori" and goal.country_id == 'GB' %}
+                                        <tr>
+                                          <td>{{goal.goal_id}}</td>
+                                          <td>{{goal.goal_description}}</td>
+                                          <td>
+                                              {% if goal.activities %}
+                                              <div class="dropdown">
+                                                  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Links
+                                                    <i class="fa fa-caret-down ml-1"></i>
+                                                  </button>
+                                                  <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                                {% for ext_goal in goal.activities %}
+                                                  {% if ext_goal.activity_url %}
+                                                  <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                  {% else %}
+                                                  <a class="dropdown-item" href="#">No Link</a>
+                                                  {% endif %}
+                                                {% endfor %}
+                                                </div>
+                                              </div>
+                                              {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                      {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-australia" role="tabpanel" aria-labelledby="pills-australia-tab">
+                      <nav class="nav nav-pills nav-justified">
+                          <a class="nav-item nav-link active" id="pills-eyfl-tab" data-toggle="pill" href="#pills-eyfl" role="tab" aria-controls="pills-eyfl" aria-selected="true">EYFL</a>
+                      </nav>
+                      <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-eyfl" role="tabpanel" aria-labelledby="pills-eyfl-tab">
+                            <div class="row">
+                              <div class="col-12 my-2 text-right ml-auto">
+                                <a href="{{ path_for('adminEditActivities', { framework_name: 'EYFL' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                              </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                  <thead>
+                                      <th width="100">
+                                          Goal ID
+                                        </th>
+                                        <th width="70%">
+                                          Goal description
+                                        </th>
+                                        <th></th>
+                                  </thead>
+                                  <tbody>
+                                    {% for goal in goals %}
+                                      {% if goal.framework_name == "EYFL" %}
+                                      <tr>
+                                        <td>{{goal.goal_id}}</td>
+                                        <td>{{goal.goal_description}}</td>
+                                        <td>
+                                            {% if goal.activities %}
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                  Links
+                                                  <i class="fa fa-caret-down ml-1"></i>
+                                                </button>
+                                                <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                              {% for ext_goal in goal.activities %}
+                                                {% if ext_goal.activity_url %}
+                                                <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                {% else %}
+                                                <a class="dropdown-item" href="#">No Link</a>
+                                                {% endif %}
+                                              {% endfor %}
+                                              </div>
+                                            </div>
+                                            {% endif %}
+                                          </td>
+                                      </tr>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-usa" role="tabpanel" aria-labelledby="pills-usa-tab">
+                        <nav class="nav nav-pills nav-justified">
+                            <a class="nav-item nav-link active" id="pills-montessori-usa-tab" data-toggle="pill" href="#pills-montessori-usa" role="tab" aria-controls="pills-montessori-usa" aria-selected="true">Montessori</a>
+                            <a class="nav-item nav-link" id="pills-creative-usa-tab" data-toggle="pill" href="#pills-creative-usa" role="tab" aria-controls="pills-creative-usa" aria-selected="false">Creative Curriculum</a>
+                        </nav>
+                        <div class="tab-content" id="pills-tabContent">
+                          <div class="tab-pane fade show active" id="pills-montessori-usa" role="tabpanel" aria-labelledby="pills-montessori-usa-tab">
+                              <div class="row">
+                                  <div class="col-12 my-2 text-right ml-auto">
+                                    <a href="{{ path_for('adminEditActivities', { framework_name: 'Montessori', country_id: 'US' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                                  </div>
+                                </div>
+                              <div class="table-responsive">
+                                  <table class="table">
+                                    <thead>
+                                        <th width="100">
+                                            Goal ID
+                                          </th>
+                                          <th width="70%">
+                                            Goal description
+                                          </th>
+                                          <th></th>
+                                    </thead>
+                                    <tbody>
+                                      {% for goal in goals %}
+                                        {% if goal.framework_name == "Montessori" and goal.country_id == 'US' %}
+                                        <tr>
+                                          <td>{{goal.goal_id}}</td>
+                                          <td>{{goal.goal_description}}</td>
+                                          <td>
+                                              {% if goal.activities %}
+                                              <div class="dropdown">
+                                                  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Links
+                                                    <i class="fa fa-caret-down ml-1"></i>
+                                                  </button>
+                                                  <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                                {% for ext_goal in goal.activities %}
+                                                  {% if ext_goal.activity_url %}
+                                                  <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                  {% else %}
+                                                  <a class="dropdown-item" href="#">No Link</a>
+                                                  {% endif %}
+                                                {% endfor %}
+                                                </div>
+                                              </div>
+                                              {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                      {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                          </div>
+                          <div class="tab-pane fade show" id="pills-creative-usa" role="tabpanel" aria-labelledby="pills-creative-usa-tab">
+                            <div class="row">
+                                <div class="col-12 my-2 text-right ml-auto">
+                                  <a href="{{ path_for('adminEditActivities', { framework_name: 'Creative Curriculum', country_id: 'US' }) }}" role="button" class="btn btn-primary">Edit Links</a>
+                                </div>
+                              </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                  <thead>
+                                      <th width="100">
+                                          Goal ID
+                                        </th>
+                                        <th width="70%">
+                                          Goal description
+                                        </th>
+                                        <th></th>
+                                  </thead>
+                                  <tbody>
+                                    {% for goal in goals %}
+                                      {% if goal.framework_name == "Creative Curriculum" and goal.country_id == 'US' %}
+                                      <tr>
+                                        <td>{{goal.goal_id}}</td>
+                                        <td>{{goal.goal_description}}</td>
+                                        <td>
+                                            {% if goal.activities %}
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                  Links
+                                                  <i class="fa fa-caret-down ml-1"></i>
+                                                </button>
+                                                <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                              {% for ext_goal in goal.activities %}
+                                                {% if ext_goal.activity_url %}
+                                                <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                                {% else %}
+                                                <a class="dropdown-item" href="#">No Link</a>
+                                                {% endif %}
+                                              {% endfor %}
+                                              </div>
+                                            </div>
+                                            {% endif %}
+                                          </td>
+                                      </tr>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                        </div>
+                        </div>
+                    </div>
+                  </div>
+    </div>
+</div>
+{% endblock %}

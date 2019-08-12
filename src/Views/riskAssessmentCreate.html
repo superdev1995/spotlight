@@ -1,0 +1,443 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<!-- <script src="/javascripts/speechrecognition.js"></script>
+<script src="/javascripts/BingSpeech.js" type="text/javascript"></script> -->
+
+{% set counter = 1 %}
+<form action="{% if assessment.risk_assessment_id %}{{ path_for('editRiskAssessment', { assessment_id: assessment.risk_assessment_id }) }}{% else %}{{ path_for('createRiskAssessment') }}{% endif %}" method="post">
+    <div class="row">
+        <div class="col-12 col-sm-5">
+            <h4 class="mb-5">{{ title }}</h4>
+        </div>
+        <div class="col-12 col-sm-7 mb-2 text-right">
+            <a class="btn btn-outline-primary" href="{{ path_for('riskAssessments') }}" role="button">Back to Risk Assessments</a>
+            <button class="btn btn-primary" type="submit">Publish</button>
+        </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-header success">
+            Risk Assessment Details
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+            	<input type= "hidden" name="riskAssessment_id" value="{{ formdata.risk_assessment_id }}" />
+                <label class="col-4 col-form-label">Date</label>
+                <div class="col-8">
+                    <input class="form-control" type="date" name="riskAssessment_date" value="{{ formdata.date|default(date) }}" placeholder="{{ date }}" required>
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <label class="col-4 col-form-label">Name (optional)</label>
+                <div class="col-8">
+                    <input class="form-control noteParam" name="riskAssessment_name" type="text" value="{% if formdata.name %} {{ formdata.name }} {% endif %}" ></input>
+                </div>
+            </div>
+            
+            <!-- Begin Risk Assessment Pane -->
+           	<ul class="nav nav-tabs nav-justified" role="tablist">
+	            {% for key, group in group_items %}
+                <li class="nav-item">
+    	            <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab"
+        		            href="#{{key}}" role="tab">{{ group }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+                    
+			<div class="tab-content">
+				{% for key, group in group_items %}
+                <div class="tab-pane card-block riskAssessment-details {% if group_items|first == group %}active{% endif %}"
+		        		id="{{key}}" role="tabpanel">
+        		    {% if key == 'instructions' %}
+           		    <div class="row noprint">
+    	                <div class="col-12">
+        	               	<p><strong>What is a Hazard?</strong><br/>Anything that can cause harm</p>
+							<p><strong>Hazard/Risk Identified</strong><br/>What hazards have you identified in the setting?</p>
+							<p><strong>People at risk</strong><br/>Who is at risk of being harmed by these hazards?</p>
+							<p><strong>Risk Rating</strong><br/>Is this risk high, medium or low? How likely is it to occur?</p>
+							<p><strong>Actions in Place</strong><br/>Are there any actions in place to minimise risk? If no, leave blank</p>
+							<p><strong>Further actions needed?</strong><br/>What action is needed to minimise the risk?</p>
+							<p><strong>Date to be completed?</strong><br/>When will the necessary actions be completed by?</p>
+							<p><strong>Risk rating after actions has been taken?</strong><br/>Has the action reduced the risk rating? If so what is the risk rating now?</p>
+		       	        </div>
+               		</div>
+                    {% elseif key == 'minimise' %}
+                    <div class="card-block">
+                       	<div class="row noprint">
+                       		<div class="col-12">
+                       			<p>What policies and Procedures have been developed to minimise the risks identified?</p>
+                      		</div>
+                       	</div>
+            			<div class="form-group">
+                            <!-- <button onclick="recordspeech('minimise','mcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                            <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                            <img class="voice_detect hidden" id="mcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+            				<textarea class="form-control" name="minimise" id="minimise" rows="8">{{ formdata.minimise }}</textarea>
+            			</div>
+        			</div>
+        			{% elseif key == 'review' %}
+                    <div class="card-block">
+                        <div class="row noprint">
+                            <div class="col-12">
+                            	<p>Review whether adequate precautions have been taken to eliminate or reduce these risks</p>
+                            </div>
+                        </div>
+            			<div class="form-group">
+                            <!-- <button onclick="recordspeech('review','rcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-microphone"></i>  Record Speech</button>
+                            <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny" style=""><i class="fa fa-stop-circle"></i> Stop</button>
+                            <img class="voice_detect hidden" id="rcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                			<textarea class="form-control" name="review" id="review" rows="8">{{ formdata.review }}</textarea>
+						</div>
+        			</div>
+        			{% elseif key == 'share' %}
+                    <div class="card-block">
+                        <div>
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="share_teachers" value="teachers" {% if formdata.shareteachers == 1 %}checked{% endif %}>
+                                 <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">Share with all teachers</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="share_parents" value="parents" {% if formdata.shareparents == 1 %}checked{% endif %}>
+                                 <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">Share with parents</span>
+                            </label>
+                        </div>
+                    </div>
+                    {% elseif key == 'risks' %}
+                    <div class="card-block">
+                        <div class="row noprint">
+                            <div class="col-12">
+                            	<p>We have carried out an assessment of any potential harm to a child while availing of our services.<br/>
+                            		Below is a list of the areas of risk identified and the list of procedures for managing these risks.</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-right">
+                                <a href="" data-toggle="tooltip" class="add-risk-btn"
+                                    	id="risk-block" title="Add a risk">
+                                	<span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="form-group" id="risk-block-container">
+                        	{% for key, risk in formdata.risks %}
+                            <div class="card-block">
+            					<input type="hidden" name="risks[{{ counter }}][risk_id]" value="{{risk.risk_id}}">
+                					<div class="form-group row">
+                						<label class="col-12 col-md-3" for="risks[{{ counter }}][risk_identified]">
+                							Hazard / Risk Identified
+                						</label>
+                						<div class="col-12 col-md-9">
+							                <input type="text" class="form-control"
+								                name="risks[{{ counter }}][risk_identified]"
+								                id="risk_identified"
+								                value="{{risk.description}}" />
+						                </div>
+                					</div>
+					                <div class="form-group row">
+						                <label class="col-12 col-md-3" for="risks[{{ counter }}][risk_people]">
+							                People at Risk
+						                </label>
+						                <div class="col-12 col-md-9">
+							                <input type="text" class="form-control"
+								                name="risks[{{ counter }}][risk_people]"
+								                id="risk_people"
+							    	            value="{{ risk.people }}" />
+					                	</div>
+				                	</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-md-3" for="risks[{{ counter }}][risk_rating]">
+							                Risk Rating
+						                </label>
+						                <div class="col-12 col-md-9">
+							                <input type="text" class="form-control"
+                								name="risks[{{ counter }}][risk_rating]"
+                								id="risk_rating"
+                								value="{{ risk.rating }}" />
+                						</div>
+                					</div>
+					                <div class="form-group row">
+						                <label class="col-12 col-md-3" for="risks[{{ counter }}][risk_actions]">
+							                Actions in place
+						                </label>
+						                <div class="col-12 col-md-9">
+							                <input type="text" class="form-control"
+                								name="risks[{{ counter }}][risk_actions]"
+                								id="risk_actions"
+                								value="{{ risk.actions }}" />
+            							</div>
+					                </div>
+                					<div class="form-group row">
+                						<label class="col-12 col-md-3" for="risks[{{ counter }}][risk_further_actions]">
+                							Further Action(s) needed
+                						</label>
+                						<div class="col-12 col-md-9">
+                							<input type="text" class="form-control"
+                								name="risks[{{ counter }}][risk_further_actions]"
+                								id="risk_further_actions"
+                								value="{{ risk.further_actions }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-md-3" for="risks[{{ counter }}][risk_date]">
+                							Date to be completed
+                						</label>
+                						<div class="col-12 col-md-9">
+                							<input type="date" class="form-control"
+                								name="risks[{{ counter }}][risk_date]"
+                								id="risk_date"
+                								value="{{ risk.date is empty ? '' : risk.date }}"
+                								placeholder="{{ date }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-md-3" for="risks[{{ counter }}][risk_rating_after]">
+                							Risk rating after action has been taken
+                						</label>
+                						<div class="col-12 col-md-9">
+                							<input type="text" class="form-control"
+                								name="risks[{{ counter }}][risk_rating_after]"
+                								id="risk_rating_after"
+                								value="{{ risk.rating_after }}" />
+                						</div>
+                					</div>
+                					{% if user.user_id == assessment.user_fk %}
+                					<button class="btn btn-danger btn-sm btn-delete"
+                						role="button"
+               							data-toggle="modal"
+                						data-target="#deleteModal">Delete</button>
+                					{% else %}
+                						<hr/>
+                					{% endif %} 
+                				</div>
+                                {% set counter = counter + 1 %}
+                                {% endfor %}
+                        	</div>
+                    	</div>
+        			{% else %}
+        			<div>{{key}}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+			</div>
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+	
+    <script>
+        var counter = {{ counter }};
+		
+        $("#risk-block-container").on("click", ".btn-delete", function (e) {
+            e.preventDefault();
+
+            $(this).closest(".card-block").remove();
+            
+        });
+
+        $(".add-risk-btn").on("click", function (e) {
+            e.preventDefault();
+
+        	// hide table when adding a new row
+        	$("#risk-block-container").append('<div class="card-block">\n' +
+            	'<input type="hidden" name="risks[' + counter + '][risk_id]" value="">\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-md-3" for="risks[' + counter + '][risk_identified]">\n' +
+                'Hazard / Risk Identified\n' +
+                '</label>\n' +
+                '<div class="col-12 col-md-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_identified]"\n' +
+                'id="risk_identified"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-md-3" for="risks[' + counter + '][risk_people]">\n' +
+                'People at Risk\n' +
+                '</label>\n' +
+                '<div class="col-12 col-md-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_people]"\n' +
+                'id="risk_people"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-md-3" for="risks[' + counter + '][risk_rating]">\n' +
+                'Risk Rating\n' +
+                '</label>\n' +
+                '<div class="col-12 col-md-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_rating]"\n' +
+                'id="risk_rating"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-md-3" for="risks[' + counter + '][risk_actions]">\n' +
+                'Actions in place\n' +
+                '</label>\n' +
+                '<div class="col-12 col-md-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_actions]"\n' +
+                'id="risk_actions"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-md-3" for="risks[' + counter + '][risk_further_actions]">\n' +
+                'Further Action(s) needed\n' +
+                '</label>\n' +
+                '<div class="col-12 col-md-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_further_actions]"\n' +
+                'id="risk_further_actions"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-md-3" for="risks[' + counter + '][risk_date]">\n' +
+                'Date to be completed\n' +
+                '</label>\n' +
+                '<div class="col-12 col-md-9">\n' +
+                '<input type="date" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_date]"\n' +
+                'id="risk_date"\n' +
+                'value="' + Date.now + '"\n' +
+                'placeholder="{{ date }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-md-3" for="risks[' + counter + '][risk_rating_after]">\n' +
+                'Risk rating after action has been taken\n' +
+                '</label>\n' +
+                '<div class="col-12 col-md-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_rating_after]"\n' +
+                'id="risk_rating_after"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<button class="btn btn-danger btn-sm btn-delete"\n' +
+                'role="button"\n' +
+                'data-toggle="modal"' +
+                'data-target="#deleteModal">Delete</button>' +
+                '</div>\n'
+            );
+
+            counter++;
+			
+        });
+    
+    $(".edit-risk").on("click", function (e) {
+            e.preventDefault();
+
+			var key = $(this).attr('data-id');
+        	
+        	// hide table when adding a new row
+        	{% for key, risk in formdata.risks %}
+        	if(key == {{ key }}){
+        	$("#risk-block-container").append('<div class="card-block">\n' +
+            	'<input type="hidden" name="risks[' + key + '][risk_id]" value="">\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-3 col-form-label" for="risks[' + key + '][risk_identified]">\n' +
+                'Hazard / Risk Identified\n' +
+                '</label>\n' +
+                '<div class="col-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + key + '][risk_identified]"\n' +
+                'id="risk_identified"\n' +
+                'value="{{ risk.description }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-3 col-form-label" for="risks[' + key + '][risk_people]">\n' +
+                'People at Risk\n' +
+                '</label>\n' +
+                '<div class="col-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + key + '][risk_people]"\n' +
+                'id="risk_people"\n' +
+                'value="{{ risk.people }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-3 col-form-label" for="risks[' + key + '][risk_rating]">\n' +
+                'Risk Rating\n' +
+                '</label>\n' +
+                '<div class="col-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + counter + '][risk_rating]"\n' +
+                'id="risk_rating"\n' +
+                'value="{{ risk.rating }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-3 col-form-label" for="risks[' + key + '][risk_actions]">\n' +
+                'Actions in place\n' +
+                '</label>\n' +
+                '<div class="col-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + key + '][risk_actions]"\n' +
+                'id="risk_actions"\n' +
+                'value="{{ risk.actions }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-3 col-form-label" for="risks[' + key + '][risk_further_actions]">\n' +
+                'Further Action(s) needed\n' +
+                '</label>\n' +
+                '<div class="col-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + key + '][risk_further_actions]"\n' +
+                'id="risk_further_actions"\n' +
+                'value="{{ risk.further_actions }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-3 col-form-label" for="risks[' + key + '][risk_date]">\n' +
+                'Date to be completed\n' +
+                '</label>\n' +
+                '<div class="col-9">\n' +
+                '<input type="date" class="form-control"\n' +
+                'name="risks[' + key + '][risk_date]"\n' +
+                'id="risk_date"\n' +
+                'value="{{ risk.date is empty ? "" : risk.date }}"\n' +
+                'placeholder="{{ date }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-3 col-form-label" for="risks[' + key + '][risk_rating_after]">\n' +
+                'Risk rating after action has been taken\n' +
+                '</label>\n' +
+                '<div class="col-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="risks[' + key + '][risk_rating_after]"\n' +
+                'id="risk_rating_after"\n' +
+                'value="{{ risk.rating_after }}" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<button class="btn btn-danger btn-sm btn-delete"\n' +
+                'role="button"\n' +
+                'data-toggle="modal"' +
+                'data-target="#deleteModal">Delete</button>' +
+                '</div>\n'
+            );
+        }
+        {% endfor %}
+        
+        });
+
+    </script>
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    
+</form>
+{% endblock %}

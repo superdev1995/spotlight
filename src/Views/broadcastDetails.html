@@ -1,0 +1,55 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-6">
+        <h4 class="mb-5">{{ title }}</h4>
+    </div>
+    <div class="col-6 text-right">
+        <a class="btn btn-outline-primary" href="{{ path_for('broadcast') }}">Return to Broadcasts</a>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        {{ broadcast.broadcast_subject }}
+    </div>
+    <div class="card-block">
+        <dl class="row">
+            <dt class="col-5 col-sm-3">Broadcast by:</dt>
+            <dd class="col-7 col-sm-9"><strong><img class="rounded-circle mr-2" width="35" height="35" src="{{ broadcast.user_avatar_url|default('/images/avatar.png') }}" alt="User image"> {{ broadcast.user_first_name }} {{ broadcast.user_last_name }}</strong></dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-5 col-sm-3">Broadcast on:</dt>
+            <dd class="col-7 col-sm-9">{{ broadcast.created_at }}</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-3">Message:</dt>
+            <dd class="col-sm-9">{{ broadcast.broadcast_message }}</dd>
+        </dl>
+    </div>
+</div>
+{% if user.user_type == 'T' %}
+    <div class="card">
+        <div class="card-header">
+            Recipients
+        </div>
+        <div class="card-block">
+            <p class="lead">For privacy purpose, the recipients are only visible to staff members of your school.</p>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recipient in recipients %}
+                    <tr>
+                        <td><img class="rounded-circle mr-2" width="35" height="35" src="{{ recipient.user_avatar_url|default('/images/avatar.png') }}" alt="User image"> {{ recipient.user_first_name }} {{ recipient.user_last_name }} {% if recipient.user_type == 'T' %}<span class="badge badge-info">Staff</span>{% endif %}{% if recipient.user_type == 'P' %}<span class="badge badge-warning">Parent</span>{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}

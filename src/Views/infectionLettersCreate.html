@@ -1,0 +1,60 @@
+
+
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<form action="{{ path_for('infectionLettersCreate') }}" method="post">
+    <h4 class="mb-0">{{ title }}</h4>
+    <br>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="modal-title">Write your letter here.</h5>
+        </div>
+        <div class="card-block">
+            <div class="form-group">
+                <div class="custom-controls-stacked">
+                    <label class="custom-control custom-radio">
+                        <input name="sendto" type="radio" value="T" class="custom-control-input" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">Send the letter to Teachers</span>
+                    </label>
+                    
+                    <label class="custom-control custom-radio">
+                        <input name="sendto" type="radio" value="P" class="custom-control-input" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">Send the letter to parents</span>
+                    </label>
+                    
+                    <label class="custom-control custom-radio">
+                        <input name="sendto" type="radio" value="SE" class="custom-control-input" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">Save and edit later</span>
+                    </label>
+                </div>
+            </div>
+            {% if body_l != NULL %}
+                <div class="form-group">
+                    <p>Letter name: <input type="text" value="{{ body_l.letter_name }}" name="letter_n"></p>
+                    <textarea class="form-control" id="description" name="description" rows="25">{{ body_l.letter_body }}</textarea>
+                    <input type="hidden" value="{{ body_l.letter_id }}" name="edit_s">
+                </div>
+            {% else %}
+                <div class="form-group">
+                    <p>Letter name: <input type="text" name="letter_n"></p>
+                    <textarea class="form-control" id="description" name="description" rows="25"></textarea>
+                </div>
+            {% endif %}
+            
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Send letter</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+
+{% endblock %}
+
+     

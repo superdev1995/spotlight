@@ -1,0 +1,394 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% set counter = 1 %}
+<form action="{{ path_for('editGeneralRegister') }}" method="post">
+    <div class="row">
+        <div class="col-12 col-sm-4">
+            <h4 class="mb-3">{{ title }}</h4>
+        </div>
+        <div class="col-12 col-sm-6 mb-2 ml-auto text-right">
+        	<a class="btn btn-outline-primary" href="{{ path_for('generalRegister') }}" role="button">Back
+                to Display</a>
+            <button class="btn btn-primary" type="submit">Publish</button>
+        </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-block"> 
+        	<ul class="nav nav-tabs nav-justified" role="tablist">
+	            {% for key, group in group_items %}
+                <li class="nav-item">
+    	            <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab"
+        		            href="#{{key}}" role="tab">{{ group }}</a>
+                </li>
+                {% endfor %}
+            </ul>    
+			<div class="tab-content">
+				{% for key, group in group_items %}
+                <div class="tab-pane card-block generalRegister-details {% if group_items|first == group %}active{% endif %}"
+		        		id="{{key}}" role="tabpanel">
+        		    {% if key == 'instructions' %}
+           		    <div class="row noprint">
+    	                <div class="col-12">
+    	                	<p>All sections are optional please only fill out what is applicable to you</p>
+							<p><strong>Date</strong><br/>What date is the fire audit taking place</p>
+							<p><strong>Time</strong><br/>What time is the fire audit taking place</p>
+							<p><strong>Log number</strong><br/>If this is your first fire audit the log number would be 1, if this is your second the log number would be 2 etc.</p>
+							<p><strong>Documented by</strong><br/>Who is carrying out the safety audit. Please put the person's name here</p>
+							<p><strong>Drill</strong><br/>Did you carry out a fire drill? Say yes/no in the space provided</p>
+							<p><strong>Inspection of fire equipment</strong><br/>What fire or safety equipment was inspected (i.e. fire resisting doors, equipment, first aid materials etc.) - describe the equipment or material inspected and what was observed</p>
+							<p><strong>Fire</strong><br/>Was there a fire? Say yes/no in the space provided</p>
+							<p><strong>Fault</strong><br/>Did you observe a fault in fire safety equipment? Say yes/no in the space provided </p>
+							<p><strong>Other</strong><br/>Was there something else observed or any important comments? </p>
+							<p><strong>Action</strong><br/>What action(s) will be taken to solve the problems or faults found. If not applicable, leave blank</p>
+							<p><strong>Date to be completed by</strong><br/>What date should the fault or problem be solved by? We will send you a reminder a few days before this date.</p>
+		       	        </div>
+               		</div>
+                    {% elseif key == 'details' %}            
+                    <div class="card-block">
+                        <div class="row">
+                            <div class="col-12 text-right">
+                                <a href="" data-toggle="tooltip" class="add-item-btn"
+                                    	id="item-block" title="Add Register Entry">
+                                	<span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="form-group" id="item-block-container">
+                        	{% for key, item in register %}
+                            <div class="card-block">
+            					<input type="hidden" name="register[{{ counter }}][id]" value="{{item.id}}">
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][date]">
+                							Date
+                						</label>
+                						<div class="col-12 col-sm-9">
+							                <input type="date" class="form-control"
+                								name="register[{{ counter }}][date]"
+                								id="date"
+                								value="{{ item.date is empty ? '' : item.date }}"
+                								placeholder="{{ date }}" required/>
+						                </div>
+                					</div>
+					                <div class="form-group row">
+						                <label class="col-12 col-sm-3" for="register[{{ counter }}][time]">
+							                Time
+						                </label>
+						                <div class="col-12 col-sm-9">
+							                <input type="time" class="form-control"
+								                name="register[{{ counter }}][time]"
+								                id="time"
+							    	            value="{{ item.time is empty ? '' : item.time }}" />
+					                	</div>
+				                	</div>
+                					<div class="form-group row">
+						                <label class="col-12 col-sm-3" for="register[{{ counter }}][log_number]">
+							                Log Number
+						                </label>
+						                <div class="col-12 col-sm-9">
+							                <input type="number" class="form-control"
+                								name="register[{{ counter }}][log_number]"
+                								id="log_number"
+                								value="{{ item.log_number }}" />
+            							</div>
+					                </div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][documented_by]">
+                							Documented By
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<input type="text" class="form-control"
+                								name="register[{{ counter }}][documented_by]"
+                								id="documented_by"
+                								value="{{ item.documented_by }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][drill]">
+                							Drill
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<input type="text" class="form-control"
+                								name="register[{{ counter }}][drill]"
+                								id="drill"
+                								value="{{ item.drill }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][inspection_of]">
+                							Inspection of
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<input type="text" class="form-control"
+                								name="register[{{ counter }}][inspection_of]"
+                								id="inspection_of"
+                								value="{{ item.inspection_of }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][fire]">
+                							Fire
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<input type="text" class="form-control"
+                								name="register[{{ counter }}][fire]"
+                								id="fire"
+                								value="{{ item.fire }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][fault]">
+                							Fault
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<input type="text" class="form-control"
+                								name="register[{{ counter }}][fault]"
+                								id="fault"
+                								value="{{ item.fault }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][other]">
+                							Other
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<input type="text" class="form-control"
+                								name="register[{{ counter }}][other]"
+                								id="other"
+                								value="{{ item.other }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][action]">
+                							Action
+                						</label>
+                						<div class="col-12 col-sm-9">
+                							<input type="text" class="form-control"
+                								name="register[{{ counter }}][action]"
+                								id="action"
+                								value="{{ item.action }}" />
+                						</div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][date_to_be_completed]">
+                							Date to be completed
+                						</label>
+                						<div class="col-12 col-sm-9">
+							                <input type="date" class="form-control"
+                								name="register[{{ counter }}][date_to_be_completed]"
+                								id="date_to_be_completed"
+                								value="{{ item.date_to_be_completed is empty ? '' : item.date_to_be_completed }}"
+                								placeholder="{{ date }}"/>
+						                </div>
+                					</div>
+                					<div class="form-group row">
+                						<label class="col-12 col-sm-3" for="register[{{ counter }}][file_url]">
+                							Upload File
+                						</label>
+                						{% if item.file_url == "" %}		
+                						<div class="col-12 col-sm-9">
+                							<input type="hidden" role="uploadcare-uploader" name="register[{{ counter }}][file_url]" data-images-only="false" />
+            			                </div>
+            			                {% else %}
+            			                <div class="col-4">
+            			                	<input type="text" class="form-control" id="file_name" name="file_name" value="{{item.file_name}}" disabled />
+            			                	<input type="hidden" class="form-control" id="file_name_hidden" name="register[{{ counter }}][file_url_hidden]" value="{{item.file_url}}" />
+            			                </div>
+            			                <div class="col-2">
+            			                	<input type="hidden" role="uploadcare-uploader" id="file_url" name="register[{{ counter }}][file_url]" data-images-only="false" />
+                    					</div>
+            			                <div class="col-3">
+						                    <button class="form-control btn btn-outline-danger btn-sm" role="button" id="btn-delete"><i class="fa fa-trash-o mr-2" aria-hidden="true"></i> Delete</button>
+            							</div>
+            			                {% endif %}
+            			                </div>
+                					</div>
+                					<button class="btn btn-danger btn-sm btn-delete"
+                						role="button"
+               							data-toggle="modal"
+                						data-target="#deleteModal">Delete</button>
+                                {% set counter = counter + 1 %}
+                                {% endfor %}
+                        	</div>
+                    	</div>
+        		{% endif %}
+				</div>
+			{% endfor %}
+        	</div>
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+	
+    <script>
+        var counter = {{ counter }};
+		
+        $("#item-block-container").on("click", ".btn-delete", function (e) {
+            e.preventDefault();
+
+            $(this).closest(".card-block").remove();
+            
+        });
+
+		$("#btn-delete").on("click", function (e) {
+			e.preventDefault();
+			$(this).parent().parent().children('.col-4').children('#file_name_hidden').val('');
+			$(this).parent().parent().children('.col-4').children('#file_name').val('');
+		});
+	
+        $(".add-item-btn").on("click", function (e) {
+            e.preventDefault();
+
+        	// hide table when adding a new row
+        	$("#item-block-container").append('<div class="card-block">\n' +
+            	'<input type="hidden" name="register[' + counter + '][id]" value="">\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][date]">\n' +
+                'Date\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="date" class="form-control"\n' +
+                'name="register[' + counter + '][date]"\n' +
+                'id="date"\n' +
+                'value="" required/>\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][time]">\n' +
+                'Time\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="time" class="form-control"\n' +
+                'name="register[' + counter + '][time]"\n' +
+                'id="time"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][log_number]">\n' +
+                'Log Number\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="number" class="form-control"\n' +
+                'name="register[' + counter + '][log_number]"\n' +
+                'id="log_number"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][documented_by]">\n' +
+                'Documented By\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="register[' + counter + '][documented_by]"\n' +
+                'id="documented_by"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][drill]">\n' +
+                'Drill\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="register[' + counter + '][drill]"\n' +
+                'id="drill"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][inspection_of]">\n' +
+                'Inspection of\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="register[' + counter + '][inspection_of]"\n' +
+                'id="inspection_of"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][fire]">\n' +
+                'Fire\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="register[' + counter + '][fire]"\n' +
+                'id="fire"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][fault]">\n' +
+                'Fault\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="register[' + counter + '][fault]"\n' +
+                'id="fault"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][other]">\n' +
+                'Other\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="register[' + counter + '][other]"\n' +
+                'id="other"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][action]">\n' +
+                'Action\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="text" class="form-control"\n' +
+                'name="register[' + counter + '][action]"\n' +
+                'id="action"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][date_to_be_completed]">\n' +
+                'Date to be completed\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="date" class="form-control"\n' +
+                'name="register[' + counter + '][date_to_be_completed]"\n' +
+                'id="date_to_be_completed"\n' +
+                'value="" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<div class="form-group row">\n' +
+                '<label class="col-12 col-sm-3" for="register[' + counter + '][file_url]">\n' +
+                'Upload File\n' +
+                '</label>\n' +
+                '<div class="col-12 col-sm-9">\n' +
+                '<input type="hidden" role="uploadcare-uploader" name="register[' + counter + '][file_url]" data-images-only="false" />\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '</div>\n' +
+                '<button class="btn btn-danger btn-sm btn-delete"\n' +
+                'role="button"\n' +
+                'data-toggle="modal"' +
+                'data-target="#deleteModal">Delete</button>' +
+                '</div>\n'
+            );
+
+            counter++;
+    
+        
+        });
+
+    </script>
+
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    
+</form>
+{% endblock %}

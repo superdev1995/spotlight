@@ -1,0 +1,8 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>The General Register Entry that was carried out on {{ date }} is due to be completed on {{ date_to_be_completed }}.</p>
+<br/>
+<p>Please review it <a href="https://{{ settings.mailer.domain }}{{ path_for('editGeneralRegister') }}">here</a>.
+{% endblock %}

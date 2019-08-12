@@ -1,0 +1,168 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12 col-sm-3">
+            <h4 class="mb-5">{{ title }}</h4>
+        </div>
+        <div class="col-12 col-sm-9 mb-2 text-right">
+            <a class="btn btn-outline-primary" href="{{ path_for('riskAssessments') }}" role="button">Back to Risk Assessments</a>
+            {% if user.user_type == 'T' %}
+            <a class="btn btn-primary" href="{{ path_for('editRiskAssessment', { assessment_id: formdata.risk_assessment_id }) }}">Edit Risk Assessment</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card mb-5">
+        <div class="card-header success">
+            Risk Assessment Details
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+            	<label class="col-4">Date</label>
+                <div class="col-8">
+                    {{ formdata.date|date('m/d/Y') }}
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <label class="col-4">Name</label>
+                <div class="col-8">
+                    {{ formdata.name }}
+                </div>
+            </div>
+            
+            <!-- Begin Risk Assessment Pane -->
+           	<ul class="nav nav-tabs nav-justified" role="tablist">
+	            {% for key, group in group_items %}
+                <li class="nav-item">
+    	            <a class="nav-link {% if group_items|first == group %}active{% endif %}" data-toggle="tab"
+        		            href="#{{key}}" role="tab">{{ group }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+                    
+			<div class="tab-content">
+				{% for key, group in group_items %}
+                <div class="tab-pane card-block riskAssessment-details {% if group_items|first == group %}active{% endif %}"
+		        		id="{{key}}" role="tabpanel">
+        		    {% if key == 'instructions' %}
+           		    <div class="row noprint">
+    	                <div class="col-12">
+        	               	<p><strong>What is a Hazard?</strong><br/>Anything that can cause harm</p>
+							<p><strong>Hazard/Risk Identified</strong><br/>What hazards have you identified in the setting?</p>
+							<p><strong>People at risk</strong><br/>Who is at risk of being harmed by these hazards?</p>
+							<p><strong>Risk Rating</strong><br/>Is this risk high, medium or low? How likely is it to occur?</p>
+							<p><strong>Actions in Place</strong><br/>Are there any actions in place to minimise risk? If no, leave blank</p>
+							<p><strong>Further actions needed?</strong><br/>What action is needed to minimise the risk?</p>
+							<p><strong>Date to be completed?</strong><br/>When will the necessary actions be completed by?</p>
+							<p><strong>Risk rating after actions has been taken?</strong><br/>Has the action reduced the risk rating? If so what is the risk rating now?</p>
+		       	        </div>
+               		</div>
+                    {% elseif key == 'minimise' %}
+                    <div class="card-block">
+                       	<div class="row noprint">
+                       		<div class="col-12">
+                       			<p>What policies and Procedures have been developed to minimise the risks identified?</p>
+                      		</div>
+                       	</div>
+            			<div class="form-group">
+            				{{ formdata.minimise }}
+            			</div>
+        			</div>
+        			{% elseif key == 'review' %}
+                    <div class="card-block">
+                        <div class="row noprint">
+                            <div class="col-12">
+                            	<p>Review whether adequate precautions have been taken to eliminate or reduce these risks</p>
+                            </div>
+                        </div>
+            			<div class="form-group">
+                			{{ formdata.review }}
+						</div>
+        			</div>
+        			{% elseif key == 'share' %}
+        			{% if user.user_id == formdata.user_fk %}
+                    <div class="card-block">
+                        <div>
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" disabled class="custom-control-input" name="share_teachers" value="teachers" {% if formdata.shareteachers == 1 %}checked{% endif %}>
+                                 <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">Share with all teachers</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" disabled class="custom-control-input" name="share_parents" value="parents" {% if formdata.shareparents == 1 %}checked{% endif %}>
+                                 <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">Share with parents</span>
+                            </label>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% elseif key == 'risks' %}
+                    <div class="card-block">
+                        <div class="row noprint">
+                            <div class="col-12">
+                            	<p>We have carried out an assessment of any potential harm to a child while availing of our services.<br/>
+                            		Below is a list of the areas of risk identified and the list of procedures for managing these risks.</p>
+                            </div>
+						</div>
+						<div class="row" style="position:relative">
+							<div class="table-responsive">
+								<table class="table table-sm table-risks">
+									{% for key, risk in formdata.risks %}
+										{% if key == 0 %}
+												<thead>
+												<tr>
+													<th>
+													Hazard / Risk Identified
+													</th>
+													<th>
+													People at Risk
+												</th>
+												<th>
+													Risk Rating
+												</th>
+												<th>
+													Actions in place
+												</th>
+												<th>
+													Further Action(s) needed
+												</th>
+												<th>
+													Date to be completed
+												</th>
+												<th>
+													Risk rating after action has been taken
+												</th>
+												</tr>
+												</thead>
+									<tbody>
+										{% endif %}
+										<tr>
+											<td>{{ risk.description }}</td>
+											<td>{{ risk.people }}</td>
+											<td>{{ risk.rating }}</td>
+											<td>{{ risk.actions }}</td>
+											<td>{{ risk.further_actions }}</td>
+											<td>{{ risk.date is empty ? "" : risk.date|date('m/d/Y') }}</td>
+											<td>{{ risk.rating_after }}</td>
+										</tr>
+										{% if key == formdata.riskscount %}
+										</tbody>
+										{% endif %}
+									 {% endfor %}
+								</table>
+							</div>
+						</div>
+                    </div>
+        			{% else %}
+        			<div>{{key}}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+			</div>
+		</div><!-- .card-block -->
+	</div><!-- .card mb-5 -->
+</form>
+{% endblock %}

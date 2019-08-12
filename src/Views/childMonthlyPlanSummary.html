@@ -1,0 +1,45 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+{% embed 'childDetailsHeader.html' %}{% endembed %}
+<br>
+<h5 class="mb-4">Plans</h4>
+{% for plan in plans %}
+<div class="card mb-4">
+    <div class="card-header">
+        {{ plan.assoc | capitalize }} Plan
+    </div>
+    <div class="card-block">
+        <div class="row">
+            <div class="col-9">
+                <a href="{{ path_for('singleMonthlyPlan', { monthly_plan_id: plan.monthly_plan_id, child_id: child.child_id }) }}">
+                {% if plan.name %}
+                {{ plan.name }}
+                {% else %}
+                ID: {{ plan.monthly_plan_id }}
+                {% endif %}
+                </a>
+            </div>
+            <div class="col-9">
+                {% for assoc in plan.assocs %}
+                    {{ assoc.name }} {% if not loop.last %}, &nbsp; {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if not plans %}
+<div style="display: block;">
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            No plans for this month.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+
+{% endblock %}

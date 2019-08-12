@@ -1,0 +1,880 @@
+{% block body %}
+
+<link rel="stylesheet" href="./../public/stylesheets/custom.css" media="all">
+<!--<link rel="stylesheet" href="./../public/stylesheets/font-awesome.min.css">-->
+
+
+{% if children %}
+{% for room in rooms %}
+
+<img src="./../public/images/teachkloud.png"><br><br>
+<div class="row d-flex flex-wrap mb-5">
+    {% for child in children if child.room_id == room.room_id %}
+    <div class="col-6 col-lg-4">
+        {% if school_user.role == 1 %}
+        {% set surname = child.child_name|split(' ') %}
+
+                            <!--MAIN MODAL BODY-->
+
+                            <!--enrollment id-->
+                            <input type="hidden" name="child_id" value="{{child.child_id}}">
+
+                            <!--ABOUT THE CHILD-->
+                            <div class="enr-title"><h2>ABOUT THE CHILD</h2></div>
+                            <div id="about-the-child{{child.child_id}}">
+                                <h5>Information</h5>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" >First Name:</label>
+                                    <div class="col-8">
+                                        <input class="form-control enrol-print-input" type="text" name="children[child_name]" value="{{ surname[0]}}"  maxlength="64" >
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-5">
+                                    <label class="col-4 col-form-label">Date of Birth:</label>
+                                    <div class="col-8">
+                                        <input class="form-control enrol-print-input" type="text" name="children[child_birthday]"  value="{{child.child_birthday}}" >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label">Surname:</label>
+                                    <div class="col-8">
+                                        <input class="form-control enrol-print-input" type="text" name="children[surname]"  value = " {{ surname[1] }} " maxlength="64" >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label">Gender:</label>
+                                    <div class="col-8">
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.child_gender == 'M'%}
+                                            <input class="custom-control-input" name="children[child_gender]" type="radio" value="M" checked >
+                                            {%else%}
+                                            <input class="custom-control-input" name="children[child_gender]" type="radio" value="M" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Male</span>
+                                        </label>
+                                        <label class="custom-control custom-radio">
+                                            {% if child.child_gender == 'F'%}
+                                            <input class="custom-control-input" name="children[child_gender]" type="radio" value="F" checked >
+                                            {%else%}
+                                            <input class="custom-control-input" name="children[child_gender]" type="radio" value="F" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Female</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <br>
+                                <h5>Home Address</h5>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Street Address:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" name="children[child_street]" maxlength="64" value="{{child.child_street}}" >
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">City/Town:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" name="children[child_city]" maxlength="32" value="{{child.child_city}}" >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" >Postal Code:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" name="children[child_postal_code]" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})" value="{{child.child_postal_code}}" >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" >Phone:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" name="children[child_phone]" maxlength="32" value="{{child.child_phone}}"  pattern="(((\+|00)|)(.\d{1,12}))">
+                                    </div>
+                                </div>
+
+                                <div id="other-address" class="custom-collapse">
+                                    <table class="table other-address-table">
+                                        {% set foo = child.other_address|length - 1 %}
+                                        <!-- <h1>{{child.other_person_name[0]['name']}}</h1>-->
+                                        <input type="hidden" value="{{foo}}" class="other_address_index">
+                                        {% if child.other_address[0].address != "" %}
+                                        {% for i in 0..foo %}
+                                        <div class="ad0">
+                                            <h5>{{child.other_address[i]['name']}} Address</h5>
+                                            <div class="form-group row">
+                                                <label class="col-md-4 col-form-label">Name Address:</label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control enrol-print-input" type="text" name="other_address[{{i}}][name]" value="{{child.other_address[i]['name']}}" maxlength="64">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label class="col-md-4 col-form-label">Street Address:</label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control enrol-print-input" type="text" name="other_address[{{i}}][address]" value="{{child.other_address[i]['address']}}" maxlength="64">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label class="col-md-4 col-form-label">City/Town:</label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control enrol-print-input" type="text" name="other_address[{{i}}][city]" value="{{child.other_address[i]['city']}}" maxlength="32">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-md-4 col-form-label">Postal Code:</label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control enrol-print-input" type="text" name="other_address[{{i}}][postal]" value="{{child.other_address[i]['postal']}}" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-md-4 col-form-label">Phone:</label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control enrol-print-input" type="text" name="other_address[{{i}}][phone]" value="{{child.other_address[i]['phone']}}" pattern="(((\+|00)|)(.\d{1,12}))" maxlength="32">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </table>
+                                </div>
+
+                                <input type="hidden" name="edit_children_env" value="ed_env">
+                                <input type="hidden" name="edit_child_id" value="{{child.child_id}}">
+                            </div>
+                            <!--END ABOUT THE CHILD-->
+
+                            <!--PARENTS OR GUARDIANS-->
+                            <div style="page-break-after: always;"></div>
+                            <br>
+                            <div class="enr-title"><h2>PARENTS OR GUARDIANS </h2></div>
+                            <div id="about-the-guardians{{child.child_id}}">
+                                <p><b>Mother</b></p>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="mother-name">Name:</label>
+                                    <div class="col-8">
+                                        <input class="form-control enrol-print-input" type="text"  name="mother_info[mother-name]" id="mother-name" value="{{ child.mother_info['mother-name'] }}" maxlength="64" >
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="mother-street">Street Address:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="mother-street" name="mother_info[mother-street]" value="{{ child.mother_info['mother-street'] }}" maxlength="64">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="mother-phone">Phone:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="mother-phone" name="mother_info[mother-phone]" value="{{ child.mother_info['mother-phone'] }}" maxlength="32" pattern="(((\+|00)|)(.\d{1,12}))">
+                                    </div>
+                                </div>
+                                <hr>
+                                <p><b>Father</b></p>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="father-name">Name:</label>
+                                    <div class="col-8">
+                                        <input class="form-control enrol-print-input" type="text" name="father_info[father-name]" id="father-name" value="{{ child.father_info['father-name'] }}" maxlength="64" >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="father-street">Street Address:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="father-street" name="father_info[father-street]" value="{{ child.father_info['father-street'] }}" maxlength="64">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="father-phone">Phone:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="father-phone" name="father_info[father-phone]" value="{{ child.father_info['father-phone'] }}" maxlength="32"  pattern="(((\+|00)|)(.\d{1,12}))">
+                                    </div>
+                                </div>
+                                <hr>
+                                <p><b>Is there any other Parent or Guardian?</b></p>
+                                <div class="form-group row">
+                                    <div class="col-8">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.guardian_info['other-guardian-radio'] == 'Y' %}
+                                            <input class="custom-control-input" name="guardian_info[other-guardian-radio]" type="radio"  checked value="Y" >
+                                            {% endif %}
+                                            {% if child.guardian_info['other-guardian-radio'] == 'N' %}
+                                            <input class="custom-control-input" name="guardian_info[other-guardian-radio]" type="radio"  value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Yes</span>
+                                        </label>
+                                        <label class="custom-control custom-radio">
+                                            {% if child.guardian_info['other-guardian-radio'] == 'N' %}
+                                            <input class="custom-control-input" name="guardian_info[other-guardian-radio]" type="radio"  checked value="N" >
+                                            {% endif %}
+                                            {% if child.guardian_info['other-guardian-radio'] == 'Y' %}
+                                            <input class="custom-control-input" name="guardian_info[other-guardian-radio]" type="radio"  value="N" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">No</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="other-guardian-name">Name:</label>
+                                    <div class="col-8">
+                                        <input class="form-control enrol-print-input" type="text" name="guardian_info[other-guardian-name]" id="other-guardian-name" value="{{ child.guardian_info['other-guardian-name'] }}" maxlength="64" >
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="other-guardian-street">Street Address:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="other-guardian-street" name="guardian_info[other-guardian-street]" value="{{ child.guardian_info['other-guardian-street'] }}" maxlength="64">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="other-guardian-phone">Phone:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="other-guardian-phone" name="guardian_info[other-guardian-phone]" value="{{ child.guardian_info['other-guardian-phone'] }}" maxlength="32"  pattern="(((\+|00)|)(.\d{1,12}))">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END PARENTS OR GUARDIANS-->
+
+                            <!--OTHER PERSONS TO BE NOTIFIED-->
+                            <div style="page-break-after: always;"></div>
+                            <br>
+                            <div class="enr-title"><h2>OTHER PERSONS TO BE NOTIFIED</h2></div>
+                            <div id="other-persons-to-be-notified{{child.child_id}}">
+                                <table border ='1' class="table table-bordered other-persons-table">
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>Address</td>
+                                        <td>Relationship to child</td>
+                                        <td>Telephone</td>
+                                    </tr>
+                                    {% set foo = child.other_person_name|length - 1 %}
+                                    <!-- <h1>{{child.other_person_name[0]['name']}}</h1>-->
+                                    {% for i in 0..foo %}
+                                    <tr style="list-style: none;margin-left: 0;padding-left: 0;font-size: 13px">
+                                        <td><input class="form-control" type="text" name="other_person_name[{{i}}][name]" value="{{child.other_person_name[i]['name']}}" maxlength="64" ></td>
+                                        <td><input class="form-control" type="text" name="other_person_address[{{i}}][address]" value="{{child.other_person_address[i]['address']}}" maxlength="64" ></td>
+                                        <td><input class="form-control" type="text" name="other_person_relationship[{{i}}][relationship]" value="{{child.other_person_relationship[i]['relationship']}}"  maxlength="64" ></td>
+                                        <td>
+                                            <ul style="list-style: none;padding-left: 0;font-size: 10px">
+                                                <input class="form-control" type="text" name="other_person_telephone[{{i}}][home]" value="HOME: {{child.other_person_telephone[i]['home']}}"><br>
+                                                <input class="form-control" type="text" name="other_person_telephone[{{i}}][work]" value="WORK: {{child.other_person_telephone[i]['work']}}" ><br>
+                                                <input class="form-control" type="text" name="other_person_telephone[{{i}}][mobile]" value="MOBILE: {{child.other_person_telephone[i]['mobile']}}">
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </table>
+                            </div>
+                            <!--END OTHER PERSONS TO BE NOTIFIED-->
+
+                            <!--COLLECTION-->
+                            <div style="page-break-after: always;"></div>
+                            <br>
+                            <div class="enr-title"><h2>COLLECTION</h2></div>
+                            <div id="collections{{child.child_id}}">
+                                <table border ='1' class="table table-bordered collectors-table">
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>Address</td>
+                                        <td>Relationship to child</td>
+                                        <td>Telephone</td>
+                                    </tr>
+
+                                    {% set foo = child.collector_name|length - 1 %}
+                                    {% for i in 0..foo %}
+                                    <tr style="list-style: none;margin-left: 0;padding-left: 0;font-size: 13px">
+                                        <td><input class="form-control" type="text" name="collector_name[{{i}}][name]" value="{{child.collector_name[i]['name']}}" maxlength="64" ></td>
+                                        <td><input class="form-control" type="text" name="collector_address[{{i}}][address]" value="{{child.collector_address[i]['address']}}" maxlength="64" ></td>
+                                        <td><input class="form-control" type="text" name="collector_relationship[{{i}}][relationship]" value="{{child.collector_relationship[i]['relationship']}}" placeholder="" maxlength="64" ></td>
+                                        <td>
+                                            <ul style="list-style: none;margin-left: 0;padding-left: 0;font-size: 10px">
+                                                <input class="form-control little-input"   type="text" name="collector_telephone[{{i}}][home]" value="HOME: {{child.collector_telephone[i]['home']}}" maxlength="64" ></li><br>
+                                                <input class="form-control little-input"   type="text" name="collector_telephone[{{i}}][work]" value="WORK: {{child.collector_telephone[i]['work']}}" maxlength="64" ></li><br>
+                                                <input class="form-control little-input" type="text" name="collector_telephone[{{i}}][mobile]" value="MOBILE: {{child.collector_telephone[i]['mobile']}}" maxlength="64" ></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    <input type="hidden" value="{{foo}}" class="collector_index_1">
+                                </table>
+
+                            </div>
+                            <!--END COLLECTION-->
+
+
+
+                            <!--MEDICAL & HEALTH-->
+                            <div style="page-break-after: always;"></div>
+                            <br>
+                            <div class="enr-title"><h2>MEDICAL & HEALTH</h2></div>
+                            <div id="medical-adn-health{{child.child_id}}">
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Has the child been immunised?</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+
+                                            {% if child.med_and_health['med1'] == 'Y' %}
+                                            <input class="custom-control-input" name="med_and_health[med1]" type="radio" checked value="Y" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="med_and_health[med1]" type="radio" value="Y" >
+                                            {% endif %}
+
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+                                        <label class="custom-control custom-radio">
+
+                                            {% if child.med_and_health['med1'] == 'N' %}
+                                            <input class="custom-control-input" name="med_and_health[med1]" type="radio" checked value="N" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="med_and_health[med1]" type="radio" value="N" >
+                                            {% endif %}
+
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Does the child have any allergies or sensitivities?</label>
+                                    <div class="col-4">
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.med_and_health['med2'] == 'Y' %}
+                                            <input class="custom-control-input"  name="med_and_health[med2]" checked type="radio" value="Y" >
+                                            {% else %}
+                                            <input class="custom-control-input"  name="med_and_health[med2]" type="radio" value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+
+                                            {% if child.med_and_health['med2'] == 'N' %}
+                                            <input class="custom-control-input" name="med_and_health[med2]" checked type="radio" value="N" >
+
+                                            {% else %}
+                                            <input class="custom-control-input" name="med_and_health[med2]" type="radio" value="N" >
+                                            {% endif %}
+
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Does your child have any medical conditions or special needs?</label>
+                                    <div class="col-4">
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.med_and_health['med3'] == 'Y' %}
+                                            <input class="custom-control-input" name="med_and_health[med3]" type="radio" checked value="Y" >
+
+                                            {% else %}
+                                            <input class="custom-control-input" name="med_and_health[med3]" type="radio" value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.med_and_health['med3'] == 'N' %}
+                                            <input class="custom-control-input" name="med_and_health[med3]" checked type="radio" value="N" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="med_and_health[med3]" type="radio" value="N" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Does your child have any dietary restrictions?</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.med_and_health['med4'] == 'Y' %}
+                                            <input class="custom-control-input" name="med_and_health[med4]" type="radio" checked value="Y" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="med_and_health[med4]" type="radio" value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+                                        <label class="custom-control custom-radio">
+                                            {% if child.med_and_health['med4'] == 'N' %}
+                                            <input class="custom-control-input" name="med_and_health[med4]" checked type="radio" value="N" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="med_and_health[med4]" type="radio" value="N" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END MEDICAL & HEALTH-->
+
+
+                            <!--CONSENT TO ENROL-->
+                            <br>
+                            <div class="enr-title"><h2>CONSENT TO ENROL</h2></div>
+                            <div id="consent-to-enrol{{child.child_id}}">
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">CONSENT TO ADMINISTER A MILD PAIN RELIEVER (Nurofen, Calpol, Panadol, etc)</label>
+                                    <div class="col-4">
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.con_to_en['consent1'] == 'Y' %}
+                                            <input class="custom-control-input" name="con_to_en[consent1]" checked type="radio" value="Y" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="con_to_en[consent1]" type="radio" value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.con_to_en['consent1'] == 'N' %}
+                                            <input class="custom-control-input" name="con_to_en[consent1]" checked type="radio" value="N" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="con_to_en[consent1]" type="radio" value="N" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">CONSENT TO ADMINISTER PRESCRIBED MEDICATION</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.con_to_en['consent2'] == 'Y' %}
+                                            <input class="custom-control-input" name="con_to_en[consent2]" checked type="radio" value="Y" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="con_to_en[consent2]" type="radio" value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.con_to_en['consent2'] == 'N' %}
+                                            <input class="custom-control-input" name="con_to_en[consent2]"  checked type="radio" value="N" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="con_to_en[consent2]" type="radio" value="N" >
+                                            {% endif %}
+
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">CONSENT  TO PHOTOGRAPH</label>
+                                    <div class="col-4">
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.con_to_en['consent3'] == 'Y' %}
+                                            <input class="custom-control-input" name="con_to_en[consent3]" checked type="radio" value="Y" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="con_to_en[consent3]" type="radio" value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.con_to_en['consent3'] == 'N' %}
+                                            <input class="custom-control-input" name="con_to_en[consent3]" checked type="radio" value="N" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="con_to_en[consent3]" type="radio" value="N" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <p><b>DOCTOR</b></p>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" >Name:</label>
+                                    <div class="col-8">
+                                        <input class="form-control enrol-print-input" type="text" name="con_to_en_doc[doc-name]" value="{{child.con_to_en_doc['doc-name']}}" maxlength="64">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="doc-street">Street Address:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="doc-street" value="{{child.con_to_en_doc['doc-street']}}" name="con_to_en_doc[doc-street]" maxlength="64">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label" for="doc-phone">Phone:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control enrol-print-input" type="text" id="doc-phone" value="{{child.con_to_en_doc['doc-phone']}}" name="con_to_en_doc[doc-phone]" maxlength="32" pattern="(((\+|00)|)(.\d{1,12}))">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END CONSENT TO ENROL-->
+
+
+                            <!--GETTING TO KNOW YOUR CHILD-->
+                            <div style="page-break-after: always;"></div>
+                            <br>
+                            <div class="enr-title"><h2>GETTING TO KNOW YOUR CHILD</h2></div>
+                            <div id="getting-to-know-your-child{{child.child_id}}">
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Toilet trained:</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+
+                                            {% if child.getting_to_know1['toilet'] == 'Y' %}
+                                            <input class="custom-control-input" name="getting_to_know1[toilet]" checked type="radio" value="Y" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know1[toilet]" type="radio" value="Y" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know1['toilet'] == 'N' %}
+                                            <input class="custom-control-input" name="getting_to_know1[toilet]" checked type="radio" value="N" >
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know1[toilet]" type="radio" value="N" >
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Does your child have any fears or dislikes?</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know1['fear1'] == 'loud noises' %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear1]" checked type="checkbox" value="loud noises">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear1]" type="checkbox" value="loud noises">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Loud noises</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know1['fear2'] == 'dogs' %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear2]" type="checkbox" value="dogs">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear2]" type="checkbox" value="dogs">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Dogs</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know1['fear3'] == 'balloons' %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear3]" checked type="checkbox" value="balloons">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear3]" type="checkbox" value="balloons">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Balloons</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know1['fear4'] == 'loud music' %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear4]" checked type="checkbox" value="loud music">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know1[fear4]" type="checkbox" value="loud music">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">loud music</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <p><b>Other</b></p>
+                                <div class="form-group row">
+                                    <div class="col-8">
+                                        <textarea class="form-control"  name="getting_to_know1[other-fears]" id="other-fears" placeholder="other fears" >{{ child.getting_to_know1['other-fears']}}</textarea>
+                                    </div>
+                                </div>
+
+
+
+                                <p><b>Does your child enjoy?</b></p>
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                    <label class="col-8 col-form-label">Painting</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy1'] == 'Y' %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy1]" checked type="radio" value="Y">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy1]" type="radio" value="Y">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy1'] == 'N' %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy1]" checked type="radio" value="N">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy1]" type="radio" value="N">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Pasting</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy2'] == 'Y' %}
+                                            <input class="custom-control-input"  name="getting_to_know2[enjoy2]" checked type="radio" value="Y">
+                                            {% else %}
+                                            <input class="custom-control-input"  name="getting_to_know2[enjoy2]" type="radio" value="Y">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy2'] == 'N' %}
+                                            <input class="custom-control-input"  name="getting_to_know2[enjoy2]" checked type="radio" value="N">
+                                            {% else %}
+                                            <input class="custom-control-input"  name="getting_to_know2[enjoy2]" type="radio" value="N">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Singing</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy3'] == 'Y' %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy3]" checked type="radio" value="Y">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy3]" type="radio" value="Y">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy3'] == 'N' %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy3]" checked type="radio" value="N">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy3]" type="radio" value="N">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Dancing</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy4'] == 'Y' %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy4]" checked type="radio" value="Y">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy4]" type="radio" value="Y">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy4'] == 'N' %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy4]" checked type="radio" value="N">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy4]" type="radio" value="N">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-8 col-form-label">Outside play</label>
+                                    <div class="col-4">
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy5'] == 'Y' %}
+                                            <input class="custom-control-input" checked name="getting_to_know2[enjoy5]" type="radio" value="Y">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy5]" type="radio" value="Y">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">YES</span>
+                                        </label>
+
+                                        <label class="custom-control custom-radio">
+                                            {% if child.getting_to_know2['enjoy5'] == 'N' %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy5]" checked type="radio" value="N">
+                                            {% else %}
+                                            <input class="custom-control-input" name="getting_to_know2[enjoy5]" type="radio" value="N">
+                                            {% endif %}
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <p><b>Other</b></p>
+                                <div class="form-group row">
+                                    <div class="col-8">
+                                        <textarea class="form-control"  name="getting_to_know2[other-enjoy]" id="other-enjoy" placeholder="other hobbies" >{{child.getting_to_know2['other-enjoy']}}</textarea>
+                                    </div>
+                                </div>
+
+                                <p><b>What is your child’s favourite?</b></p>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="fav1">TV show:</label>
+                                    <input class="form-control fav" type="text" value="{{child.getting_to_know3['fav1']}}" name="getting_to_know3[fav1]" id="fav1"  maxlength="64">
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="fav2">TV character:</label>
+                                    <input class="form-control fav" type="text" value="{{child.getting_to_know3['fav2']}}" name="getting_to_know3[fav2]" id="fav2" maxlength="64">
+
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="fav3">Video</label>
+                                    <input class="form-control fav" type="text" value="{{child.getting_to_know3['fav3']}}" name="getting_to_know3[fav3]" id="fav3" maxlength="64">
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="fav3">Story book</label>
+                                    <input class="form-control fav" type="text" value="{{child.getting_to_know3['fav4']}}" name="getting_to_know3[fav4]" id="fav4" maxlength="64">
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="fav4">Toy:</label>
+                                    <input class="form-control fav" type="text" value="{{child.getting_to_know3['fav5']}}" name="getting_to_know3[fav5]" id="fav5" maxlength="64">
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="fav5">Game:</label>
+                                    <input class="form-control fav" type="text" value="{{child.getting_to_know3['fav6']}}" name="getting_to_know3[fav6]" id="fav6" maxlength="64">
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-4 col-form-label" for="fav6">Song:</label>
+                                    <input class="form-control fav" type="text" value="{{child.getting_to_know3['fav7']}}" name="getting_to_know3[fav7]" id="fav7" maxlength="64">
+                                </div>
+                                <p><b>Any other information you would like to share with us</b></p>
+                                <div class="form-group row">
+                                    <div class="col-8">
+                                        <textarea class="form-control" name="getting_to_know4[other-enjoy]" id="any-other-information" placeholder="any other information" >{{child.getting_to_know4['other-enjoy']}}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--END GETTING TO KNOW YOUR CHILD-->
+
+                            <!--REQUIRED ITEMS-->
+                            <div style="page-break-after: always;"></div>
+                            <div class="enr-title"><h2>REQUIRED ITEMS</h2></div>
+                            <div id="reqired-items{{child.child_id}}">
+                                <div class="required-items{{child.child_id}}">
+                                    {% set len = child.required_files['required-file-title']|length -1%}
+                                    {% for i in 0..len %}
+                                        <p>{{child.required_files['required-file-title'][i]}}</p>
+                                        <div class="form-group row file-input">
+                                            <div class="col-8">
+                                                <img class="enr-img" src='{{child.required_files["file-directory"][i]}}'/>
+                                                <input type="hidden" value='{{child.required_files["required-file-title"][i]}}' name="required_files[required-file-title][{{i}}]">
+                                                <input type="hidden" value='{{child.required_files["file-directory"][i]}}' name="required_files[file-directory][{{i}}]" >
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    <input type="hidden" value="{{len}}" class="required_item_index">
+                                </div>
+                            </div>
+                            <br>
+
+                            <!--END REQUIRED ITEMS-->
+
+                            <!--CUSTOM FIELDS-->
+                            {% if child.custom_fields%}
+                            <div style="page-break-after: always;"></div>
+                            <div class="enr-title"><h2>CUSTOM FIELDS </h2></div>
+
+                            <div id="custom-fields{{child.child_id}}">
+                                <!--CUSTOM FIELD ADD BLOCK-->
+                                <!-- BLOCK START -->
+                                <div class="form-group row print-left" style="text-align: center">
+                                    <div class="adding-place col-12">
+                                        {% set len = child.custom_fields['custom-field-des']|length -1%}
+                                        <input type="hidden" class="custom_field_index_1" value="{{len}}">
+                                        {% for i in 0..len %}
+                                        <div class="col-12">
+                                            <p class = "custom-field-to-attach-text">Title & Description</p>
+                                            <textarea class="form-control"  name="custom_fields[custom-field-des][{{i}}]" >{{child.custom_fields['custom-field-des'][i]}}</textarea>
+                                            {% if child.custom_fields["file-directory"][i] != "" %}
+                                                <img class="enr-img" src="{{child.custom_fields['file-directory'][i]}} download"><i class="fa fa-download" aria-hidden="true"></img>
+                                                <input type="hidden" value="{{child.custom_fields['file-directory'][i]}}" name="custom_fields[file-directory][{{i}}]">
+                                            {% endif %}
+                                            </div>
+                                        {% endfor %}
+
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!--END CUSTOM FIELDS-->
+
+                            <!-- Parental Signature and Consent -->
+                            <div class="enr-title"><h2>PARENTAL SIGNATURE AND CONSENT</h2></div>
+                            <div id="signature" class="custom-collapse collapse">
+                                <div class="signature">
+                                    <div class="form-group row">
+                                        <label class="col-4 col-form-label" for="signature" style="margin-top: 7px">Name:</label>
+                                        <div class="col-8">
+                                            <input class="form-control custom-control-input" type="text" value="{{ child.signature['name'] }}" name="signature[name]"  maxlength="64">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                 <div class="form-group row mb-5">
+                                    <label class="col-4 col-form-label" for="signature" style="margin-top: 7px">Date of signature :</label>
+                                    <div class="col-8">
+                                        <input class="form-control custom-control-input" type="text" value="{{ child.signature['date'] }}" name="signature[date]" >
+                                    </div>
+                                </div>
+
+                                <table class="formulaire">
+                                <tr>
+                                    <td id="td_signature_sncf">
+                                    <h4 style="font-size:14px;letter-spacing:0px;">Signature :</h4>
+                                        <img style="width:450px" src="{{child.signature['uri']}}" />
+                                    </td>
+                                </tr>
+                                </table>
+
+
+
+                            </div>
+                            <!--END Parental Signature and Consent-->
+
+                            <!--END MAIN MODAL BODY-->
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello!</h3>
+<p>A new learning resources has been uploaded by {{ first_name }} {{ last_name }} and is pending approval.</p>
+<p>The ID is {{ resource_id }}.</p>
+{% endblock %}

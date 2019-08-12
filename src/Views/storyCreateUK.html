@@ -1,0 +1,1039 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<!-- <script src="/javascripts/speechrecognition.js"></script>
+<script src="/javascripts/BingSpeech.js" type="text/javascript"></script> -->
+
+<form method="post" class="storyDesEyfs"
+  action="{% if story_id %}{{ path_for('storyEdit', { story_id: story_id}) }}{% else %}{{ path_for('storyCreate', { child_id: child.child_id, draft_id: draft_id}) }}{% endif %}">
+
+
+  <div class="stories">
+    {% if child %}
+    {% if story_id %}
+    <a class="storiesBack" href="{{ path_for('storyDetails', { story_id: story_id }) }}">
+
+			<div class="storiesBackImg" style="background-image: url(/images/arrow.png);"></div>
+
+			<p>Back to Story</p>
+		</a>
+		{% else %}
+		<a class="storiesBack" href="{{ path_for('story', { child_id: child.child_id }) }}">
+
+			<div class="storiesBackImg" style="background-image: url(/images/arrow.png);"></div>
+			<p>Back to Stories</p>
+		</a>
+		{% endif %}
+		{% endif %}
+	</div>
+
+	<div class="storiesTitle row justify-content-around align-items-center">
+		<div class="col-12 col-lg-10">
+			<h4>{{ title }}</h4>
+		</div>
+		<div class="col-12 col-lg-2">
+			<button type="submit" class="btn btn-primary btn-stories-publish" id="btnPublish">Publish</button>
+			<div class="lds-spinner" id="btnPublishSpinner" style="display: none;">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card mb-5 stories">
+		<div class="card-block">
+			<div class="row justify-content-between">
+				<div class="col-12 col-lg-4 col-xl-3">
+
+					<div class="media"  id="top_sel_child">
+						<img class="rounded-circle d-flex mr-3" width="50" height="50"
+							src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image" id="selectChildImg">
+						<div class="media-body">
+							Child
+							<h5>
+								<a href="{{ path_for('childDetails', { child_id: child.child_id }) }}" id="selectChild">{{ child.child_name }}</a>
+							</h5>
+							<input type="hidden" name="child_id" value="{{child.child_id }}">
+						</div>
+					</div>
+
+				</div>
+				<div class="col-12 col-lg-10 col-xl-9 align-self-center">
+					<ul class="nav nav-pills nav-justified dont-replace " role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">Questions</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#tab2" role="tab">Media</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#tab3" role="tab">Reflections</a>
+						</li>
+						{% for framework_id, framework in frameworks %}
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#framework{{ framework_id }}" role="tab"
+								{% if framework.framework_month_min or framework.framework_month_max %}
+								{% set monthsFolder = childMonths.0 ~ '_' ~ childMonths.1 %}
+								data-month="optComment{{monthsFolder}}u{{ framework.framework_month_min }}_{{ framework.framework_month_max }}"
+								{% endif %}>
+
+								{{ framework.framework_name }}
+
+								{% if framework.framework_month_min or framework.framework_month_max %}
+								{{ framework.framework_month_min }} to {{ framework.framework_month_max }} months
+								{% endif %}
+
+								<span class="badge badge-primary hidden" data-recommendations-count
+									data-recommendations-framework-id="{{ framework_id }}">0</span></a>
+						</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card mb-5 storiesCard storieContent">
+		<div class="card-block">
+			<div class="tab-content">
+
+				<div class="tab-pane active Questions" id="tab1" role="tabpanel">
+
+					<div class="storiesDefCard storiesDefCardEnd storiesDefCardFeather">
+						<div class="storiesDefCardContent storiesNameStory">
+							<label class="col-form-label" for="story_name">Name of learning story</label>
+							<input type="text" class="form-control" name="story_name" id="story_name"
+								value="{{ formdata.story_name }}" data-keyword-search required />
+						</div>
+
+						<div class="storiesDefCardSvg">
+							{% include 'svg/questions/feather.svg' %}
+						</div>
+					</div>
+
+					<div class="storiesDefCard storiesDefCardBegin">
+						<div class="storiesDefCardSvg">
+							{% include 'svg/questions/2undraw_children_4rtb.svg' %}
+						</div>
+						<div class="storiesDefCardContent">
+
+							<p>What am I doing?</p>
+							<small class="form-text questions-text-muted">Include a short description of how I learn and develop.
+								Photos can
+								be attached in the next step.</small>
+							<textarea class="form-control" name="story_action_1" id="story_action_1" rows="8"
+								data-keyword-search>{{ formdata.story_action_1 }}</textarea>
+						</div>
+					</div>
+
+					<div class="storiesDefCard storiesDefCardEnd">
+						<div class="storiesDefCardContent">
+							<p>What does this experience tell you about me?</p>
+							<small class="form-text questions-text-muted">Think about my interests, dispositions, values and
+								attitudes,
+								skills, knowledge and my understanding. Link to Aistear themes, aims and learning goals.</small>
+							<textarea class="form-control" name="story_action_2" id="story_action_2" rows="8"
+								data-keyword-search>{{ formdata.story_action_2 }}</textarea>
+						</div>
+
+						<div class="storiesDefCardSvg">
+							{% include 'svg/questions/3undraw_toy_car_7umw.svg' %}
+						</div>
+					</div>
+
+
+					<div class="storiesDefCard storiesDefCardBegin">
+						<div class="storiesDefCardSvg">
+							{% include 'svg/questions/4undraw_fatherhood_7i19.svg' %}
+						</div>
+						<div class="storiesDefCardContent">
+							<p> What will we do next to support my learning?</p>
+							<small class="form-text questions-text-muted">Think about how you can help me to learn more in ways that
+								excite
+								and interest me.</small>
+							<textarea class="form-control" name="story_action_3" id="story_action_3" rows="8"
+								data-keyword-search>{{ formdata.story_action_3 }}</textarea>
+
+						</div>
+					</div>
+
+					<div class="storiesDefCard storiesDefCardEnd">
+						<div class="storiesDefCardContent">
+							<p>When will you do this?</p>
+							<small class="form-text questions-text-muted"></small>
+							<textarea class="form-control" name="story_action_6" id="story_action_6" rows="8"
+								data-keyword-search>{{ formdata.story_action_6 }}</textarea>
+						</div>
+
+						<div class="storiesDefCardSvg">
+							{% include 'svg/questions/5undraw_true_friends_c94g.svg' %}
+						</div>
+					</div>
+
+
+					<div class="storiesDefCard storiesDefCardKeyword">
+						<div class="storiesDefCardContent">
+							<h4><strong>List of emerging interests</strong> </h4>
+							<small class="form-text text-muted">
+								List emerging interests as observed from this learning story. At the end
+								of the week, we will show you the most used keywords based on children's interests
+							</small>
+							<div class="form-group">
+								<label class="col-form-label" for="keyword_1">Keyword 1:</label>
+								<input type="text" class="form-control" name="keyword_1" id="keyword_1" value="{{ formdata.keyword_1 }}"
+									data-keyword-search />
+							</div>
+							<div class="form-group">
+								<label class="col-form-label" for="keyword_2">Keyword 2:</label>
+								<input type="text" class="form-control" name="keyword_2" id="keyword_2" value="{{ formdata.keyword_2 }}"
+									data-keyword-search />
+							</div>
+							<div class="form-group">
+								<label class="col-form-label" for="keyword_3">Keyword 3:</label>
+								<input type="text" class="form-control" name="keyword_3" id="keyword_3" value="{{ formdata.keyword_3 }}"
+									data-keyword-search />
+							</div>
+							<div class="form-group">
+								<label class="col-form-label" for="keyword_4">Keyword 4:</label>
+								<input type="text" class="form-control" name="keyword_4" id="keyword_4" value="{{ formdata.keyword_4 }}"
+									data-keyword-search />
+							</div>
+							<div class="form-group">
+								<label class="col-form-label" for="keyword_5">Keyword 5:</label>
+								<input type="text" class="form-control" name="keyword_5" id="keyword_5" value="{{ formdata.keyword_5 }}"
+									data-keyword-search />
+							</div>
+						</div>
+						<div class="storiesDefCardSvg">
+							{% include 'svg/questions/undraw_doll_play_evbw.svg' %}
+						</div>
+					</div>
+
+					<div class="storiesDefCard storiesDefCardComment">
+						<div class="storiesDefCardSvg">
+							{% include 'svg/questions/comment.svg' %}
+						</div>
+						<div class="storiesDefCardContent">
+							<div class="card-header storiesCard storiesCommentTitle">Optional Comment</div>
+							<p class="storiesCommentSubTitle">This comment will appear separately in the child’s timeline.</p>
+							<textarea class="form-control storiesCommentText optionComment" name="comment1" id="comment" rows="10"
+								data-keyword-search="" style="display: none;"></textarea>
+							<label class="custom-control custom-checkbox checkboxVisibleParents">
+								<input type="checkbox" name="public" value="0" class="custom-control-input" {% if formdata.story_public == 1 %} checked {% endif %}>
+								<span class="custom-control-indicator"></span>
+								<span class="custom-control-description">Make visible to parents</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- {% include 'storyEyfs/storyCreateMulti.html' %} -->
+ 				</div>
+
+				<div class="tab-pane Media" id="tab2" role="tabpanel">
+
+					<div class="row storiesFileUpload">
+						<div class="col-12 col-lg-12 col-xl-6 storageMedianDragAndDrop">
+
+							<div class="file-body-block">
+
+								<div class="well filedrag">
+									<div class="form-group row">
+										<div class="col-md-12" id="dropContainer">
+											<div>{% include 'svg/drag-and-drop-icon.svg' %}</div>
+
+											<div class="containerDrag">
+												<div class="area">
+													<div id="dropZone"> </br>
+														<p id='holder'>
+															<input type="hidden" role="uploadcare-uploader" name="media2" data-images-only="true"
+																data-multiple="true" data-image-shrink="1600x1600">
+														</p>
+													</div>
+													<p class="dropTitle">drag and drop images here</p>
+												</div>
+											</div>
+
+										</div>
+									</div>
+								</div>
+
+							</div>
+						</div>
+
+						<div class="col-12 col-lg-12 col-xl-7 storiesFileContent">
+							<div class="storiesFile">
+								<div class="form-group">
+									<label class="file-form-label">Upload photos</label>
+									<input type="hidden" role="uploadcare-uploader" name="media" data-images-only="true"
+										data-multiple="true" data-image-shrink="1600x1600">
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="tab-pane storiesReflections" id="tab3" role="tabpanel">
+					<p class="storiesReflTop">
+						The following answers are optional and can be helpful for internal purposes within your early childhood
+						service. Share
+						as much as you need to your team as this section is <strong>never visible</strong> to parents.
+					</p>
+
+					<div class="storyEyfs_PanelBorder">
+						<div class="col-sm-12 col-lg-8 storiesReflItem storageRefWindow storageRefTextarea">
+							<p>Why did you carry out your role in this way?</p>
+							<!-- <div class="flright">
+                <button onclick="recordspeech('story_reflection_1','sr1cspa')" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-microphone"></i> Record Speech</button>
+                <button onclick="stopspeech()" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-stop-circle"></i> Stop</button>
+                <img class="voice_detect hidden" id="sr1cspa" src="/images/waiting.gif" alt="Waiting gif">
+              </div> -->
+							<textarea class="form-control" name="story_reflection_1" id="story_reflection_1"
+								rows="5">{{ formdata.story_reflection_1 }}</textarea>
+						</div>
+						<div class="col-12 col-sm-4 storageRefWindow storageRefSvg">
+							{% include 'svg/reflections/ativo1.svg' %}
+						</div>
+					</div>
+
+					<div class="storyEyfs_PanelBorder storyEyfs_PanelBorderEnd">
+						<div class="col-12 col-sm-6 storageRefTwoImg storageRefWindow storageRefSvg">
+							{% include 'svg/reflections/ativo2.svg' %}
+						</div>
+						<div class="col-md-12 col-lg-6 storiesReflItem storageRefTwoText storageRefTextarea storageRefWindow">
+							<p>What were the benefits of carrying out the interaction or activity in this way?</p>
+							<!-- <div class="flright">
+                <button onclick="recordspeech('story_reflection_2','sr2cspa')" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-microphone"></i> Record Speech</button>
+                <button onclick="stopspeech()" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-stop-circle"></i> Stop</button>
+                <img class="voice_detect hidden" id="sr2cspa" src="/images/waiting.gif" alt="Waiting gif">
+              </div> -->
+							<textarea class="form-control" name="story_reflection_2" id="story_reflection_2"
+								rows="5">{{ formdata.story_reflection_2 }}</textarea>
+						</div>
+					</div>
+
+					<div class="storyEyfs_PanelBorder">
+						<div class="col-md-12 col-lg-6 storiesReflItem storageRefTextarea storageRefWindow">
+							<p>Could anything have been done differently to enhance learning experiences and interactions?</p>
+							<!-- <div class="flright">
+                <button onclick="recordspeech('story_reflection_3','sr3cspa')" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-microphone"></i> Record Speech</button>
+                <button onclick="stopspeech()" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-stop-circle"></i> Stop</button>
+                <img class="voice_detect hidden" id="sr3cspa" src="/images/waiting.gif" alt="Waiting gif">
+              </div> -->
+							<textarea class="form-control" name="story_reflection_3" id="story_reflection_3"
+								rows="5">{{ formdata.story_reflection_3 }}</textarea>
+						</div>
+						<div class="col-12 col-sm-6 storageRefWindow storageRefSvg">
+							{% include 'svg/reflections/ativo3.svg' %}
+						</div>
+					</div>
+
+					<div class="storyEyfs_PanelBorder storyEyfs_PanelBorderEnd">
+						<div class="col-12 col-sm-6 storageRefWindow storageRefSvg">
+							{% include 'svg/reflections/ativo4.svg' %}
+						</div>
+						<div class="col-md-12 col-lg-6 storiesReflItem storageRefTextarea">
+							<p>Were there any challenges?</p>
+							<!-- <div class="flright">
+                <button onclick="recordspeech('story_reflection_4','sr4cspa')" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-microphone"></i> Record Speech</button>
+                <button onclick="stopspeech()" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-stop-circle"></i> Stop</button>
+                <img class="voice_detect hidden" id="sr4cspa" src="/images/waiting.gif" alt="Waiting gif">
+              </div> -->
+							<textarea class="form-control" name="story_reflection_4" id="story_reflection_4"
+								rows="5">{{ formdata.story_reflection_4 }}</textarea>
+						</div>
+					</div>
+
+					<div class="storyEyfs_PanelBorder">
+						<div class="col-md-12 col-lg-6 storiesReflItem storageRefTextarea storageRefWindow">
+							<p>What support do you need or who could help you?</p>
+							<!-- <div class="flright">
+                <button onclick="recordspeech('story_reflection_5','sr5cspa')" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-microphone"></i> Record Speech</button>
+                <button onclick="stopspeech()" type="button"
+                  class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i
+                    class="fa fa-stop-circle"></i> Stop</button>
+                <img class="voice_detect hidden" id="sr5cspa" src="/images/waiting.gif" alt="Waiting gif">
+              </div> -->
+							<textarea class="form-control" name="story_reflection_5" id="story_reflection_5"
+								rows="5">{{ formdata.story_reflection_5 }}</textarea>
+						</div>
+						<div class="col-12 col-sm-6 storageRefWindow storageRefSvg">
+							{% include 'svg/reflections/ativo5.svg' %}
+						</div>
+					</div>
+
+				</div>
+
+				{% for category_id, category in frameworks %}
+				<div class="tab-pane" id="framework{{ category_id }}" role="tabpanel">
+					<div class="storiesAistearMenu nav nav-tabs" {% if category_id == 1  %} id="frameworkAistearFirst"
+						{% endif %}>
+						{% for framework_id, group_items in groups if framework_id == category_id %}
+
+						{% for group in group_items %}
+						<a class="storiesAistearMenuItem {% if group_items|first == group %}active{% endif %}" data-toggle="tab"
+							href="#framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tab"
+							data-name="">
+							{{ group }}
+
+							<span class="badge badge-primary hidden" data-recommendations-count
+								data-recommendations-group-id="{{ group }}">0</span>
+						</a>
+						<div class="storiesAistearMenuItemRec"></div>
+						{% endfor %}
+						{% endfor %}
+					</div>
+
+					<div class="tab-content">
+
+						{% for framework_id, group_items in groups if framework_id == category_id %}
+
+						{% set frameIndex = 1 %}
+						{% for group in group_items %}
+						<div class="tab-pane {% if group_items|first == group %}active{% endif %} 
+								{% if category.framework_name == 'EYFS' %} {% endif %}"
+							id="framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}" role="tabpanel">
+ 
+								{% if framework_id == 3 or framework_id == 7 or category.framework_name == 'Montessori' or framework_id == 8 or category.framework_name == 'EYFS' %}
+									<div class="storyEyfs_TabPane">
+								{% endif %}
+
+								{% for category_id, category in categories if group == category.category_group and framework_id == category.framework_id %}
+
+								{% set forFile = {goal:goal,category_id:category_id, category:category,framework_id:framework_id} %}
+								{% if category.framework_name == 'EYFS' %}
+								{% set nameFile = category.framework_month_min ~ '-' ~ category.framework_month_max ~ '.html' %}
+								{% set nameFile = '0-11.html' %}
+								{% include 'storyEyfs/eyfsDefault.html' with forFile %}
+
+								{% else %}
+									<h5 class="mt-4 storyEyfs_CategoryName ">{{ category.category_name }}</h5>
+									<p class="lead storyEyfs_Lead">{{ category.category_description }}</p>
+									<div class="storyEyfs_card">
+										<div class="card-block ">
+											{% for goal in category.goals %}
+													<div class="storiesAistearGoal">
+														<label class="custom-control custom-checkbox storyEyfs_CheckBox">
+															<input type="checkbox" class="custom-control-input" name="goals[]" value="{{ goal.goal_id }}"
+																{% if goal.goal_id in formgoals %}checked{% endif %}>
+															<span class="custom-control-indicator"></span>
+															<span class="custom-control-description">
+																{% if goal.goal_keywords %}
+																{% if frameworks[framework_id].framework_name == "EYFS" %}
+																<span class="badge badge-primary hidden" data-keywords="{{ goal.goal_keywords }}"
+																	data-group-id="{{ group }}" data-framework-id="{{ framework_id }}"
+																	data-goal-id="{{ goal.goal_id }}"
+																	data-framework-name="{{ frameworks[framework_id].framework_name }}"
+																	title="Based on keywords: {{ goal.goal_keywords }}">Suggested</span>
+																{% else %}
+																<span class="badge badge-primary hidden" data-keywords="{{ goal.goal_keywords }}"
+																	data-group-id="{{ group }}" data-framework-id="{{ framework_id }}"
+																	data-goal-id="{{ goal.goal_id }}"
+																	title="Based on keywords: {{ goal.goal_keywords }}">Recommended
+																</span>
+																{% endif %}
+																{% endif %}
+																{{ goal.goal_description }} {% if goal.goal_help %}&nbsp; <button class="btn btn-sm btn-secondary"
+																	role="button" data-container="body" data-toggle="popover" data-trigger="focus"
+																	title="Explanation" data-content="{{ goal.goal_help }}"><i
+																		class="fa fa-question"></i></button>{% endif %}
+															</span>
+														</label>
+													</div>
+												{% endfor %}
+											</div>
+										</div>
+
+									{% for text in category.texts %}
+										<div class="form-group storyEyfs_FormPadd">
+											<label class="col-form-label" for="text_{{ text.text_id }}">{{ text.text_title }}</label>
+
+											<textarea class="form-control" name="texts[{{ text.text_id }}]" id="text_{{ text.text_id }}"
+												rows="5">{{ attribute(formtexts, text.text_id) }}</textarea>
+										</div>
+									{% endfor %}
+								{% endif %}
+
+							{% endfor %}
+
+							{% if framework_id == 3 or framework_id == 7 or category.framework_name == 'Montessori'  or framework_id == 8 or category.framework_name == 'EYFS' %}
+								</div>
+							{% endif %}
+
+
+							{% if framework_id == 1 %}
+							<div class="card">
+								<div class="row justify-content-md-center">
+
+									<div class="col-sm-12 col-lg-7 ">
+										<div class="card-header storiesCard storiesCommentTitle">
+											Optional Comment
+										</div>
+										<div class="card-block storiesCard">
+											<div class="form-group storiesSiolta">
+												<p class="storiesCommentSubTitle">This comment will appear separately in the child’s timeline.
+												</p>
+												<textarea class="form-control storiesCommentText optionComment" name="comment2" id="comment"
+													rows="10" data-keyword-search>{{ formdata.comment }}</textarea>
+											</div>
+											<label class="custom-control custom-checkbox checkboxVisibleParents">
+												<input type="checkbox" name="public" value="0" class="custom-control-input" {% if formdata.story_public == 1 %} checked {% endif %}>
+												<span class="custom-control-indicator"></span>
+												<span class="custom-control-description">Make this learning story visible to parents</span>
+											</label>
+										</div>
+									</div>
+									<div class="col-4">
+										<div class="storiesAistearComment">
+											{% if frameIndex == 1 %}
+											{% include 'svg/aistear/girl.svg' %}
+											{% elseif frameIndex == 2 %}
+											{% include 'svg/aistear/girl-pen.svg' %}
+											{% elseif frameIndex == 3 %}
+											{% include 'svg/aistear/boy-airplane.svg' %}
+											{% elseif frameIndex == 4 %}
+											{% include 'svg/aistear/boy-read-book.svg' %}
+											{% else %}
+											{% include 'svg/comments.svg' %}
+											{% endif %}
+										</div>
+										{% set frameIndex = frameIndex + 1 %}
+									</div>
+								</div>
+
+							</div>
+							<div class="row storiesNavNextBack">
+								<div class="">
+									<a class="storiesBack btnAistearBack">
+										<div class="storiesNavSvg">
+											{% include 'svg/aistear/back.svg' %}
+										</div>
+										<p>Back</p>
+									</a>
+								</div>
+								<div class="">
+									{% if loop.last %}
+									<a class="storiesBack" id="btnShowFinish">
+										<p content-id="framework{{ framework_id }}-{{ group|replace({ ' ': '' })|replace({ ',': '' }) }}">
+											Finish</p>
+										<div class="storiesNavSvg">
+											{% include 'svg/aistear/next.svg' %}
+										</div>
+									</a>
+									{% else %}
+									<a class="storiesBack btnAistearNext">
+										<p>Next</p>
+										<div class="storiesNavSvg">
+											{% include 'svg/aistear/next.svg' %}
+										</div>
+									</a>
+									{% endif %}
+								</div>
+							</div>
+
+							{% elseif category.framework_name == 'EYFS' %}
+
+							<div class="storyEyfs_Navigator">
+								<div class="storyEyfs_card">
+
+									<div class="row storyEyfs_OptComment">
+										<div class="col-lg-6 col-xl-8 storyEyfs_OptCommentText">
+											<div class="storyEyfs_OptionalCommentTitle">
+												Optional Comment
+											</div>
+											<div class="storyEyfs_OptionalCommentSubTitle">
+												This comment will appear separately in the child’s timeline.
+											</div>
+											<div>
+												<textarea class="form-control storiesCommentText optionComment" name="comment3" id="comment"
+													rows="10" data-keyword-search>{{ formdata.comment }}</textarea>
+											</div>
+											<div class="storyEyfs_OptCommentCheckBox">
+												<label class="custom-control custom-checkbox checkboxVisibleParents">
+													<input type="checkbox" name="public" value="0" class="custom-control-input" {% if formdata.story_public == 1 %} checked {% endif %}>
+													<span class="custom-control-indicator"></span>
+													<span class="custom-control-description ">Make this learning story visible to parents</span>
+												</label>
+											</div>
+										</div>
+										<div class="storyEyfs_OptionalCommentContimage">
+											<div class="storyEyfs_image">
+												{% set monthsFolder = childMonths.0 ~ '-' ~ childMonths.1 %}
+												{% for row in eyfsMonths %}
+												<div
+													class="optCommentList optComment{{monthsFolder|replace('-','_')}}u{{row|replace('-','_')}}">
+													{% if file_exists('svg/eyfs/mc' ~ monthsFolder ~ '/m' ~ row ~ '/child.svg') %}
+													{% include 'svg/eyfs/mc' ~ monthsFolder ~ '/m' ~ row ~ '/child.svg' %}
+													{% else %}
+													{% include 'svg/eyfs/mc0-11/m0-11/child.svg' %}
+													{% endif %}
+												</div>
+												{% endfor %}
+											</div>
+
+											{% set frameIndex = frameIndex + 1 %}
+										</div>
+									</div>
+
+
+								</div>
+							</div>
+
+							<div class="storyEyfs_Navigator">
+								<div class="row storiesNavNextBack">
+									<div class="">
+										<a class="storiesBack btnAistearBack">
+											<button class="">Back</button>
+										</a>
+									</div>
+									<div class="">
+										{% if loop.last %}
+										<a class="storiesBack" id="btnShowFinish">
+
+											<button class="">Finish</button>
+
+										</a>
+										{% else %}
+										<a class="storiesBack btnAistearNext">
+											<button class="">Next</button>
+										</a>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+							{% endif %}
+
+						</div>
+						{% endfor %}
+
+						{% if framework_id == 1 %}
+						<div class="card storiesAistearTabFinishCard" id="storiesAistearContentFinish" style="display: none;">
+							<div class="card-block storiesAistearTabFinish">
+								{% include 'svg/aistear/ativo1.svg' %}
+								<p>Aistear published sucessfully!</p>
+							</div>
+						</div>
+						{% endif %}
+
+						{% endfor %}
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<div class="row justify-content-md-center" id="storiesOptionalComment" style="display: none">
+		<div class="col-4 storiesOptionalComment">
+			{% include 'svg/comments.svg' %}
+		</div>
+		<div class="col-sm-12 col-lg-7 ">
+			<div class="card-header storiesCard storiesCommentTitle">Optional Comment</div>
+			<div class="card-block storiesCard">
+				<div class="form-group storiesSiolta">
+					<p class="storiesCommentSubTitle">This comment will appear separately in the child’s timeline.</p>
+					<textarea class="form-control storiesCommentText optionComment" name="comment4" id="comment" rows="10"
+						data-keyword-search>{{ formdata.comment }}</textarea>
+				</div>
+				<label class="custom-control custom-checkbox checkboxVisibleParents">
+					<input type="checkbox" name="public" value="0" class="custom-control-input" {% if formdata.story_public == 1 %} checked {% endif %}>
+					<span class="custom-control-indicator"></span>
+					<span class="custom-control-description">Make this learning story visible to parents</span>
+				</label>
+			</div>
+		</div>
+	</div>
+ 
+ 
+	
+
+	<input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+	<input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+</form>
+
+<script type="text/javascript">
+	$('body').css('background-color', '#fff');
+
+	$('.checkboxVisibleParents > input').change(function (e) {
+		let all = $('.checkboxVisibleParents > input');
+		for (let index = 0; index < all.length; index++) {
+			all[index].checked = e.currentTarget.checked;
+			if (e.currentTarget.checked) {
+				$('input[name=public]').attr('checked', 'checked');
+				$('input[name=public]').val(1);
+			} else {
+				$('input[name=public]').removeAttr('checked');
+				$('input[name=public]').val(0);
+			}
+		}
+	});
+
+	var threshold = 3;
+	if (typeof Recommender !== 'undefined') {
+		var recommender = Recommender.init({{ user_id }}, {
+		frameworks: [{{ framework_ids| join(', ') }}],
+	input: null
+		});
+	}
+
+	function doKeywordSearch(data) {
+		//console.log(event);
+		var text = '';
+		var autocompleter = data.autocomplete;
+		var inputValue = autocompleter.inputVal();
+		checkedGoals = [];
+		$('[data-recommendations-count]').html('0').addClass('hidden');
+		$.each($('[data-keyword-search]'), function () {
+			text += ' ' + $(this).val();
+		});
+		text = ' ' + text.replace(/[ \n\r\t.,'\"\+!?]/g, ' ') + ' ';
+		//console.log($( '[data-keywords]' ))
+		$.each($('[data-keywords]'),
+			function () {
+				var $this = $(this),
+					goalId = $this.data('goal-id'),
+					keywords = $this.data('keywords').trim().split(/,\s?/),
+					recommendIndex = 0;
+				if ($this.data('framework-name') == "EYFS")
+					threshold = 2;
+
+				var localThreshold = threshold;
+				if (checkedGoals.includes(goalId))
+					return;
+				keywords = keywords.filter(function (el) { return el != null; });
+
+				if (keywords.length < 3)
+					localThreshold = 1;
+				//console.log( text, keywords );
+				$.each(keywords, function () {
+					var regex = new RegExp(" " + this + " ", 'gi');
+					var occurrences = (text.match(regex) || []).length;
+					// console.log( "Searching for " + this + '... ' + occurrences + ' found.');
+
+					recommendIndex += Math.min(2, occurrences);
+				});
+
+				console.log("recommendIndex: " + recommendIndex);
+				console.log(localThreshold);
+				console.log(text);
+
+				if ($this.data('framework-name') == "EYFS" && recommendIndex > 0) {
+
+					this.classList.remove('badge-info');
+					this.classList.remove('badge-danger');
+					this.classList.remove('badge-primary');
+
+					if (recommendIndex == localThreshold) {
+						this.classList.add('badge-primary');
+						this.innerHTML = "Suggested";
+					} else if (recommendIndex == 3) {
+						this.classList.add('badge-info');
+						this.innerHTML = "Possible match";
+					} else if (recommendIndex > 3) {
+						this.classList.add('badge-danger');
+						this.innerHTML = "Perfect match";
+					}
+				}
+
+				if (recommendIndex >= localThreshold) {
+					var $groupRecommendationsCount = $('[data-recommendations-group-id="' + $this.data('group-id') + '"]');
+					$groupRecommendationsCount.html(parseInt($groupRecommendationsCount.html()) + 1).removeClass('hidden');
+					var $frameworkRecommendationsCount = $('[data-recommendations-framework-id="' + $this.data('framework-id') + '"]');
+
+					$frameworkRecommendationsCount.html(parseInt($frameworkRecommendationsCount.html()) + 1).removeClass('hidden');
+					$this.removeClass('hidden');
+					recommender.resetInputTimeout();
+				} else {
+					$this.addClass('hidden');
+					recommender.startInputTimeout(autocompleter.input)
+				}
+
+				checkedGoals.push(goalId);
+			});
+		//console.log( text );
+	}
+
+	//$( '[data-keyword-search]' ).on( 'keyup paste', doKeywordSearch );
+	$('[data-keyword-search]').trigger('keyup');
+	document.getElementsByClassName('btn-primary')[0].addEventListener('click', () => {
+		for (var i = 0; i < window.localStorage.length; i++) {
+			//console.log(window.localStorage.key(i));
+			if (/.*_.*_\d+/.test(window.localStorage.key(i))) {
+				window.localStorage.removeItem(window.localStorage.key(i));
+			}
+		};
+	});
+	var textareas = document.querySelectorAll('textarea');
+
+	//recommender.recommendAndMark("text goes here");
+	for (var i = 0; i < textareas.length; i++) {
+		var area = textareas[i];
+		var a = Autocompletion.init({{ user_id }}, area, {
+			onValueChange: function (a) {
+				doKeywordSearch({
+					autocomplete: a
+				})
+			}
+		});
+  }
+
+	if (document.getElementById('btnShowFinish') != null) {
+		document.getElementById('btnShowFinish').addEventListener('click', function (ths) {
+			let content = ths.target.getAttribute('content-id');
+			$('#' + content).css('display', 'none');
+			$('#frameworkAistearFirst').css('display', 'none');
+			$('#storiesAistearContentFinish').css('display', 'block');
+			setTimeout(function () {
+				$(window).scrollTop(150);
+			}, 5);
+		});
+	}
+
+	let btnAistearBack = document.getElementsByClassName('btnAistearBack');
+	for (let i = 0; i < btnAistearBack.length; i++) {
+		btnAistearBack[i].addEventListener('click', function (ths) {
+			let index = 0;
+			let list = $('.tab-pane.active.show .storiesAistearMenu > a.storiesAistearMenuItem');
+			for (let i = 0; i < list.length; i++) {
+				if ($(list[i]).hasClass('active') && $(list[i]).hasClass('show')) index = i;
+			}
+			$($('.tab-pane.active.show .storiesAistearMenu > a.storiesAistearMenuItem')[index - 1]).trigger('click');
+			$(window).scrollTop($('.tab-pane.active.show').offset().top - 100);
+		});
+	}
+
+	let btnAistearNext = document.getElementsByClassName('btnAistearNext');
+	for (let i = 0; i < btnAistearNext.length; i++) {
+		btnAistearNext[i].addEventListener('click', (ths) => {
+			let index = 0;
+			let list = $('.tab-pane.active.show .storiesAistearMenu > a.storiesAistearMenuItem');
+			for (let i = 0; i < list.length; i++) {
+				if ($(list[i]).hasClass('active') && $(list[i]).hasClass('show')) index = i;
+			}
+			$($('.tab-pane.active.show .storiesAistearMenu > a.storiesAistearMenuItem')[index + 1]).trigger('click');
+
+			$(window).scrollTop($('.tab-pane.active.show').offset().top - 100);
+		});
+	}
+
+	if (typeof uploadcare !== 'undefined') {
+		var widgets = uploadcare.MultipleWidget('[role=uploadcare-uploader]');
+
+		widgets.onChange(function (events) {
+			events.progress(function (v) {
+				if (v.state == 'uploading') {
+					$('.storiesFile .file-form-label').text('');
+					$('.storiesFile .form-group').css('display', 'flex');
+					$('.storiesFile .file-form-label').css('height', '41px');
+					$('.storiesFile .file-form-label').css('top', '-2px');
+					$('.storiesFile .file-form-label').css('position', 'relative');
+				}
+			});
+		});
+	}
+
+
+	$(".nav-item").click(function (tab) {
+
+		let tabhref = $(tab.currentTarget.children).attr('href');
+		let name = $(tab.currentTarget.children).text();
+
+		if (tabhref == '#framework1' || tabhref == '#tab1' || name.indexOf('EYFS') + 1 > 0) {
+			$('#storiesOptionalComment').css('display', 'none');
+		} else {
+			$('#storiesOptionalComment').attr('style', '');
+		}
+	});
+
+	$("a.nav-link[data-month]").click(function (tab) {
+		let month = $(tab.currentTarget).attr('data-month');
+		if (month.length > 0) {
+			$('.optCommentList').css('display', 'none');
+			$('.' + month).css('display', 'block');
+		}
+	});
+
+	$( "form" ).submit(function( event ) {
+		$('#btnPublish').css('display', 'none');
+		$('#btnPublishSpinner').css('display', 'block');
+	})
+
+  {% if mode == 'create' %}    
+  function autosave(field, data){
+      console.log(data);
+      $("#autosave-text").text("Saving...");
+      var stringData = JSON.stringify( data );
+      $.ajax({
+          url: "{{ path_for('storyAutosave', { 'draft_id': draft_id } )}}",
+          type: "POST",
+          data: 
+          { 
+              field: field,
+              data: stringData,
+              {{ csrf.keys.name }}: "{{ csrf.name }}",
+              {{ csrf.keys.value }}: "{{ csrf.value }}"
+          },
+          success: function(res){
+              $("#autosave-text").text("Saved");
+          },
+          error: function(err){
+              console.log(err);
+          }
+      });
+  }
+  
+  var timeoutId;  
+  function resetTimeout(field, data){
+      $("#autosave-text").text("Saving...");
+      if (timeoutId) 
+          clearTimeout(timeoutId);
+      timeoutId = setTimeout(function () {
+          autosave(field, data);
+          timeoutId = null;
+      }, 2000);
+  }
+
+  $("[name='public']").change(function () {
+      data = {};
+      data.goal_id = this.value;
+      data.is_checked = $(this).is(":checked");
+      autosave("public", data);
+  });
+
+  $("[name='story_name']").keyup(function () {
+      data = {};
+      data.value = this.value;
+      resetTimeout("name", data);
+  });
+
+  $("[name='story_name']").focusout(function() {
+      if(timeoutId){
+          clearTimeout(timeoutId);
+          timeoutId = null;
+          data = {};
+          data.value = this.value;
+          autosave("name", data);
+      }
+  });
+
+  $("[name='comment']").keyup(function () {
+      data = {};
+      data.value = this.value;
+      resetTimeout("comment", data);
+  });
+
+  $("[name='comment']").focusout(function() {
+      if(timeoutId){
+          clearTimeout(timeoutId);
+          timeoutId = null;
+          data = {};
+          data.value = this.value;
+          autosave("comment", data);
+      }
+  });
+
+  $(".story-column").keyup(function () {
+      data = {};
+      data.value = this.value;
+      data.column = $(this).attr("name");
+      resetTimeout("column", data);
+  });
+
+  $(".story-column").focusout(function() {
+      if(timeoutId){
+          clearTimeout(timeoutId);
+          timeoutId = null;
+          data = {};
+          data.value = this.value;
+          data.column = $(this).attr("name");
+          autosave("column", data);
+      }
+  });
+
+  $("input[name='story_type']").click(function () {
+      data = {};
+      data.value = this.value;
+      autosave("story_type", data);
+  });
+
+  $("[name^='keyword_']").keyup(function () {
+      data = {};
+      data.value = this.value;
+      data.id = $(this).attr('id');
+      resetTimeout("keyword", data);
+  });
+
+  $("[name^='keyword_']").focusout(function () {
+      if(timeoutId){              
+          clearTimeout(timeoutId);
+          timeoutId = null;
+          data = {};
+          data.value = this.value;
+          data.id = $(this).attr('id');
+          autosave("keyword", data);
+      }
+  });
+
+  $("[name='child[]']").change(function () {
+      data = {};
+      data.assoc_id = this.value;
+      data.type = 'child';
+      data.is_checked = $(this).is(":checked");
+      autosave("assoc", data);
+  });
+
+  $("[name='room[]']").change(function () {
+      data = {};
+      data.assoc_id = this.value;
+      data.type = 'room';
+      data.is_checked = $(this).is(":checked");
+      autosave("assoc", data);
+  });
+
+  $("[name='goals[]']").change(function () {
+      data = {};
+      data.goal_id = this.value;
+      data.is_checked = $(this).is(":checked");
+      autosave("goal", data);
+  });
+
+  var multipleWidget = uploadcare.MultipleWidget('[role=uploadcare-uploader]');
+  multipleWidget.onUploadComplete(function (group) {
+      data = {};
+      data.value = group.cdnUrl;
+      autosave("media", data);
+  });
+
+  {% endif %}
+
+</script>
+{% endblock %}

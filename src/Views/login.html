@@ -1,0 +1,278 @@
+{% extends 'master.default.html' %}
+
+{% block body %}
+<link rel="stylesheet" href="/stylesheets/sign-in.css">
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-10">
+        <form class="w-100" action="{{ path_for('login') }}" method="post">
+            <div id="LogInFormCard" class="card dividingSpace w-100">
+                <div class="row no-gutters overflow-hidden">
+
+                    <div id="logInHeadingCard" class=" d-none d-md-block col-md-5 col-xl-4 p-0">
+                        <div class="row align-items-center m-0 p-0 h-100 w-100 justify-content-center align-item">
+                            <div>
+                                <h1 class="text-white text-center">Welcome back</h1>
+                                <h6 class="text-white text-center logInSmallTitle">please log in to your account
+                                </h6>
+                                <div class="row justify-content-center">
+
+                                    <div id="logInUserModeSwitch" class="btn-group btn-group-toggle mt-2"
+                                        data-toggle="buttons">
+                                        <label class="btn btn-primary active m-0">
+                                            <input type="radio" value="T" name="type" autocomplete="off"
+                                                checked>
+                                            Teacher
+                                        </label>
+                                        <label class="btn btn-primary m-0">
+                                            <input type="radio" value="P" name="type" autocomplete="off">
+                                            Parent
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-7 col-xl-8 p-4">
+                        <div class="row align-items-center justify-content-center h-100 w-100 m-0">
+                            <div class="col-12 col-sm-10 col-lg-10">
+
+                                <div class="d-md-none mt-2">
+                                    <h1 class="text-center">Welcome back</h1>
+                                    <h6 class="text-center mb-4 logInSmallTitle">please log in to your account
+                                    </h6>
+                                </div>
+
+                                <div class="border-0 d-md-none rounded btn-group btn-group-toggle mt-2 mb-2 w-100"
+                                    data-toggle="buttons">
+                                    <label class="btn btn-primary active m-0 w-50">
+                                        <input type="radio" value="T" name="type" autocomplete="off"
+                                            checked>
+                                        Teacher
+                                    </label>
+                                    <label class="btn btn-primary m-0 w-50">
+                                        <input type="radio" value="P" name="type" autocomplete="off">
+                                        Parent
+                                    </label>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="mt-3 col-md-12 col-form-label" for="email">Email Address:</label>
+                                    <div class="col-md-12">
+                                        <input class="form-control" type="email" id="email" name="email"
+                                            value="{{ email }}" maxlength="64" placeholder="name@company.com" autofocus
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-md-12 col-form-label" for="password">Password:</label>
+                                    <div class="col-md-12">
+                                        <input class="form-control" type="password" id="password" name="password"
+                                            maxlength="32" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                        <div class="col-md-12">
+                                            <label class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" onclick="myFunction()" name="show_password">
+                                                <span class="custom-control-indicator"></span>
+                                                <span class="custom-control-description">Show password</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                
+                                <script>
+                                    function myFunction() {
+                                     var x = document.getElementById("password");
+                                             if (x.type === "password")
+                                                 {      
+                                                x.type = "text";
+                                                 } 
+                                                 else
+                                                  {
+                                                  x.type = "password";
+                                                  }
+                                                          }
+                                </script>
+                                <div class="form-group row">
+                                    <div class="col-md-12">
+                                        <label class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" name="remember_me"
+                                                value="1">
+                                            <span class="custom-control-indicator"></span>
+                                            <span class="custom-control-description">Keep me logged in</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary" type="submit">Log In</button>
+                                        <a id="passwordRenewBox" class="small align-middle"
+                                            href="{{ path_for('loginRecover') }}">Forgot
+                                            password?</a>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                                <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div class="row justify-content-center">
+
+    <div class="col-12 col-lg-10">
+        <div class="card dividingSpaceHeading headingCards">
+            <div class="card-body p-0">
+                <h2 class="m-0 sectionHeadings text-center">
+                    New Resources
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-10 dividingSpace">
+        <div class="card cardPadding">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body">
+
+                        <div class="row  justify-content-center">
+                            <div class="col">
+
+                                <div class=" float-left h-100">
+                                    <div class="logInListIcon">
+                                        <i class="far fa-lightbulb"></i>
+                                    </div>
+                                </div>
+                                <h5 class="card-title logInSmallTitle">
+                                    <a class=" logInListItemText"
+                                        href="https://blog.teachkloud.com/free-booklet-on-understanding-reducing-challenging-behaviour-a047e8ad166"
+                                        target="_blank"
+                                        rel="noreferrer">Understanding Challenging
+                                        Behaviour: Tips and Tricks for ECEC
+                                        Teachers
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <hr class="mt-0">
+
+                        <div class="row  justify-content-center">
+                            <div class="col">
+                                <div class=" float-left h-100">
+                                    <div class="logInListIcon">
+                                        <i class="far fa-lightbulb"></i>
+                                    </div>
+                                </div>
+                                <h5 class="card-title logInSmallTitle">
+                                    <a class=" logInListItemText"
+                                        href="https://blog.teachkloud.com/games-to-work-on-self-regulation-12442d6f08c1"
+                                        target="_blank"
+                                        rel="noreferrer">Games to Work on
+                                        Self-Regulation
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <hr class="mt-0">
+
+                        <div class="row  justify-content-center">
+                            <div class="col">
+                                <div class=" float-left h-100">
+                                    <div class="logInListIcon">
+                                        <i class="far fa-lightbulb"></i>
+                                    </div>
+                                </div>
+                                <h5 class="card-title logInSmallTitle">
+                                    <a class=" logInListItemText"
+                                        href="https://blog.teachkloud.com/25-indoor-play-areas-that-will-blow-your-mind-32f63a6f97b"
+                                        target="_blank"
+                                        rel="noreferrer">25
+                                        Indoor Play Areas That Will
+                                        Blow Your Mind
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <hr class="mt-0">
+
+                        <div class="row  justify-content-center">
+                            <div class="col">
+                                <div class=" float-left h-100">
+                                    <div class="logInListIcon">
+                                        <i class="far fa-lightbulb"></i>
+                                    </div>
+                                </div>
+                                <h5 class="card-title logInSmallTitle">
+                                    <a class=" logInListItemText"
+                                        href="https://blog.teachkloud.com/vygotsky-in-60-seconds-video-1c4637b60191"
+                                        target="_blank"
+                                        rel="noreferrer">Vygotsky in 60 Seconds
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <hr class="mt-0">
+
+                        <div class="row  justify-content-center">
+                            <div class="col">
+                                <div class="logInListIcon mb-0">
+                                    <i class="far fa-lightbulb"></i>
+                                </div>
+                                <h5 class="card-title mb-0 logInSmallTitle">
+                                    <a class=" logInListItemText"
+                                        href="https://blog.teachkloud.com/piaget-in-90-seconds-video-21548895a79e"
+                                        target="_blank"
+                                        >Piaget in 90 Seconds
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="socialMediaLogIn" class="col-12 col-lg-10 dividingSpace">
+        <div class="card cardPadding">
+            <div class="card-body">
+                <div class="row justify-content-center">
+                    <div class="col-12 ">
+                        <a class="socialMediaButton mr-sm-3" href="https://twitter.com/teachkloud" target="_blank" rel="noreferrer" aria-label="Twitter">
+                            <i class="fab fa-twitter-square"></i></a>
+                        <a class="socialMediaButton mr-sm-3"
+                            href="https://www.linkedin.com/in/teach-kloud-2b125a155/?originalSubdomain=ie"
+                            target="_blank" rel="noreferrer" aria-label="Linkedin"><i class="fab fa-linkedin"></i></a>
+                        <a class="socialMediaButton" href="https://www.facebook.com/teachkloud/" target="_blank" rel="noreferrer" aria-label="Facebook"><i
+                                class="fab fa-facebook-square"></i></a>
+                        <a class="d-md-none" href="https://blog.teachkloud.com/" target="_blank" rel="noreferrer">Blog</a>
+                        <a class="d-none d-md-block" href="https://blog.teachkloud.com/" target="_blank" rel="noreferrer">TeachKloud
+                            Blog</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

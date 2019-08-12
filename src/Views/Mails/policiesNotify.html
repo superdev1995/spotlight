@@ -1,0 +1,8 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<p>This is to inform you that new policies at {{ school.school_name }} have been added.</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('policy') }}">View Policies</a>
+{% endblock %}

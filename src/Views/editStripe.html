@@ -1,0 +1,119 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<form action="{{ path_for('stripeEdit') }}" enctype="multipart/form-data" method="post">
+    <h4 class="mb-5">{{ title }}</h4>
+
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Informations
+        </div>
+        <div class="card-block">
+             <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="email">School Name :</label>
+                <div class="col-md-8">
+                    {# dump(stripe) #}
+                    <input class="form-control" type="text" id="business_name" name="business_name" value="{{ stripe.business_name }}" maxlength="32" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="email">Email :</label>
+                <div class="col-md-8">
+                    {# dump(admin)#}
+                    <input class="form-control" type="text" id="email" name="email" value="{{ stripe.email }}" maxlength="32" required>
+                </div>
+            </div>
+            <!--<div class="form-group row">
+                <label class="col-md-4 col-form-label" for="first_name">First Name:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="first_name" name="first_name" value="{{ stripe['legal_entity'].first_name }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="last_name">Last Name:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="last_name" name="last_name" value="{{ stripe['legal_entity'].last_name }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="dob">Date of Birth:</label>
+                <div class="col-md-2">
+                    <input class="form-control" type="text" id="dob_year" name="dob_year" value="{{ stripe['legal_entity']['dob'].year }}" maxlength="4" placeholder="Year" required>
+                </div>
+                 <div class="col-md-2">
+                    <input class="form-control" type="text" id="dob_month" name="dob_month" value="{{ stripe['legal_entity']['dob'].month }}" maxlength="2" placeholder="Month" required>
+                </div>
+                 <div class="col-md-2">
+                    <input class="form-control" type="text" id="dob_day" name="dob_day" value="{{ stripe['legal_entity']['dob'].day }}" maxlength="2" placeholder="Day" required>
+                </div>
+            </div>-->
+        </div>
+
+    </div>
+
+    <!--<div class="card mb-4">
+        <div class="card-header">
+            School Address
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="street">Street Address:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="street" name="street" value="{{ stripe['legal_entity']['address'].line1 }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="city">City or Town:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="city" name="city" value="{{ stripe['legal_entity']['address'].city }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="postal_code">Postal Code:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="postal_code" name="postal_code" value="{{ stripe['legal_entity']['address'].postal_code }}" maxlength="9" pattern="([a-zA-Z0-9]{1,5}(\s|\-|)[a-zA-Z0-9]{1,4})" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Bank information
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="country">Country :</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="country_bank" name="country_bank" value="{{ stripe.country}}" maxlength="64" disabled>
+                    <input type="hidden" id="country" name="country" value="{{ stripe.country }}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="account_name">Account Full name:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="account_name" name="account_name" value="{{ stripe['external_accounts']['data'][0].account_holder_name }}" maxlength="64" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-4 col-form-label" for="account_number">Account IBAN number:</label>
+                <div class="col-md-8">
+                    <input class="form-control" type="text" id="account_number" name="account_number" value="" placeholder="You can not modify your IBAN number" maxlength="64" disabled>
+                </div>
+            </div>
+        </div>
+    </div>-->
+
+    <input type="hidden" name="stripe_connect_id" value="{{ school.stripe_connect_id }}">
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    <button class="btn btn-primary" style="display: inline-block" type="submit">Save</button>
+</form>
+
+<form action="{{ path_for('stripeDelete') }}" id="deleteAccount" style="margin-top:-37px; margin-left: 67px" enctype="multipart/form-data" method="post">
+    <button class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this account?');" type="submit">Delete account</button>
+</form>
+
+{% endblock %}

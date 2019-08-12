@@ -1,0 +1,225 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12 col-lg-4 pt-2">
+                <h4>Month {{ month }}, {{ year }}</h4>
+            </div>
+            {% if user.user_type == 'T' %}
+            <div class="col-12 col-lg-8 text-right">
+                <a class="btn btn-outline-primary" href="{{ path_for('monthlyYearSummary', {year: year}) }}" role="button">
+                    <span class="d-none d-sm-block">Back to Monthly Plans</span>
+                    <span class="d-block d-sm-none">Back to Plans</span>
+                </a>
+                <a class="btn btn-primary" href="{{ path_for('createMonthlyPlan', { 'month': month, 'year': year }) }}">
+                    <span class="d-none d-sm-block">Create Monthly Plan</span>
+                    <span class="d-block d-sm-none">Create Plan</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user.user_type == 'T' and drafts %}
+<br>
+<h5 class="mb-4">Drafts</h5>
+    {% for draft in drafts %}
+    <div class="card mb-4">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge badge-pill badge-danger">Draft</span> 
+                        &nbsp;&nbsp;{{ draft.assoc | capitalize }} Plan
+                    </div>
+                    <div class="col-6 text-right">
+                        <div> {{ draft.updated_at|date('m/d/Y')  }} at {{ draft.updated_at|date('H:i')  }} </div>
+                    </div>  
+                </div>
+            </div>
+            <div class="card-block">
+                <div class="row">
+                    <div class="col-10 col-lg-9">
+                        <div class="row">
+                            <div class="col-12 col-lg-5">
+                                <strong>
+                                    <a href="{{ path_for('createMonthlyPlan', { 'month': draft.month, 'year': draft.year, 'draft_id': draft.draft_monthly_plan_id }) }}">
+                                        {% if draft.name %}
+                                            {{ draft.name }}
+                                        {% else %}
+                                            ID: {{ draft.draft_monthly_plan_id }}
+                                        {% endif %}
+                                    </a>
+                                </strong>
+                            </div>
+                            <div class="col-12 col-lg-7">
+                                Association: 
+                                <b>{{ draft.assoc }}</b>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <b>
+                                {% if draft.assoc == 'child' %}
+                                    Child(ren): 
+                                {% elseif draft.assoc == 'room' %}
+                                    Room(s): 
+                                {% endif %}
+                                </b>
+                                {% for assoc in draft.assocs %}
+                                    {{ assoc.name }} {% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 d-none d-lg-block ml-auto text-right">
+                        <a class="btn btn-success btn-sm" href="{{ path_for('createMonthlyPlan', { 'month': draft.month, 'year': draft.year, 'draft_id': draft.draft_monthly_plan_id }) }}">Edit</a>
+                        <button class="btn btn-danger btn-sm" role="button" data-toggle="modal" data-target="#deleteDraftModal" data-id="{{ draft.draft_monthly_plan_id }}">Delete</button>
+                    </div>
+                    <div class="col-2 d-block d-lg-none ml-auto text-right">
+                        <div class="btn-group dropleft">
+                            <button style="border-color: transparent;" class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="{{ path_for('createMonthlyPlan', { 'month': draft.month, 'year': draft.year, 'draft_id': draft.draft_monthly_plan_id }) }}">Edit</a>
+                                <button class="dropdown-item" role="button" data-toggle="modal" data-target="#deleteDraftModal" data-id="{{ draft.draft_monthly_plan_id }}">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<br>
+<h4 class="mb-4">Plans</h4>
+{% for plan in plans %}
+<div class="card mb-4">
+    <div class="card-header">
+        {{ plan.assoc | capitalize }} Plan
+    </div>
+    <div class="card-block">
+        <div class="row">
+            <div class="col-9">
+                <a href="{{ path_for('singleMonthlyPlan', { monthly_plan_id: plan.monthly_plan_id }) }}">
+                {% if plan.name %}
+                {{ plan.name }}
+                {% else %}
+                ID: {{ plan.monthly_plan_id }}
+                {% endif %}
+                </a>
+            </div>
+            <div class="col-3 text-right ml-auto">
+                <button class="btn-sm btn-danger"
+                   data-toggle="modal"
+                   data-target="#deleteModal"
+                   data-id="{{ plan.monthly_plan_id }}">Delete</button>
+            </div>
+            <div class="col-9">
+                {% for assoc in plan.assocs %}
+                    {{ assoc.name }} {% if not loop.last %}, &nbsp; {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if not plans %}
+<div style="display: block;">
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            No plans for this month.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if user.user_type == 'T' %}
+<form method="post" action="{{ path_for('deleteMonthlyPlan') }}">
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Monthly Plan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Deleting a monthly plan will also delete all associated material.</p>
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">I understand that this cannot be undone</span>
+                    </label>
+                    <input type="hidden" name="monthly_plan_id" id="monthly_plan_id" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+
+        $(this).find('#monthly_plan_id').val(id);
+    });
+</script>
+{% endif %}
+
+
+{% if user.user_type == 'T' %}
+<form method="post" action="{{ path_for('deleteDraftMonthlyPlan') }}">
+    <div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Draft</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you certain that you want to delete this draft?</p>
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">I understand that this cannot be undone</span>
+                    </label>
+                    <input type="hidden" name="draft_id" id="draft_id" value="{{ draft.draft_monthly_plan_id }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<script>
+    $('#deleteDraftModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+        
+        $(this).find('#draft_id').val(id);
+    });
+</script>
+{% endif %}
+
+
+{% endblock %}

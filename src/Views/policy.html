@@ -1,0 +1,281 @@
+{% extends 'master.dashboard.html' %}
+{% block body %}
+<form id="policiesForm" action = "{{ path_for('sharePolicies') }}"method="POST">
+<div class="row">
+	<div class="col-6 pt-2">
+		<h4 class="mb-6">{{ title }}</h4>
+	</div>
+	{% if user.user_type == 'T' and school_user.role == 1 %}
+	<div class="col-12 col-sm-12">
+		<a class="btn btn-primary" href="{{ path_for('policyNew') }}" title="Create new policy" data-html="true" data-toggle="tooltip">
+			<i class="fa fa-pencil-alt" aria-hidden="true"></i>
+		</a>
+		<span data-toggle="modal" data-target="#shareModal">
+			<button class="btn btn-primary" type="button" title="Share all policies" data-html="true" data-toggle="tooltip" id="shareAllButton">
+				<i class="fa fa-reply-all" aria-hidden="true"></i>
+			</button>
+		</span>
+		<span data-toggle="modal" data-target="#shareModal">
+			<button class="btn btn-primary" type="button" title="Share selected policies" data-toggle="tooltip" data-html="true" id="shareButton">
+				<i class="fas fa-share" aria-hidden="true"></i>
+			</button>
+		</span>
+		<button class="btn btn-danger" type="button" id="unshareButton" title="Unshare selected policies" data-toggle="tooltip" data-html="true"><i class="fas fa-minus-circle" aria-hidden="true"></i></button>
+		<span data-toggle="modal" data-target="#deleteModal">
+			<button class="btn btn-danger" type="button" role="button" >
+				<i class="fas fa-trash-alt" aria-hidden="true" title="Delete selected policies" data-toggle="tooltip" data-html="true"></i>
+			</button>
+		</span>
+	</div>
+	{% endif %}
+</div>
+<div class="list-group" style="margin-top: 10px">
+	{% if user.user_type == 'T' and school_user.role == 1 and policies[0].created_at %}
+	<div class="list-group-item ">
+		<div class="col-1 text-center">
+			<input type="checkbox" style="vertical-align: middle; cursor: pointer;" id="selectAllPolicies" title="Select All" data-toggle="tooltip" data-html="true"/>
+		</div>
+	</div>
+	{% endif %}
+{% set count = 0 %}
+{% for policy in policies %}
+	{% if policy.created_at %}
+		{% if user.user_type == 'T' and school_user.role == 1 %}
+			{% set count = count + 1 %}
+			<div class="list-group-item ">
+				<div class="col-1 text-center">
+					<input type="checkbox" class="policyFormCheckbox" name="{{policy.policy_id}}" style="vertical-align: middle; cursor: pointer;"/>
+				</div>
+				<div class="col-8">
+					<h5 class="mb-0"><a href="{{ path_for('policyDetails', {policy_id: policy.policy_id }) }}">{{ policy.policy_name }}</a></h5>
+					<small class="text-muted">
+						Last updated: {{ policy.updated_at }} &nbsp;&nbsp; 
+						{% if policy.policy_public == 1 %}
+						<span style="color: green">Shared with parents</span>
+						{% else %}
+						<span style="color: red">Not shared with parents</span>
+						{% endif %}
+					</small>
+				</div>
+				<div class="col-3 text-right">
+					{% if school_user.role == 1 %}
+					<a href="{{ path_for('policyEdit', { policy_id: policy.policy_id }) }}">
+						<button class="btn btn-outline-primary btn-sm" type="button"  role="button" >Edit</button>
+					</a>
+					<button class="btn btn-outline-danger btn-sm" type="button" role="button" data-toggle="modal" id="deleteSingleButton" data-target="#deleteSingleModal" data-id="{{ policy.policy_id }}">Delete</button>
+					{% endif %}
+				</div>
+			</div>
+		{% elseif (user.user_type == 'T') or (user.user_type == 'P' and policy.policy_public == 1) %}
+			{% set count = count + 1 %}
+			<div class="list-group-item ">
+				<div class="col-10">
+					<h5 class="mb-0">
+						<a href="{{ path_for('policyDetails', {policy_id: policy.policy_id }) }}">
+							{% if policy.consulted == 1 or user.user_type == 'T' %}			
+								{{ policy.policy_name }}	
+							{% elseif policy.consulted == 0 %}
+								<strong>			
+									{{ policy.policy_name }}
+								</strong>
+							{% endif %}
+						</a>
+					</h5>
+					<small class="text-muted">
+						{% if user.user_type == 'T' %}		
+							Last updated: {{ policy.updated_at }} 
+							&nbsp;&nbsp; 
+							{% if policy.policy_public == 1 %}
+							<span style="color: green">Shared with parents</span>
+							{% else %}
+							<span style="color: red">Not shared with parents</span>
+							{% endif %}		
+						{% else %}		
+							{% if policy.consulted == 1 %}
+								Last updated: {{ policy.updated_at }} 
+							{% elseif policy.consulted == 0 %}
+								<strong>
+									Last updated: {{ policy.updated_at }} 	
+								</strong>
+							{% endif %}
+						{% endif %}
+					</small>
+				</div>
+				{% if policy.consulted == 0 and user.user_type == 'P' %}		
+				<div class="col-2 text-right">
+					<div class="rounded-circle bg-success text-white"  style="height: 10px; width: 10px" title="Unread policy" data-toggle="tooltip" data-html="true">
+					</div>
+				</div>
+				{% endif %}
+			</div>
+		{% endif %}
+	{% endif %}
+{% endfor %}
+{% if user.user_type == 'T' %}
+{% for policy in policies %}
+	{% if not policy.created_at %}
+		{% set count = count + 1 %}
+		<div class="list-group-item ">
+			<div class="col-8">
+				<h6 class="mb-0">
+					{% if policy.policy_required == 1 %}
+					<span class="badge badge-warning">Required</span>
+					{% endif %}
+					{% if policy.policy_default == 0 %}
+					<span class="badge badge-info">Default</span> &nbsp;
+					{% endif %}
+					{{ policy.policy_name }}
+				</h6>
+			</div>
+			<div class="col-4 text-right">
+				{% if school_user.role == 1 %}
+				<a class="btn btn-outline-primary btn-sm" href="{{ path_for('policyEdit', { policy_id: policy.policy_id }) }}">Create</a>
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
+{% endfor %}
+{% endif %}
+</div>
+{% if (count == 0) %}
+	<h5 class="mt-3">There are currently no policies to display.</h5>
+{% endif %}
+</div>
+
+<!-- Modal for sharing policies -->
+<div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Share Policies</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<p>You are about to share these policies with all the parents in this school.</p>
+				<label class="custom-control custom-checkbox">
+					<input type="checkbox" class="custom-control-input" name="email" value="1" checked>
+					<span class="custom-control-indicator"></span>
+					<span class="custom-control-description">
+						Send an email to all parents of your school notifying them about the new policies.
+					</span>
+				</label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="confirmShareButton">Share</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal for deleting multiple policies -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Delete Policies</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<p>You are about to delete these policies. Please be advised that deleting these policies is permanent and all changes will be lost.</p>
+				<label class="custom-control custom-checkbox">
+					<input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+					<span class="custom-control-indicator"></span>
+					<span class="custom-control-description">I understand that this cannot be undone</span>
+				</label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal for deleting a single policy -->
+<div class="modal fade" id="deleteSingleModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Delete Policy</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<p>You are about to delete this policy. Please be advised that deleting this policy is permanent and all changes will be lost.</p>
+				<label class="custom-control custom-checkbox">
+					<input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+					<span class="custom-control-indicator"></span>
+					<span class="custom-control-description">I understand that this cannot be undone</span>
+				</label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" id="confirmDeleteSingleButton">Delete</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+</form>
+<!-- 
+{% if user.user_type == 'P' %}
+	<form class="form-inline">
+	    <div class="checkbox">
+		    <label>
+		      	<input type="checkbox"> Please confirm that you have read all policies
+		    </label>
+		 </div>
+	  	<button type="submit" class="btn btn-outline-primary btn-sm my-1">Submit</button>
+	</form>
+{% endif %} -->
+
+<script>
+	var shareAll = false;
+	$("#shareButton").click(function(){
+		shareAll = false;
+	});
+
+	$("#shareAllButton").click(function(){
+		shareAll = true;
+		console.log("ciao");
+	});
+
+	$("#confirmShareButton").click(function(){
+		if(shareAll)
+			$(".policyFormCheckbox").prop("checked", true);
+		$("#policiesForm").attr('action', "{{ path_for('sharePolicies') }}");
+		$("#policiesForm").submit();
+	});
+
+	$("#unshareButton").click(function(){
+		$("#policiesForm").attr('action', "{{ path_for('unsharePolicies') }}");
+		$("#policiesForm").submit();
+	});
+
+	$("#confirmDeleteButton").click(function(){
+		$("#policiesForm").attr('action', "{{ path_for('deletePolicies') }}");
+		$("#policiesForm").submit();
+	});
+
+	var policyId;
+	$('#deleteSingleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        policyId = button.data('id');
+	});
+
+	$("#confirmDeleteSingleButton").click(function(){
+		$(".policyFormCheckbox").prop("checked", false);
+		$("[name='" + policyId + "']").prop("checked", true);
+		
+		$("#policiesForm").attr('action', "{{ path_for('deletePolicies') }}");
+		$("#policiesForm").submit();
+	});
+
+	$("#selectAllPolicies").change(function(){
+		if($(this).is(":checked"))
+			$(".policyFormCheckbox").prop("checked", true);
+		else
+			$(".policyFormCheckbox").prop("checked", false);
+	});
+</script>
+{% endblock %}

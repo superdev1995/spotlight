@@ -1,0 +1,1133 @@
+.autocomplete-box{
+  overflow: auto;
+}
+
+.btn-stories-publish, .storiesTitle, .storiesBack{
+  position: relative;
+  z-index: 100;
+}
+
+.storiesNavNextBack{
+  justify-content: flex-end;
+}
+
+.storiesNavNextBack a{
+  margin: 0 11px;
+} 
+
+.storiesDefCard{
+  display: flex;
+  background-color: #fff; 
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: .25rem;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  margin-bottom: 50px;
+}
+
+.storiesDefCard .storiesDefCardContent{
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  color: rgba(16,160,92,1);
+}
+
+.storiesDefCard .form-control{
+  border: 1.5px solid #7f7f7f;
+}
+
+.storiesDefCard .form-control:hover {
+  border-color: #10a05c;
+}
+
+
+.storiesDefCard .form-control:focus {
+  border-color: #10a05c;
+}
+
+
+.storiesDefCard .storiesDefCardSvg svg{
+  max-width: 400px;
+  height: 100%;
+}
+
+.storiesDefCardBegin .storiesDefCardContent{
+  padding: 38px 0px 10px 0px;
+  left: -62px;
+}
+
+.storiesDefCardBegin .storiesDefCardSvg {
+  width: 450px;
+  position: relative;
+  left: -48px;
+  top: -49px;
+}
+
+.storiesDefCardEnd{
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.storiesDefCardEnd .storiesDefCardContent{
+  padding: 50px 0px 10px 0px;
+  right: -41px;
+}
+
+.storiesDefCardEnd .storiesDefCardSvg{
+  max-width: 500px;
+  position: absolute;
+}
+
+
+.storiesDefCardEnd .storiesDefCardSvg {
+  width: 450px;
+  position: relative;
+  right: 22px;
+  top: -11px;
+}
+
+
+.storiesDefCardFeather {
+  position: relative;
+  height: 301px;
+  margin-top: 54px;
+  width: 80%;
+}
+
+.storiesDefCardFeather .storiesDefCardContent {
+  padding: 50px 0px 10px 0px;
+  right: 0;
+  margin-left: 25px;
+}
+
+.storiesDefCardFeather .storiesDefCardSvg {
+  width: 140%;
+  position: absolute;
+  right: 0;
+  height: auto;
+  top: -300px;
+  right: -33px;
+  max-width: initial;
+}
+
+
+.storiesTitle, .stories{
+  z-index: 10;
+}
+
+.storiesDefCardFeather .form-control{
+  width: 67%;
+}
+
+.storiesDefCardFeather .storiesDefCardSvg svg{
+  width: 100%;
+  max-width: initial;
+}
+
+.storiesDefCardKeyword .storiesDefCardContent{
+  padding: 31px 0px 19px 40px;
+}
+
+.storiesDefCardKeyword .storiesDefCardSvg {
+  width: 450px;
+  position: relative;
+  bottom: -95px; 
+}
+
+.storiesDefCardKeyword .storiesDefCardSvg svg{
+  position: absolute;
+  max-width: 500px;
+  left: -124px;
+}
+
+.storiesDefCardKeyword input{
+  border: 1.5px solid #7f7f7f;
+}
+
+
+.storiesDefCardComment{
+  justify-content: flex-end;
+  margin-left: 5%;
+  width: 95%;
+}
+
+.storiesDefCardComment .storiesDefCardContent{
+  position: relative;
+  padding-right: 20px;
+}
+
+.storiesDefCardComment .storiesDefCardSvg {
+  width: 450px;
+  position: relative;
+  left: 104px;
+  top: 0px;
+}
+
+.storiesDefCardComment .custom-control.custom-checkbox{
+  display: flex;
+  justify-content: flex-end;
+  padding: 5px 0px;
+  margin: 0;
+}
+
+.storiesDefCardComment .custom-control-indicator{
+  position: relative;
+  margin: 1px 3px 0px 0px;
+  background: #fff;
+  border: 1px solid #7f7f7f;
+}
+
+
+.storiesDefCardComment .autocomplete-box.form-control{
+  width: 100% !important;
+}
+
+.mediaDragCenter{
+  text-align: center;
+}
+
+.storiesDefCard .storiesNameStory{
+  top: 48px;
+}
+
+.storiesDefCard .storiesNameStory .autocomplete-box-container .autocomplete-box {
+  border: 1.5px solid #7f7f7f;
+}
+
+.containerDrag {
+  background: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.containerDrag .area {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  background: none;
+}
+ 
+.containerDrag .uploadcare-widget-button-open {
+  background-color: #000000;
+	 opacity: 0;
+}
+.containerDrag .uploadcare-widget-button-open:hover {
+    background-color: #000000;
+    opacity: 0;
+}
+.containerDrag .uploadcare--widget__button_type_open{
+  opacity: 0;
+}
+.containerDrag #dropZone {
+  border: none; 
+  border-radius: 5px;
+  padding: 50px;
+  text-align: center;
+  font: 21pt bold arial;
+  color: #bbb;
+}
+
+.containerDrag .dropTitle{
+  text-align: center;
+  color: #10a05c;
+  font-size: 16px;
+}
+
+
+a.storiesBack .storiesBackImg{
+  background-size: contain;
+  width: 46px;
+  height: 46px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+a.storiesBack{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  cursor: pointer;
+}
+
+a.storiesBack p{
+  font-style: normal;
+  font-weight: normal;
+  font-size: 30px;
+  color: rgba(112,112,112,1);
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.storiesNextImg{
+  transform: scale(-1);
+}
+
+.storiesTitle{ 
+  margin-top: 36px !important;
+  margin-bottom: 36px !important;
+}
+
+.storiesTitle h4 {
+  padding: 10px 7px;
+  font-size: 43px;
+}
+
+.storiesCard>.card-block{
+  padding: 0;
+}
+
+.storiesCard{
+  box-shadow: none;
+  border: none;
+  background: none;
+}
+
+.storiesCard .nav-items{
+  padding: 0 5px;
+}
+
+.storiesCard .nav-pills .nav-link{
+  font-weight: 400;
+  background-color: #e7e7e7;
+  border-radius: 10px;
+
+  font-style: normal;
+  font-weight: normal;
+  font-size: 21px;
+  color: rgba(16,160,92,1);
+}
+
+.storiesCard .nav-pills .nav-link.active{
+  font-weight: 400;
+  background-color: #10a05c;
+
+  white-space: nowrap;
+  text-align: left;
+  font-family: Segoe UI;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 21px;
+  color: rgba(255,255,255,1);
+}
+
+.btn-stories-publish{
+  font-size: 21px;
+  padding: 13px 20px;
+  border: 1px solid;
+  border-radius: 47px;
+}
+
+/*
+ * Tab Siolta
+*/
+
+.storiesSiolta{
+  background: none !important;
+  border: none !important;
+  border-top-right-radius: 0px !important;
+  border-top-left-radius: 0px !important; 
+}
+
+.storiesSioltaText {
+  color:#10a05c;
+}
+
+.storiesSioltaTitle{
+  color: #10a05c;
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.storiesSioltaSubTitle{
+  color: #10a05c;
+  font-size: 20px;
+}
+
+.storiesSioltaDesc {
+  margin-left: 15px;
+  color:#000;
+  font-weight: 700;
+}
+
+.storiesSioltaIndicator{
+  border-radius: 100% !important;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: #eef5f7;
+  border: 1px solid #707070;
+}
+
+/*
+ * Tab Nav
+*/
+
+.storiesNav-tabs{
+  border-bottom: none;
+}
+
+.storiesNavGroup{
+  color: #10a05c;
+  background: none !important;
+  border: none !important;
+  border-top-right-radius: 0px !important;
+  border-top-left-radius: 0px !important; 
+  text-align: left;
+  padding-left: 0px;
+  font-size: 2.2rem;
+  letter-spacing: 0px;
+  word-spacing: 3px;
+  font-weight: 500;
+}
+.storiesNav>.nav-link.active{
+  color: #10a05c;
+}
+
+.storiesCard{
+  background: none !important;
+  border: none !important;
+  border-top-right-radius: 0px !important;
+  border-top-left-radius: 0px !important; 
+}
+
+.storieContent{
+  margin-top: 30px;
+}
+
+/*
+ * Tab Comment
+*/
+.storiesCommentTitle{
+  font-size: 33px;
+  color: rgba(16,160,92,1);
+}
+
+.storiesCommentSubTitle{
+  white-space: nowrap;
+  text-align: left;
+  font-family: Segoe UI;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  color: rgba(16,160,92,1);
+}
+
+.storiesCommentText{
+  opacity: 1;
+  fill: rgba(255,255,255,1);
+  stroke: rgb(0, 0, 0);
+  stroke-width: 1px;
+  stroke-linejoin: miter;
+  stroke-linecap: butt;
+  stroke-miterlimit: 4;
+  shape-rendering: auto;
+}
+/*
+ * Tab Media
+*/
+
+.storiesDragAndDrop{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 20px;
+  width: 100%;
+  height: 100%;
+  background-color: #e6e6e6;
+}
+
+.storiesDragAndDrop p{
+  font-style: normal;
+  font-weight: normal;
+  font-size: 20px;
+  opacity: 0.9;
+  color: rgba(16,160,92,1);
+}
+
+.storiesFile{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  width: 100%;
+  height: 90%;
+}
+
+.storiesFileContent{
+  position: absolute;
+  right: 0;
+  bottom: -103px;
+  height: 100%;
+  width: 100%;
+}
+
+.storiesFileUpload{
+  position: relative;
+  margin-bottom: 180px;
+}
+
+.storiesFile .form-group{
+  opacity: 1;
+}
+
+.storiesFile .uploadcare-uploader{
+  opacity: 1;
+  width: 173px;
+  height: 71px;
+  z-index: 2;
+  opacity: 1;
+}
+
+.storiesFile .uploadcare--widget__button_type_open{
+  width: 173px;
+  height: 71px;
+  border-radius: 44px;
+  background-color: rgba(16,160,92,1);
+  stroke: rgb(112, 112, 112);
+}
+
+.storiesFile .file-form-label{
+  opacity: 1;
+  border: 1px solid #000;
+  padding: 5px 33px;
+  padding-top: 5px !important;
+  right: -15px;
+  font-size: 20px;
+  position: relative;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-right: none;
+  background-color: #fff;
+}
+
+.storiesFile {
+  font-size: 18px;
+  color: rgba(58,0,255,1);
+  position: relative;
+  z-index: 24;
+}
+
+.storiesFile .uploadcare--widget{
+  position: relative;
+  z-index: 2;
+}
+
+
+
+
+.file-body .uploadcare--widget__button_type_open{
+  display: none !important;
+}
+
+.storiesFile .uploadcare--widget__text{
+  padding: .34em 0;
+  white-space: nowrap;
+  background: #fff;
+  border: 1px solid #000;
+  top: -2px;
+  position: relative;
+  border-top-right-radius: 20px;
+  border-left: none;
+  border-bottom-right-radius: 20px;
+  padding-right: 10px;
+}
+
+.storiesFile .uploadcare--widget__progress{
+  position: absolute;
+  z-index: 1;
+  left: -37px;
+}
+
+.storiesFile .uploadcare--widget__dragndrop-area{
+  display: none;
+  opacity: 0;
+}
+
+.file-body {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.file-body .area {
+  width: 100%;
+  height: 250px;
+  padding: 0px;
+}
+.file-body #holder{
+  width: 100%;
+  height: 100%;
+}
+.file-body .uploadcare-widget-button-open {
+  background-color: #000000;
+}
+.file-body .uploadcare-widget-button-open:hover {
+  background-color: #000000;
+}
+
+.file-body #dropZone {
+  border: 2px dashed #bbb;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font: 21pt bold arial;
+  color: #bbb;
+}
+
+.file-body .uploadcare--dragging .uploadcare--widget, 
+.file-body .uploadcare--widget.uploadcare--dragging {
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+
+
+
+
+/*
+ * Tab Reflections
+*/
+
+.storageRefTwoImg{
+  padding: 0;
+  margin: 0;
+}
+
+.storageRefTwoText{
+  padding-left: 12px !important;
+  margin-left: 0 !important;
+}
+
+.storageRefSvg svg{
+  height: 90%;
+}
+.storageRefWindow{
+  margin: 0;
+  padding: 0;
+}
+.storageRefTextarea .autocomplete-box-container .autocomplete-box{
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.storageRefTextarea .autocomplete-box-container{
+  width: 100% !important;
+  height: 78% !important;
+}
+
+
+.storiesReflections .row{
+  margin-top: 30px !important;
+  margin-bottom: 120px !important;
+}
+
+.storiesReflTop{
+  font-size: 16px;
+  padding: 5px 20px;
+  color: rgba(38,35,35,1);
+  background-color: #c7c7c7;
+  margin-bottom: 50px;
+}
+
+.storiesReflItem p{
+  font-size: 17px;
+  color: rgba(16,160,92,1);
+}
+
+.storiesReflItem .autocomplete-box-container .autocomplete-box{
+  border: 1.5px solid #7f7f7f;
+}
+
+.storiesReflItem textarea{
+  font-size: 17px;
+  color: rgba(16,160,92,1);
+}
+
+.storiesReflItem .flright{
+  margin-top: 3px;
+  margin-right: 3px;
+  position: relative;
+}
+
+.storiesReflItem .flright .uploadcare--widget__button_type_open{
+  background: #5da05c;
+}
+
+/*
+ * Tab Aistear
+*/
+
+.storiesAistear{
+  font-weight: bold;
+  font-size: 58px;
+  color: rgba(16,160,92,1);
+  text-align: center;
+}
+
+.storiesAistearSvg svg{
+  max-width: 100%;
+} 
+
+.storiesAistearCardBlock {
+  margin: 0 25px;
+  margin-bottom: 5rem !important;
+}
+
+.storiesAistearCardBlock h5{
+  color: #10a05c;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.storiesAistearGoal{
+  margin: 10px 0;  
+}
+
+.storiesAistearGoal .custom-control-indicator{
+  background-color: #fff;
+}
+
+.storiesAistearGoal .custom-checkbox .custom-control-indicator {
+  border-radius: 100%;
+  border: 1px solid;
+}
+
+.storiesAistearCardBlock .lead{
+  font-size: 1.1rem;
+  color: #10a05c;
+  font-style: italic;
+}
+
+.storiesAistearMenu{
+  display: flex;
+  margin-bottom: 50px;
+  justify-content: center;
+  align-items: center;
+  background-color: #dddddd;
+  border-radius: 50px;
+  height: 37px;
+  box-shadow: 0px 0px 8px rgba(217, 217, 217, 0.8);
+}
+
+.storiesAistearMenuItem {
+  position: relative;
+  padding: 7px 19px;
+  color: #707070;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.storiesAistearMenuItemRec{
+  position: relative;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 1px solid #fff;
+  height: 40px;
+  width: 40px;
+  min-width: 40px;
+  box-shadow: 0px 0px 16px -5px rgba(0,0,0,0.68);
+}
+
+.storiesAistearMenuItemRec::after {
+  background: #dddddd;
+  position: absolute;
+  left: 0;
+  content: "";
+}
+
+.storiesAistearMenuItemRec:nth-last-child(-1n+1) {
+  display: none;
+}
+
+.storiesAistearMenuItem.active{
+  background-color: #10a05c;
+  border: 1px solid #10a05c;
+  color: #fff;
+}
+
+
+.storiesAistearTabFinishCard{
+  height: 390px;
+  margin-top: 140px;
+}
+
+.storiesAistearTabFinish{
+  text-align: center;
+  position: relative;
+  top: -134px;
+}
+
+.storiesAistearTabFinish svg{
+  height: 100%;
+  max-width: 75%;
+}
+
+.storiesAistearTabFinish p{
+  font-size: 3rem;
+  color: rgba(16,160,92,1);
+  font-weight: 700;
+}
+
+.storiesNavSvg svg {
+  width: 50px;
+}
+
+.storiesAistearComment svg{
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * Tab Media
+*/
+
+.storageMedianDragAndDrop{
+  position: relative;
+  z-index: 23;
+  background-color: #e6e6e6;
+  display: flex;
+  align-items: center;
+  opacity: 0.9;
+  justify-content: center;
+  border-radius: 20px;
+}
+
+.storageMedianDragAndDrop .file-body-block{
+  padding: 15px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+}
+
+.storageMedianDragAndDrop .file-body-block img{
+  position: absolute;
+  height: 125px;
+  top: 42px;
+  left: 80px;
+}
+
+.storageMedianDragAndDrop .file-body-block .filedrag{
+  border: none;
+  padding: 0px; 
+  margin-bottom: 0px; 
+}
+
+.storageMedianDragAndDrop .file-body-block .custom-file-input-wrapper.input-group{
+  display: none;
+}
+
+.storageMedianDragAndDrop .file-body-block .drag-label{
+  color: #10a05c;
+  font-style: 16px;
+}
+
+.storiesDragAndDropBody {
+  background: #333;  
+  position: absolute;
+}
+
+.storiesDragAndDrop {
+  width: 45em;
+  padding: 15px;
+  border: 1px solid #333;
+  background: #ffffff;
+}
+
+.storiesDragAndDrop #holder{
+	padding: 10px;
+	margin: 10px;
+}
+
+.storiesDragAndDrop .uploadcare-widget-button-open {
+  display: none;
+}
+.storiesDragAndDrop .uploadcare-widget-button-open:hover {
+  display: none;
+}
+
+.storiesDragAndDrop #dropZone {
+  border-radius: 5px;
+  padding: 50px;
+  text-align: center;
+  font: 21pt bold arial;
+  color: #bbb;
+}
+
+/*
+ * Tab Questions
+*/
+.storiesQuestionsKeyword{
+  margin-top: 20px;
+}
+
+.storiesQuestionsKeyword .storiesQuestionInput{
+  padding-top: 70px
+}
+
+.storiesQuestionsCard{
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: .25rem;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
+}
+
+.storiesQuestionsItem{
+  max-width: 100%;
+}
+.storiesQuestionsItem svg{
+  height: 100%;
+  max-width: 100%;
+}
+
+.storiesQuestionsBlock{
+  margin-bottom: 50px;
+}
+
+.storiesQuestionsBlock .autocomplete-box-container .autocomplete-box{
+  border: 1.5px solid #7f7f7f;
+}
+
+.storiesCommentText, .storiesQuestionName{
+  border: 1.5px solid #7f7f7f;
+}
+
+.storiesQuestionsBlock p{
+  font-size: 17px;
+  color: rgba(16,160,92,1);
+}
+
+.storiesQuestionsBlock .questions-text-muted{
+   color: rgba(16,160,92,1);
+}
+
+.storiesQuestionsChildren svg{
+  max-width: 122%;
+  top: -20px;
+  position: relative;
+}
+
+.storiesQuestionsToy svg{
+  width: 112%;
+  position: relative;
+  left: -62px;
+}
+
+.storiesQuestionsFatherhood svg{
+  max-width: 118%;
+  position: relative;
+  top: -34px;
+}
+
+.storiesQuestionsFriend svg {
+  top: -94px;
+  left: -67px;
+  position: relative;
+  max-width: 105%;
+}
+
+.storiesQuestionInput{
+  position: relative;
+  z-index: 2;
+}
+ 
+
+@media (max-width: 1214px){
+  .storiesAistearMenuItemRec{
+    display: none;
+  }
+  .storiesAistearMenu{
+    flex-wrap: wrap;
+    height: 100%;
+  }
+  .storiesAistearMenuItem:nth-child(1) {
+    padding-left: 21px;
+  }
+}
+
+@media (max-width: 1200px){
+  .storiesQuestionsFriend svg{
+    top: 0;
+    left: 0;
+  }
+  .storiesOptionalComment svg{
+    max-width: 100%;
+  }
+  .storiesCommentSubTitle{
+    white-space: pre-wrap;
+  }
+  
+}
+
+
+@media (max-width: 1030px){
+  .storiesFileContent{
+    bottom: auto;
+  }
+  .storiesFile .form-group{
+    margin-top: 1rem;
+  }
+  .storiesFileContent{
+    position: relative;
+    bottom: 0;
+  }
+  .storageMedianDragAndDrop{
+    display: none;
+  }
+  .storiesFileUpload{
+    margin-bottom: 50px;
+  }
+}
+
+
+@media (max-width: 1014px){
+  .storiesAistearTabFinish svg{
+    display: none;
+  }
+  .storiesAistearTabFinish{
+    top: auto;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+  .storiesAistearTabFinishCard {
+    height: 390px;
+    margin-top: 0px;
+  }
+  .storiesFileContent{
+    position: relative;
+    height: 200px;
+    bottom: 0;
+    margin-top: 20px;
+  }
+  .storiesDefCard{
+    padding: 15px;
+    width: 100%;
+  }
+  .storiesDefCard .storiesDefCardSvg svg{
+    max-width: 300px;
+  }
+  .storiesDefCardBegin .storiesDefCardContent {
+    padding: 0;
+    left: 0;
+  } 
+  .storiesDefCardBegin, .storiesDefCardEnd {
+    justify-content: center;
+    margin-left: 0px;
+  }
+  .storiesDefCardSvg{
+    display: none;
+  }
+  .storiesDefCard{
+    padding: 15px;
+  }
+  .storiesDefCardEnd .storiesDefCardContent{
+    padding: 0px;
+    right: 0px;
+  }
+  .storiesDefCardKeyword .storiesDefCardContent {
+    padding: 15px;
+  }
+  .storiesDefCardComment {
+    justify-content: center;
+    margin-left: 0px;
+    width: 100%;
+  }
+  .storageRefWindow{
+    padding: 0 10px;
+  }
+}
+ 
+@media (max-width: 830px){
+  .storageMedianDragAndDrop{
+    display: none;
+  }
+  .storiesDefCard .storiesNameStory{
+    top: 0;
+  }
+  .storiesFile .file-form-label{
+    border: 1px solid #000;
+  }
+  .nav{
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 576px){
+  .storiesQuestionsFriend svg{
+    top: 0;
+    left: 0;
+  }
+  svg, .storiesDefCardSvg{
+    display: none;
+  }
+  .storiesQuestionsBlock{
+    max-width: 100vw;
+    width: 100%;
+  }
+  .storageMedianDragAndDrop svg{
+    display: block;
+  }
+  .storiesOptionalComment .card-block.storiesCard{
+    padding: 0;
+  }
+  .storiesOptionalComment{
+    max-width: 100vw;
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 400px){
+  .storiesFile .uploadcare--widget__button_type_open{
+    height: 100%;
+  }
+  .storiesFile .file-form-label{
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    right: 0;
+  }
+  .storiesFile .form-group{
+    text-align: center;
+  }
+  .storiesFileUpload{
+    margin-bottom: 50px;
+  }
+}
+
+
+
+
+
+@media (max-width: 1131px){
+  .storiesDefCardFeather .storiesDefCardSvg{
+    top: -229px
+  }
+}
+@media (max-width: 1058px){
+  .storiesDefCardFeather .storiesDefCardSvg{
+    top: -215px;
+  }
+}
+
+
+@media (max-width: 1014px){
+  .storiesDefCardFeather .form-control{
+    width: 100%;
+  }
+  .storiesDefCardFeather {
+    margin-top: 0px; 
+    height: auto;
+  }
+  .storiesDefCardFeather .storiesNameStory{
+    top: 0; 
+    width: 100%;
+    margin: 0;
+    padding-bottom: 20px;
+  }
+}

@@ -1,0 +1,411 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="/javascripts/bootstrap-multiselect.js"></script>
+
+<link rel="stylesheet" href="/stylesheets/bootstrap-multiselect.css">
+
+<h3 class="mb-3">{{ title }}</h3>
+<h4 class="mb-3">{{ sub_title }}</h4>
+<div class="card">
+    <div class="card-block">
+        <form method="POST">
+            <div class="row mb-2">
+                <div class="col-12 col-sm-4 col-md-3">
+                    <label for="start-date-input">Start Date</label>
+                    <input id="start-date-input" class="form-control" type="date" name="start_date" value="{{ start_date }}">
+                </div>
+                <div class="col-12 col-sm-4 col-md-3">
+                    <label for="end-date-input">End Date</label>
+                    <input id="end-date-input" class="form-control" type="date" name="end_date" value="{{ end_date }}">
+                </div>
+        </div>
+            <select name="frameworks[]" id="filter-frameworks"></select>
+            <select name="rooms[]" id="filter-rooms" multiple="multiple"></select>
+            <select name="children[]" id="filter-children" multiple="multiple">
+                {% for child in children %}
+                <option value="{{child.child_id}}" {% if child.child_id in checked_children %} selected {% endif %}}>{{child.child_name}}</option>
+                {% endfor %}
+            </select>
+            {% if school.country_id == 'IE' or school.country_id == 'GB' %}
+                <select name="type" id="filter-type"></select>
+            {% endif %}
+
+            <a href="#" id="resetSearch" role="button" class="btn btn-outline-danger">Reset</a>
+            <input type="submit" role="button" class="btn btn-primary pull-right" value="Submit">
+        </form>
+    </div>
+</div>
+{% if showResults %}
+<div class="card">
+    <div class="card-block">
+        {% if goals %}
+            {% for name, frameworkGoals in goals %}
+                <h3 class="my-3">{{name}} Framework</h3>
+                <div id="accordion">
+                        <div class="card" id="card_div_school_{{name}}">
+                                <div class="card-header" id="heading_div_school_{{name}}">
+                                <h5 class="mb-0">
+                                    <b>{{frameworkGoals['school']['school_name']}}</b>
+                                    <div class="d-inline pull-right">
+                                        <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#collapse_div_school_{{name}}" aria-expanded="false" aria-controls="collapse_div_school_{{name}}">
+                                        Show/Hide
+                                        </button>
+                                    </div>
+                                </h5>
+                                </div>
+                                <div id="collapse_div_school_{{name}}" class="collapse" aria-labelledby="heading_div_school_{{name}}" data-parent="#accordion">
+                                <div class="card-body">
+                                    <div id="chart_div_school_{{name}}"></div>
+                                </div>
+                                </div>
+                            </div>
+                    <h4 class="my-2">Rooms</h4>
+                    {% for id, room in frameworkGoals['room'] %}
+                    <div class="card" id="card_div_room_{{name}}_{{id}}">
+                            <div class="card-header" id="heading_div_room_{{name}}_{{id}}">
+                            <h5 class="mb-0">
+                                <b>{{room['room_name']}}</b>
+                                <div class="d-inline pull-right">
+                                    <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#collapse_div_room_{{name}}_{{id}}" aria-expanded="false" aria-controls="collapse_div_room_{{name}}_{{id}}">
+                                    Show/Hide
+                                    </button>
+                                </div>
+                            </h5>
+                            </div>
+                            <div id="collapse_div_room_{{name}}_{{id}}" class="collapse" aria-labelledby="heading_div_room_{{name}}_{{id}}" data-parent="#accordion">
+                            <div class="card-body">
+                                <div id="chart_div_room_{{name}}_{{id}}"></div>
+                            </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <h4 class="my-2">Children</h4>
+                    {% for id, child in frameworkGoals['child'] %}
+                        <div class="card" id="card_div_child_{{name}}_{{id}}">
+                            <div class="card-header" id="heading_div_child_{{name}}_{{id}}">
+                            <h5 class="mb-0">
+                                <b>{{child['child_name']}}</b>
+                                <div class="d-inline pull-right">
+                                    <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#collapse_div_child_{{name}}_{{id}}" aria-expanded="false" aria-controls="collapse_div_child_{{name}}_{{id}}">
+                                    Show/Hide
+                                    </button>
+                                </div>
+                            </h5>
+                            </div>
+                            <div id="collapse_div_child_{{name}}_{{id}}" class="collapse" aria-labelledby="heading_div_child_{{name}}_{{id}}" data-parent="#accordion">
+                            <div class="card-body">
+                                <div id="chart_div_child_{{name}}_{{id}}"></div>
+                            </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if type == 'least' and (school.country_id == 'IE' or school.country_id == 'GB') %}
+                <h4 class="my-2">Suggested Activities</h4>
+                <div class="card" id="card_div_activities_{{name}}">
+                    <div class="card-header" id="heading_div_activities_{{name}}">
+                    <h5 class="mb-0">
+                        <b>Suggested Activities</b>
+                        <div class="d-inline pull-right">
+                            <button class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#collapse_div_activities_{{name}}" aria-expanded="false" aria-controls="collapse_div_activities_{{name}}">
+                            Show/Hide
+                            </button>
+                        </div>
+                    </h5>
+                    </div>
+                    <div id="collapse_div_activities_{{name}}" class="collapse" aria-labelledby="heading_div_activities_{{name}}" data-parent="#accordion">
+                    <div class="card-body">
+                        {% if isSubscribed %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <th width="100">
+                                        Goal ID
+                                    </th>
+                                    <th width="70%">
+                                        Goal description
+                                    </th>
+                                    <th></th>
+                                </thead>
+                                <tbody>
+                                {% for goal in goalsActivities[name] %}
+                                    <tr>
+                                    <td>{{goal.goal_id}}</td>
+                                    <td>{{goal.goal_description}}</td>
+                                    <td>
+                                    {% if goal.activities %}
+                                    <div class="dropdown">
+                                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-goal-{{goal.goal_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                              Links
+                                              <i class="fa fa-caret-down ml-1"></i>
+                                            </button>
+                                            <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton-goal-{{goal.goal_id}}">
+                                          {% for ext_goal in goal.activities %}
+                                            {% if ext_goal.activity_url %}
+                                            <a target="_blank" class="dropdown-item" href="{{ext_goal.activity_url}}/download">Activity Link</a>
+                                            {% else %}
+                                            <a class="dropdown-item" href="#">No Link</a>
+                                            {% endif %}
+                                          {% endfor %}
+                                          </div>
+                                        </div>
+                                    {% endif %}
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                        {% else %}
+                        <p class="mx-4 my-2">Not included as part of the free trial. Subscribe <a href="{{ path_for('billing')}}">here</a></p>
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            Goals not found
+        {% endif %}
+    </div>
+</div>
+{% for name, frameworkGoals in goals %}
+    <script type="text/javascript">
+        
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', {'packages':['corechart', 'bar']});
+        
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart_div_school_{{name}});
+        
+        // Callback that creates and populates a data table,
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+        function drawChart_div_school_{{name}}() {
+            
+            // Create the data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Goal');
+            data.addColumn('number', 'Count');
+            data.addRows([
+                {% for schoolGoal in frameworkGoals['school']['goals'] %}
+                ['{{schoolGoal['goal_description']}}', {{schoolGoal['count']}}],
+                {% endfor %}
+                ]);
+            {% if type == 'least' %}
+                data.sort([{column: 1, asc: true}]);
+            {% else %}
+                data.sort([{column: 1, desc: true}]);
+            {% endif %}
+
+                // set inner height to 30 pixels per row
+        var chartAreaHeight = data.getNumberOfRows() * 20;
+        // add padding to outer height to accomodate title, axis labels, etc
+        var chartHeight = chartAreaHeight + 80;
+                
+                // Set chart options
+                var options = {
+                vAxis: { textPosition: 'none' },
+                hAxis: { format: '0'},
+                legend: { position: 'none' },
+                height: chartHeight,
+                width: $('#card_div_school_{{name}}').width(),
+                chartArea: {
+                    height: chartAreaHeight,
+                },
+                tooltip: {
+                    isHtml: true
+                }
+            };
+
+            // Instantiate and draw our chart, passing in some options.
+            var chart = new google.visualization.BarChart(document.getElementById('chart_div_school_{{name}}'));
+            chart.draw(data, options);
+        }
+
+    </script>
+    {% for id, room in frameworkGoals['room'] %}
+        <script type="text/javascript">
+            
+            // Load the Visualization API and the corechart package.
+            google.charts.load('current', {'packages':['corechart', 'bar']});
+            
+            // Set a callback to run when the Google Visualization API is loaded.
+            google.charts.setOnLoadCallback(drawChart_room_{{name}}_{{id}});
+            
+            // Callback that creates and populates a data table,
+            // instantiates the pie chart, passes in the data and
+            // draws it.
+            function drawChart_room_{{name}}_{{id}}() {
+                
+                // Create the data table.
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Goal');
+                data.addColumn('number', 'Count');
+                data.addRows([
+                    {% for roomGoal in room['goals'] %}
+                    ['{{roomGoal['goal_description']}}', {{roomGoal['count']}}],
+                    {% endfor %}
+                    ]);
+                {% if type == 'least' %}
+                    data.sort([{column: 1, asc: true}]);
+                {% else %}
+                    data.sort([{column: 1, desc: true}]);
+                {% endif %}
+
+                    // set inner height to 30 pixels per row
+            var chartAreaHeight = data.getNumberOfRows() * 20;
+            // add padding to outer height to accomodate title, axis labels, etc
+            var chartHeight = chartAreaHeight + 80;
+                    
+                    // Set chart options
+                    var options = {
+                    vAxis: { textPosition: 'none' },
+                    hAxis: { format: '0'},
+                    legend: { position: 'none' },
+                    height: chartHeight,
+                    width: $('#card_div_room_{{name}}_{{id}}').width(),
+                    chartArea: {
+                        height: chartAreaHeight
+                    },
+                    tooltip: {
+                        isHtml: true
+                    }
+                };
+
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.BarChart(document.getElementById('chart_div_room_{{name}}_{{id}}'));
+                chart.draw(data, options);
+            }
+        </script>
+    {% endfor %}
+    {% for id, child in frameworkGoals['child'] %}
+        <script type="text/javascript">
+            
+            // Load the Visualization API and the corechart package.
+            google.charts.load('current', {'packages':['corechart', 'bar']});
+            
+            // Set a callback to run when the Google Visualization API is loaded.
+            google.charts.setOnLoadCallback(drawChart_child_{{name}}_{{id}});
+            
+            // Callback that creates and populates a data table,
+            // instantiates the pie chart, passes in the data and
+            // draws it.
+            function drawChart_child_{{name}}_{{id}}() {
+                
+                // Create the data table.
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Goal');
+                data.addColumn('number', 'Count');
+                data.addRows([
+                    {% for childGoal in child['goals'] %}
+                    ['{{childGoal['goal_description']}}', {{childGoal['count']}}],
+                    {% endfor %}
+                    ]);
+                {% if type == 'least' %}
+                    data.sort([{column: 1, asc: true}]);
+                {% else %}
+                    data.sort([{column: 1, desc: true}]);
+                {% endif %}
+                    // set inner height to 30 pixels per row
+            var chartAreaHeight = data.getNumberOfRows() * 20;
+            // add padding to outer height to accomodate title, axis labels, etc
+            var chartHeight = chartAreaHeight + 80;
+                    
+                    // Set chart options
+                    var options = {
+                    vAxis: { textPosition: 'none' },
+                    hAxis: { format: '0'},
+                    legend: { position: 'none' },
+                    height: chartHeight,
+                    width: $('#card_div_child_{{name}}_{{id}}').width(),
+                    chartArea: {
+                        height: chartAreaHeight
+                    },
+                    tooltip: {
+                        isHtml: true
+                    }
+                };
+
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.BarChart(document.getElementById('chart_div_child_{{name}}_{{id}}'));
+                chart.draw(data, options);
+            }
+        </script>
+    {% endfor %}
+{% endfor %}
+{% endif %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#filter-frameworks').multiselect({
+            nonSelectedText: 'Select Frameworks',
+            numberDisplayed: 1
+        });
+        $('#filter-rooms').multiselect({
+            nonSelectedText: 'Select Rooms',
+            numberDisplayed: 1,
+            includeSelectAllOption: true
+        });
+        
+        $('#filter-children').multiselect({
+            nonSelectedText: 'Select Children',
+            numberDisplayed: 1,
+            includeSelectAllOption: true
+        });
+        
+        $('#filter-type').multiselect({
+            nonSelectedText: 'Select Type',
+            numberDisplayed: 1
+        });
+
+        var types = [
+            {label: 'Most selected goals', title: 'Most selected goals', value: 'most' {% if type == 'most' %} , selected: true {% endif %}},
+            {label: 'Least selected goals', title: 'Least selected goals', value: 'least' {% if type == 'least' %} , selected: true {% endif %}}
+        ];
+
+        var frameworks = [
+            {% for framework in frameworks %}
+                {label: '{{framework.framework_name}}', title: '{{framework.framework_name}}', value: '{{framework.framework_name}}' {% if framework.framework_name in checked_frameworks %} , selected: true {% endif %}},
+            {% endfor %}
+        ];
+
+        var rooms = [
+            {% for room in rooms %}
+                {label: '{{room.room_name}}', title: '{{room.room_name}}', value: '{{room.room_id}}' {% if room.room_id in checked_rooms %} , selected: true {% endif %}},
+            {% endfor %}
+        ];
+
+        // var children = [
+        //     {% for child in children %}
+        //         {label: '{{child.child_name}}', title: '{{child.child_name}}', value: '{{child.child_id}}' {% if child.child_id in checked_children %} , selected: true {% endif %}},
+        //     {% endfor %}
+        // ];
+
+        $('#filter-type').multiselect('dataprovider', types);
+        $('#filter-frameworks').multiselect('dataprovider', frameworks);
+        $('#filter-rooms').multiselect('dataprovider', rooms);
+        $('#filter-children').multiselect('dataprovider', children);
+
+        $('#resetSearch').click(function(e){
+            e.preventDefault;
+            $('#filter-type').multiselect('deselectAll', false);
+            $('#filter-frameworks').multiselect('deselectAll', false);
+            $('#filter-rooms').multiselect('deselectAll', false);
+            $('#filter-children').multiselect('deselectAll', false);
+
+            $('#filter-type').multiselect('updateButtonText');
+            $('#filter-frameworks').multiselect('updateButtonText');
+            $('#filter-rooms').multiselect('updateButtonText');
+            $('#filter-children').multiselect('updateButtonText');
+
+            $('#start-date-input').val('');
+            $('#end-date-input').val('');
+        });
+    });
+</script>
+<style>
+    .google-visualization-tooltip { max-width:300px; }
+</style>
+{% endblock %}

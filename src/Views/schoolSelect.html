@@ -1,0 +1,79 @@
+{% extends 'master.default.html' %}
+
+{% block body %}
+<div class="row">
+    {% if schools %}
+        <div class="col-lg-8 offset-lg-2 text-center mb-5">
+            <h1>Welcome to TeachKloud</h1>
+            <p class="lead">Select your pre-school to collaborate with your team, or create a new pre-school.</p>
+        </div>
+        <div class="col-lg-6 offset-lg-3">
+            <div class="list-group">
+                <form id="schoolselector" method="post" action="{{ path_for('schoolSelect') }}">
+                    {% for school in schools %}
+                        <a class="list-group-item" data-school="{{ school.school_id }}" href="#">
+                            <div class="justify-content-between">
+                                <div class="media">
+                                    <img class="rounded-circle d-flex mr-3" width="50" height="50" src="{{ school.school_avatar_url|default('/images/school.png') }}" alt="School image">
+                                    <div class="media-body">
+                                        {% if school.country_id=='US' %}
+                                            {% for schoolUS in schoolsUS %}
+                                                {% if school.school_id==schoolUS.school_id %}
+                                                    <h5 class="mb-0">{{ schoolUS.school_name }}</h5>
+                                                    <span class="text-muted">{{ schoolUS.category_name }} (ID: {{ schoolUS.school_id }})</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <h5 class="mb-0">{{ school.school_name }}</h5>
+                                            <span class="text-muted">
+                                                {% set country_available = 'true' %}
+                                                {% for country_not_available in countries_not_available %}
+                                                    {% if school.country_id == country_not_available.country_id %}
+                                                        {% set country_available = 'false' %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if country_available == 'true' %}
+                                                    {{ school.category_name }}
+                                                {% else %}
+                                                    {{ school.school_custom_category }}
+                                                {% endif %}
+                                                 (ID: {{ school.school_id }})
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                    <input type="hidden" name="school_id" id="school_id" value="">
+                    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                </form>
+            </div>
+            <script>
+                $('#schoolselector a').on('click', function() {
+                    var school = $(this).data('school')
+
+                    $('#school_id').val(school)
+                    $('#schoolselector').submit()
+                })
+            </script>
+            <div class="my-3 text-center">
+                <a class="btn btn-primary" href="{{ path_for('schoolCreate') }}">Create Pre-School</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-lg-6 offset-lg-3">
+            <div class="text-center mb-5">
+                <img width="200" height="265" src="/images/sally.svg" alt="Backgroud image">
+            </div>
+            <p class="lead"><strong>Hi {{ user.user_first_name }}!</strong></p>
+            <p class="lead">It’s great to welcome you on board. If you are a pre-school administrator, please use the below button to create a new pre-school. You can then invite your staff members and create children profiles.</p>
+            <p class="lead">Otherwise, you may need to wait until your school administrator invites you to their pre-school to get started!</p>
+            <div class="text-center mt-5">
+                <p><a class="btn btn-primary" href="{{ path_for('schoolCreate') }}">Create Pre-School</a></p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

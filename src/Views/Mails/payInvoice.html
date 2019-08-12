@@ -1,0 +1,9 @@
+{% extends 'Mails/master.default.html' %}
+
+{% block body %}
+<h3>Hello {{ first_name }}!</h3>
+<h3>{# dump(thisinvoice) #}</h3>
+<p>This is a new invoice from your child {{ child.child_name }} for the period of {{ thisinvoice.date_from }} to {{ thisinvoice.date_to }}</p>
+<br>
+<a href="https://{{ settings.mailer.domain }}{{ path_for('invoices') }}paypage/{{ thisinvoice.idC }}/{{ thisinvoice.invoiceNumber}}">Pay Invoice</a>
+{% endblock %}

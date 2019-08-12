@@ -1,0 +1,681 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+
+<link rel="stylesheet" href="/stylesheets/bootstrap-multiselect.css">
+
+<script src="/javascripts/bootstrap-multiselect.js"></script>
+<!-- <script src="/javascripts/speechrecognition.js"></script>
+<script src="/javascripts/BingSpeech.js" type="text/javascript"></script> -->
+
+<form action="{% if record_id %}{{ path_for('recordEdit', { record_id: record_id }) }}{% else %}{{ path_for('recordCreate', { draft_id: draft_id }) }}{% endif %}" method="post">
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <span class="h4 mb-5">{{ title }}</span>
+            {% if mode == 'create' %}
+            &nbsp;&nbsp;
+            <span id="autosave-text">Saved</span>  
+            {% endif %}  
+        </div>
+        <div class="col-12 col-lg-6 text-right">
+            <a class="btn btn-outline-primary" href="{{ path_for('record') }}" role="button">Back to Daily Records</a>
+            <button class="btn btn-primary" type="submit">Publish</button>
+        </div>
+    </div>
+    <p>We help you save time by creating daily records in batches. Please select the event type and the children for which you want to create records here, then click publish. Choose which record applies to the child.</p>
+    <div class="card mb-5">
+        <div class="card-header success">
+            Daily Record Details
+        </div>
+        <div class="card-block">
+            <div class="mb-4">
+                <ul class="nav nav-tabs" role="tablist">
+                    {% if record_id %}
+                    {% for id, name in types %}
+                        {% if formdata.record_type == id %}
+                    <li class="nav-item">
+                        <a class="nav-link active"
+                           name="record_type"
+                           data-toggle="tab"
+                           href="#{{id}}" data-content="{{id}}" role="tab">{{ name }}</a>
+                    </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    {% for id, name in types %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if types|first == name %}active{% endif %}"
+                           name="record_type"
+                           data-toggle="tab"
+                           href="#{{id}}" data-content="{{id}}" role="tab">{{ name }}</a>
+                    </li>
+                    {% endfor %}
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="form-group row">
+                <label class="col-4 col-form-label">Date of Event</label>
+                <div class="col-8">
+                    <input class="form-control" type="date" name="record_date" value="{{ formdata.record_date }}" placeholder="{{ date }}" >
+                </div>
+            </div>
+
+
+
+
+
+
+            <div id="noteForm" style="display: block;">
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Comment</label>
+                    <div class="col-8">
+                        <!-- <button onclick="recordspeech('note_comment','gcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="gcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea id="note_comment" class="form-control noteParam comment" name="note_comment" rows="3" maxlength="512" >{{ formdata.note_comment }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Add Photos (optional)</label>
+                    <div class="col-8">
+                        <input class="noteParam" type="hidden" role="uploadcare-uploader" name="note_media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" value="{{ formdata.note_media }}">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div id="moodForm" style="display: none;">
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Today I Was</label>
+                    <div class="col-8">
+                        {% for key, value in moods %}
+                            <div class="moodParam">
+                                <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input moodParam" name="param[mood][]" value="{{ key }}" {% if key in formdata.mood %}checked{% endif %} disabled>
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">{{ value }}</span>
+                                </label>
+                            </div>
+                        {% endfor %}
+                        <label class="custom-control custom-checkbox" style="margin-right: 0;">
+                            <input type="checkbox" class="custom-control-input" id="other_checkbox" {% if formdata.mood_other %} checked{% endif %}>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">other</span>
+                        </label>
+                        <input type="text" name="param[mood][]" id="other" placeholder="other" value="{{formdata.mood_other}}" disabled>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Comment</label>
+                    <div class="col-8">
+                        <!-- <button onclick="recordspeech('mood_comment','mcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="mcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea id="mood_comment" class="form-control moodParam comment" name="mood_comment" rows="3" maxlength="512" disabled>{{ formdata.mood_comment }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Add Photos (optional)</label>
+                    <div class="col-8">
+                        <input class="moodParam" type="hidden" role="uploadcare-uploader" name="mood_media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" disabled value="{{ formdata.mood_media }}">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+            <div id="napForm" style="display: none;">
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Start and End Time (12-Hours)</label>
+                    <div class="col-4">
+                        <input class="form-control napParam" type="time" name="param[start_nap]" value="{{ formdata.start_nap }}" placeholder="{{ record_time }}" disabled >
+                    </div>
+                    <div class="col-4">
+                        <input class="form-control napParam" type="time" name="param[end_nap]" value="{{ formdata.end_nap }}" placeholder="{{ record_time }}" disabled >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Comment (optional)</label>
+                    <div class="col-8">
+                        <!-- <button onclick="recordspeech('nap_comment','ncspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="ncspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea id="nap_comment" class="form-control napParam comment" name="nap_comment" rows="3" maxlength="512" disabled>{{ formdata.nap_comment }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Add Photos (optional)</label>
+                    <div class="col-8">
+                        <input class="napParam" type="hidden" role="uploadcare-uploader" name="nap_media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" disabled value="{{ formdata.nap_media }}">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+            <div id="medicationForm" style="display: none;">
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Time (12-Hours)</label>
+                    <div class="col-8">
+                        <input class="form-control medicationParam" type="time" name="param[start_medication]" value="{{ formdata.start_medication }}" placeholder="{{ time }}" disabled >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Medication Name</label>
+                    <div class="col-8">
+                        <input class="form-control medicationParam" type="text" name="param[medication_name]" value="{{ formdata.medication_name }}" disabled >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Amount</label>
+                    <div class="col-4">
+                        <input class="form-control medicationParam" type="number" name="param[medication_amount]" step="0.01" value="{{ formdata.medication_amount|default('0') }}" disabled >
+                    </div>
+                    <div class="col-4">
+                        <select class="form-control medicationParam" name="param[medication_unit]" disabled >
+                            <option selected disabled>Please select a unit</option>
+                            <option value="pill" {% if formdata.medication_unit == 'pill' %}selected{% endif %}>pill/tablet</option>
+                            <option value="mg" {% if formdata.medication_unit == 'mg' %}selected{% endif %}>milligram (mg)</option>
+                            <option value="ml" {% if formdata.medication_unit == 'ml' %}selected{% endif %}>millilitre (ml)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Comment (optional)</label>
+                    <div class="col-8">
+                        <!-- <button onclick="recordspeech('medication_comment','medcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="medcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea id="medication_comment" class="form-control medicationParam comment" name="medication_comment" rows="3" maxlength="512" disabled>{{ formdata.medication_comment }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Add Photos (optional)</label>
+                    <div class="col-8">
+                        <input class="medicationParam" type="hidden" role="uploadcare-uploader" name="medication_media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" disabled value="{{ formdata.medication_media }}">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+            <div id="toiletForm" style="display: none;">
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Time (12-Hours)</label>
+                    <div class="col-8">
+                        <input class="form-control toiletParam" type="time" name="param[toilet_time]" value="{{ formdata.toilet_time }}" placeholder="{{ time }}" disabled >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Comment (optional)</label>
+                    <div class="col-8">
+                        <!-- <button onclick="recordspeech('toilet_comment','tcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="tcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea id="toilet_comment" class="form-control toiletParam comment" name="toilet_comment" rows="3" maxlength="512" disabled>{{ formdata.toilet_comment }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Add Photos (optional)</label>
+                    <div class="col-8">
+                        <input class="toiletParam" type="hidden" role="uploadcare-uploader" name="toilet_media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" disabled value="{{ formdata.toilet_media }}">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+            <div id="diaperForm" style="display: none;">
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Time (12-Hours)</label>
+                    <div class="col-8">
+                        <input class="form-control diaperParam" type="time" name="param[diaper_time]" value="{{ formdata.diaper_time }}" placeholder="{{ time }}" disabled >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Condition</label>
+                    <div class="col-8">
+                        <select class="form-control diaperParam" name="param[condition]" disabled >
+                            <option value="dry" {% if formdata.diaper_condition == 'all' %}selected{% endif %}>Dry</option>
+                            <option value="wet" {% if formdata.diaper_condition == 'wet' %}selected{% endif %}>Wet</option>
+                            <option value="BM" {% if formdata.diaper_condition == 'BM' %}selected{% endif %}>BM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Comment (optional)</label>
+                    <div class="col-8">
+                        <!-- <button onclick="recordspeech('diaper_comment','dcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="dcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea id="diaper_comment" class="form-control diaperParam comment" name="diaper_comment" rows="3" maxlength="512" disabled>{{ formdata.diaper_comment }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Add Photos (optional)</label>
+                    <div class="col-8">
+                        <input class="diaperParam" type="hidden" role="uploadcare-uploader" name="diaper_media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" disabled value="{{ formdata.diaper_media }}">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+            <div id="mealForm" style="display: none;">
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Time (12-Hours)</label>
+                    <div class="col-8">
+                        <input class="form-control mealParam" type="time" name="param[meal_time]" value="{{ formdata.meal_time }}" placeholder="{{ time }}" disabled >
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Today I Ate</label>
+                    <div class="col-4">
+                        <select class="form-control mealParam" name="param[meal_amount]" disabled >
+                            <option value="none" {% if formdata.meal_amount == 'none' %}selected{% endif %}>None of my</option>
+                            <option value="some" {% if formdata.meal_amount == 'some' %}selected{% endif %}>Some of my</option>
+                            <option value="most" {% if formdata.meal_amount == 'most' %}selected{% endif %}>Most of my</option>
+                            <option value="all" {% if formdata.meal_amount == 'all' %}selected{% endif %}>All of my</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select class="form-control mealParam" name="param[meal]" disabled >
+                            <option value="breakfast" {% if formdata.meal == 'breakfast' %}selected{% endif %}>breakfast</option>
+                            <option value="lunch" {% if formdata.meal == 'lunch' %}selected{% endif %}>lunch</option>
+                            <option value="snack" {% if formdata.meal == 'snack' %}selected{% endif %}>snack</option>
+                            <option value="dinner" {% if formdata.meal == 'dinner' %}selected{% endif %}>dinner</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-4"></div>
+                    <div class="col-4">
+                        <select id="multiselect" multiple="multiple">
+                            {% for id_food, food in foods %}
+                            <option value="{{id_food}}" {% for id, food_select in formdata.meal_food %} {% if id_food == food_select %} selected="selected" {% endif %}{% endfor %}  >{{food}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input type="hidden" name="param[food]" value="{{ formdata.meal_food|join(',') }}" id="food">
+                    <div class="col-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="input_food" placeholder="Add food">
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary" id="add_food" type="button">Add</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Comment (optional)</label>
+                    <div class="col-8">
+                        <!-- <button onclick="recordspeech('meal_comment','mealcspa')" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-microphone"></i>  Record Speech</button>
+                        <button onclick="stopspeech()" type="button" class="uploadcare--widget__button uploadcare--widget__button_type_open tiny"><i class="fa fa-stop-circle"></i> Stop</button>
+                        <img class="voice_detect hidden" id="mealcspa"  src="/images/waiting.gif" alt="Waiting gif"> -->
+                        <textarea id="meal_comment" class="form-control mealParam comment" name="meal_comment" rows="3" maxlength="512" disabled>{{ formdata.meal_comment }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4 col-form-label">Add Photos (optional)</label>
+                    <div class="col-8">
+                        <input class="mealParam" type="hidden" role="uploadcare-uploader" name="meal_media" data-images-only="true" data-multiple="true" data-image-shrink="1600x1600" disabled value="{{ formdata.meal_media }}">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+        {% if not record.record_id %}
+            <div class="card-footer">
+                <label class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name="record_public" value="1" {% if formdata.record_public %} checked {% endif %}>
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Make this daily record visible to parents. <i class="fa fa-question-circle text-muted" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="This update will show on the child's timeline. This is a good place to add a comment and an activity that the child was engaged in today."></i></span>
+                </label>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        var food=[];
+
+        function reset(selectedType) {
+            var recordTypes = [ 'nap', 'medication', 'bottle', 'meal', 'diaper', 'toilet', 'mood', 'note' ]
+
+            recordTypes.forEach(function(type) {
+                if (type == selectedType) {
+                    $('#' + type + 'Form').show()
+                    $('.' + type + 'Param').attr("disabled", false);
+                } else {
+                    $('#' + type + 'Form').hide()
+                    //$('.' + type + 'Param').attr("disabled", true);
+                }
+            })
+        }
+
+        function update(){
+            if ($('#food').val() != ""){
+                food = $('#food').val().split(",");
+            }
+            if($('#other_checkbox').prop('checked')){
+                $('#other').prop('disabled',false);
+            }
+        }
+
+        $('#other_checkbox').on('click',function(e){
+            if($('#other_checkbox').prop('checked')){
+                $('#other').prop('disabled',false);
+            }else{
+                $('#other').prop('disabled',true);
+            }
+        })
+
+        $('#add_food').on('click',function(){
+            var name_food = $('#input_food').val()
+            // console.log(name_food)
+            if(name_food != ""){
+                var id_food=name_food.replace(' ','_')
+                $('#multiselect').append('<option value='+ id_food +' selected="selected">'+name_food+'</option>')
+                $('#multiselect').multiselect('rebuild');
+                food.push(id_food);
+                $('#food').val(food);
+                $('#food').trigger("change");
+            }else{
+                console.log("vide")
+            }
+        })
+
+        $(document).ready(function() {
+            reset($("a[name='record_type']").attr('data-content'))
+            
+            
+            $('#multiselect').multiselect({
+                //buttonWidth : '160px',
+                maxHeight:300,
+                enableCaseInsensitiveFiltering: true,
+                enableFiltering:true,
+                nonSelectedText: 'Foods',
+                onChange: function(element, checked) {
+                    if (checked === true) {
+                        food.push(element.val())
+                    }
+                    if (checked === false) {
+                        var index = food.indexOf(element.val());
+                        food.splice(index,1)
+                    }
+                    $('#food').val(food);
+                    $('#food').trigger("change");
+                }
+            });
+            update();
+        });
+
+        $("a[name='record_type']").click(function() {
+            reset(this.getAttribute('data-content'));
+        });
+
+        /*var textareas = document.querySelectorAll('textarea, input[type="text"]');
+        for(var i=0; i<textareas.length; i++){
+            var area = textareas[i];
+            var a = Autocompletion.init({{ user_id }}, area, {
+                onValueChange: function(a){
+                    //doKeywordSearch({ autocomplete: a })
+                }
+            });
+        }*/
+        function selectALL(all){            
+            if(all.checked){
+                $('.select').prop('checked', true)
+            }
+            else{
+                $('.select').prop('checked', false)
+            }
+            $('.select').trigger('change');
+        }
+        function selectRoom(all){            
+            if(all.checked){
+                $('.room_'+all.value).prop('checked', true)
+            }
+            else{
+                $('.room_'+all.value).prop('checked', false)
+            }
+            $('.room_'+all.value).trigger('change');
+        }
+    </script>
+        <h4>Select Children Involved</h4>
+        <label class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" onclick="selectALL(this)">
+            <span class="custom-control-indicator"></span>
+            <span class="custom-control-description">Select All</span>
+        </label>
+    {% for room in rooms %}
+    <div class="row">
+        <label class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input select" value="{{room.room_id}}" onclick="selectRoom(this)">
+            <span class="custom-control-indicator"></span>
+        </label>
+        <h5 class="mb-0">{{ room.room_name }}</h5>
+    </div>
+        <h6 class="mb-4 text-muted">{{ room.room_description }}</h6>
+        <ul class="list-group mb-4">
+            {% for child in children if child.room_id == room.room_id %}
+                <li class="list-group-item">
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input select room_{{room.room_id}}" name="children[]" value="{{ child.child_id }}" {% if child.child_id in formdata.children %}checked{% endif %}>
+                        <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+                        <span class="custom-control-description"><img class="rounded-circle mr-2" width="35" height="35" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" alt="Child image"> <strong>{{ child.child_name }}</strong></span>
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+
+<script>
+    {% if mode == 'create' %}
+    function autosave(field, data){
+        console.log(data);
+        $("#autosave-text").text("Saving...");
+        var stringData = JSON.stringify( data );
+        $.ajax({
+            url: "{{ path_for('recordAutosave', { 'draft_id': draft_id } )}}",
+            type: "POST",
+            data: 
+            { 
+                field: field,
+                data: stringData,
+                {{ csrf.keys.name }}: "{{ csrf.name }}",
+                {{ csrf.keys.value }}: "{{ csrf.value }}"
+            },
+            success: function(res){
+                $("#autosave-text").text("Saved");
+            },
+            error: function(err){
+                console.log(err);
+            }
+        });
+    }
+    
+    var timeoutId;  
+    function resetTimeout(field, data){
+        $("#autosave-text").text("Saving...");
+        if (timeoutId) 
+            clearTimeout(timeoutId);
+        timeoutId = setTimeout(function () {
+            autosave(field, data);
+            timeoutId = null;
+        }, 2000);
+    }
+
+    $("[name='record_date']").change(function () {
+        data = {};
+        data.value = this.value;
+        autosave("record_date", data);
+    });
+
+    $("[name='record_public']").change(function () {
+        data = {};
+        data.goal_id = this.value;
+        data.is_checked = $(this).is(":checked");
+        autosave("public", data);
+    });
+
+    $("[name='children[]']").change(function () {
+        data = {};
+        data.child_id = this.value;
+        data.is_checked = $(this).is(":checked");
+        autosave("child", data);
+    });
+
+    $(".comment").keyup(function () {
+        data = {};
+        data.type = $(this).attr("name").replace("_comment", "");
+        data.value = this.value;
+        resetTimeout("comment", data);
+    });
+
+    $(".comment").focusout(function() {
+        if(timeoutId){
+            clearTimeout(timeoutId);
+            timeoutId = null;
+            data = {};
+            data.type = $(this).attr("name").replace("_comment", "");
+            data.value = this.value;
+            autosave("comment", data);
+        }
+    });
+
+    $("[role=uploadcare-uploader]").each(function(index, widget){
+        var multipleWidget = uploadcare.MultipleWidget(widget);
+        multipleWidget.onUploadComplete(function (group) {
+            data = {};
+            data.value = group.cdnUrl;
+            data.type = $(widget).attr("name").replace("_media", "");
+            autosave("media", data);
+        }); 
+    });
+
+    function autosaveRecordTime(type, time){
+        data = {};
+        data.type = type;
+        data.value = time;
+        autosave("record_time", data);
+    }
+
+    $("[name='param[start_nap]']").change(function(){ autosaveRecordTime('nap', this.value); });
+    $("[name='param[start_medication]']").change(function(){ autosaveRecordTime('medication', this.value); });
+    $("[name='param[toilet_time]']").change(function(){ autosaveRecordTime('toilet', this.value); });
+    $("[name='param[diaper_time]']").change(function(){ autosaveRecordTime('diaper', this.value); });
+    $("[name='param[meal_time]']").change(function(){ autosaveRecordTime('meal', this.value); });
+
+    function autosaveParam(type, param_id, value){
+        data = {};
+        data.type = type;
+        data.param_id = param_id;
+        data.value = value;
+        autosave("param", data);
+    }
+
+    $("[name='param[end_nap]']").change(function(){ autosaveParam('nap', 'end', this.value); });
+    $("[name='param[medication_amount]']").change(function(){ autosaveParam('medication', 'amount', this.value); });
+    $("[name='param[medication_unit]']").change(function(){ autosaveParam('medication', 'unit', this.value); });
+    $("[name='param[condition]']").change(function(){ autosaveParam('diaper', 'condition', this.value); });
+    $("[name='param[meal_amount]']").change(function(){ autosaveParam('meal', 'amount', this.value); });
+    $("[name='param[meal]']").change(function(){ autosaveParam('meal', 'meal', this.value); });
+    $("[name='param[food]']").change(function(){ autosaveParam('meal', 'food', this.value); });
+
+    $("[name='param[medication_name]']").keyup(function () {
+        data = {};
+        data.type = "medication";
+        data.param_id = "name";
+        data.value = this.value;
+        resetTimeout("param", data);
+    });
+
+    $("[name='param[medication_name]']").focusout(function() {
+        if(timeoutId){
+            clearTimeout(timeoutId);
+            timeoutId = null;
+            data = {};
+            data.type = "medication";
+            data.param_id = "name";
+            data.value = this.value;
+            autosave("param", data);
+        }
+    });
+    
+    function autosaveMood(){
+        value = "";
+        $("[name='param[mood][]']").each(function(i, e){
+            if($(e).attr("id") != "other" && !$(this).is(":checked"))
+                return;
+            if($(e).attr("id") == "other" && !$("#other_checkbox").is(":checked"))
+                return;
+
+            if(value != "")
+                value += ",";
+            value += e.value;
+        });
+        data = {};
+        data.type = "mood";
+        data.param_id = "mood";
+        data.value = value;
+        autosave("param", data);
+    }
+
+    $("#other_checkbox").change(autosaveMood);
+
+    $("[name='param[mood][]'").change(function(){
+        if($(this).attr("id") == "other")
+            return;
+        
+        autosaveMood();
+    });
+
+    $("[name='param[mood][]']").keyup(function () {
+        if($(this).attr("id") != "other")
+            return;
+
+        autosaveMood();
+    });
+    
+    {% endif %}
+</script>
+{% endblock %}

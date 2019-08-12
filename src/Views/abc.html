@@ -1,0 +1,127 @@
+{% extends 'master.dashboard.html' %}
+{% block body %}
+
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+			<div class="col-12 col-sm-7">
+                <form class="form-inline">
+                    Filter history:
+                    <select class="form-control mx-2" name="week" onchange="this.form.submit()">
+                        <option selected disabled>By Week</option>
+                        {% for week_number, week in weeks %}
+                            <option value="{{ week_number }}" {% if current_week == week_number %}selected{% endif %}>{{ week[0] }} &mdash; {{ week[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+			</div>
+            {% if user.user_type == 'T' %}
+            <div class="col-12 col-sm-5 mt-2 ml-auto text-right">
+                <a class="btn btn-primary" href="{{ path_for('abcCreate') }}">Create ABC</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% if dates %}
+    {% for date, times in dates %}
+        <div class="list-group">
+            {% for time, abcs in times %}
+				{% for abc_id, abc in abcs %}
+					<div class="list-group-item">
+						<div class="col-3">
+							<a href="{{ path_for('abcView', { 'abc_id': abc.abc_id }) }}">
+							<h5>ID: {{ abc.abc_id }}</h5>
+							</a>
+						</div>
+						<div class="col-9">
+                            <div class="my-3">
+								<a href="{{ path_for('abcView', { 'abc_id': abc.abc_id }) }}">
+								{% if abc.abc_assoc == 'school' %}
+									<h5 class="mb-1"><strong>School ABC</strong></h5>
+								{% endif %}
+								{% if abc.abc_assoc == 'room' %}
+									<h5 class="mb-1"><strong>Room ABC</strong></h5>
+								{% endif %}
+								{% if abc.abc_assoc == 'child' %}
+									<h5 class="mb-1"><strong>Children ABC</strong></h5>
+								{% endif %}
+								</a>
+                                <p class="text-muted">
+                                    {{ abc.user_id.user_first_name }} {{ abc.user_id.user_last_name }} created at {{ abc.created_at }}
+                                </p>
+								<p>Associated to:
+								{% if abc.abc_assoc == 'school' %}
+									<strong>Entire school</strong>
+								{% endif %}
+								{% if abc.abc_assoc == 'room' %}
+									{% if abc.abc_rooms %}
+										|   
+										{% for room in abc.abc_rooms %}
+											<strong>{{ room.room_name }}   |</strong>
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+								{% if abc.abc_assoc == 'child' %}
+									{% if abc.abc_children %}
+										{% for child in abc.abc_children %}
+											<a href="{{ path_for('childDetails', { child_id: child.child_id }) }}"><img class="rounded-circle mr-1" width="30" height="30" src="{{ child.child_avatar_url|default('/images/avatar.png') }}" data-toggle="tooltip" data-placement="top" title="{{ child.child_name }}" alt="Child image"></a>
+										{% endfor %}
+									{% endif %}
+								{% endif %}
+								</p>
+							</div>
+                            {% if user.user_type == 'T' %}
+                                <a class="btn btn-success btn-sm" href="{{ path_for('abcEdit', { abc_id: abc_id }) }}">Edit</a>
+                                <button class="btn btn-danger btn-sm" role="button" data-toggle="modal" data-target="#deleteModal" data-id="{{ abc.abc_id }}">Delete </button>
+                            {% endif %}
+						</div>
+					</div>
+				{% endfor %}
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if user.user_type == 'T' %}
+<form method="post" action="{{ path_for('deleteABC', { abc_id: abc.abc_id }) }}">
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete ABC</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Deleting a ABC will also delete all associated material.</p>
+                    <label class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">{{ abc.abc_id }} I understand that this cannot be undone</span>
+                    </label>
+                    <input type="hidden" name="abc_id" id="abc_id" value="{{ abc.abc_id }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+</form>
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+
+        $(this).find('#abc_id').val(id);
+    });
+</script>
+{% endif %}
+
+{% endblock %}

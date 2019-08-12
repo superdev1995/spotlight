@@ -1,0 +1,64 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>
+                        <a href="{{ path_for('monthlyYearSummary', {'year': year-1}) }}"> &larr; </a>
+                            {{ year }}
+                        <a href="{{ path_for('monthlyYearSummary', {'year': year+1}) }}"> &rarr; </a>
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="mb-4">Months</h4>
+    <div class="card">
+        <div class="card-header">
+            Click on any month to create or edit your monthly plan(s)
+        </div>
+    
+        <div class="card-block">
+            <div class="row">
+            {% for month_num, month in months %}
+            <div class="card-block col-6 col-sm-4 text-center">
+                <a {% if months_completed[month_num] is defined %}
+                    href="{{ path_for('monthlyPlanSummary', {'month': month_num, 'year': year}) }}">
+                    <button class="btn btn-primary" data-toggle="tooltip" data-html="true" 
+                        title="{% if months_completed[month_num].school_count %}
+                                School plans: {{ months_completed[month_num].school_count }} <br>
+                                {% endif %}
+                                {% if months_completed[month_num].room_count %}
+                                Room plans: {{ months_completed[month_num].room_count}} <br>
+                                {% endif %}
+                                {% if months_completed[month_num].child_count %}
+                                Child plans: {{ months_completed[month_num].child_count}}
+                                {% endif %}"
+                    {% elseif months_drafts[month_num] is defined and months_drafts[month_num].plan_count > 0 %}        
+                    href="{{ path_for('monthlyPlanSummary', {'month': month_num, 'year': year}) }}">
+                    <button class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="Create new plan or edit a draft"
+                    {% else %}
+                    href="{{ path_for('createMonthlyPlan', {'month': month_num, 'year': year}) }}">
+                    <button class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="Create new plan"
+                    {% endif %}
+                        style="width: 100px; height: 100px; cursor: pointer; text-align: center;">
+                        <strong> {{ month }} </strong>
+                        {% if months_drafts[month_num].plan_count  %}
+                        <br><span class="badge badge-pill badge-danger">Draft</span> 
+                        {% endif %}
+                    </button>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

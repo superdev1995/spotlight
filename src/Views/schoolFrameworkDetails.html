@@ -1,0 +1,597 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-6">
+        <h4 class="mb-0">{{ title }}</h4>
+   
+    </div>
+    <div class="col-6 text-right">
+        <a class="btn btn-outline-primary" href="{{ path_for('schoolFramework') }}">Back to Framework</a>
+        {% if framework.school_id == school_user.school_id %}
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#createModal">Add Group/Category/Goals</button>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- ___________________________________________CREATE___________________________________________ -->
+
+{% if framework.school_id == school_user.school_id %}
+    <form action="{{ path_for('schoolCategoryCreate', { framework_id: framework.framework_id }) }}" method="post" autocomplete="on">
+        <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">    
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Category/Group/Goals</h5>
+                        <button type="button" class="close" data-dismiss="modal" onclick="oneGoal()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Group</label>
+                            <input class="form-control" type="text" name="group_name" maxlength="64" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category Name</label>
+                            <input class="form-control" type="text" name="category_name" maxlength="64" required>
+                        </div>
+                        <div class="form-group">
+                                <label>Category Description</label>
+                                <input class="form-control" type="text" name="category_description" maxlength="64" required>
+                        </div>
+                        <div id="goalsDiv" class="form-group">
+                            <input id="count" name="count" style="display:none;">
+                            <label>Goal</label>
+                            <input class="form-control" type="text" name="goal0" maxlength="64" required>
+                        </div>
+                            <div class="col-12 text-right">
+                                <a style="display:none" onclick="dropGoal();return false;"  id="dropGoal" title="Drop Goal">
+                                    <span class="fa-stack fa-lg minus">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-minus fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                                <a href="" onclick="createGoal();return false;" id="addgoal" title="Add Goal">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                </span>
+                                </a>
+                            </div>
+                    </div>
+ 
+                    
+                    <div class="modal-footer">
+                        
+                        <button type="button" class="btn btn-secondary" onclick="oneGoal()" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </div></div>
+            </div>
+        
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+{% endif %}
+
+
+<!-- _________________________________________EDIT FRAMEWORK_______________________________________________ -->
+
+
+{% if framework.school_id == school_user.school_id %}
+    <form action="{{ path_for('schoolFrameworkEdit', { framework_id: framework.framework_id }) }}" method="post">
+        <div class="card mb-4">
+            <div class="card-header">
+                Edit Framework Details
+            </div>
+            <div class="card-block">
+                <div class="form-group">
+                    <label for="name">Framework Name</label>
+                    <input class="form-control" type="text" maxlength="64" name="name" value="{{ framework.framework_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Duration (in Years)</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <input class="form-control" type="number" min="0" max="60" name="month_min" placeholder="Minimum 0 Months" value="{{ framework.framework_month_min }}" >
+                        </div>
+                        <div class="col-6">
+                            <input class="form-control" type="number" min="0" max="60" name="month_max" placeholder="Maximum 60 Months" value="{{ framework.framework_month_max }}" >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header success">
+        Framework Observation categories
+    </div>
+    <div class="card-block">
+        {% if framework.school_id == school_user.school_id %}
+            <p>Edit your observation categories here. Editing or deleting categories will <strong>directly impact</strong> existing or completed frameworks.</p>
+        {% else %}
+            <p>This template framework is available to all pre-schools and cannot be edited. Your teachers can start observing right away, but you can also <a href="{{ path_for('schoolFramework') }}">add your own custom pre-school frameworks</a>.</p>
+        {% endif %}
+    </div>
+
+     <!-- ___________________________VIEW_____________________________________ -->
+     {% set groupold = "" %}
+     {% for category_name, category in categories if category %}
+    
+     <table class="table">
+        <thead>
+            <tr>
+            </tr>
+        </thead>
+        <tbody>
+             {% if groupold != category.category_group %}
+             <tr>  <th class="w-75"><H4>{{ category.category_group }}</H4></th>
+                <th class="w-25">
+                    {% if framework.school_id == school_user.school_id %}
+                    <div class="pull-right">
+                        <button class="btn btn-primary btn-sm" type="button" data-toggle="modal" data-target="#editModalGroup" data-id="{{ category.category_id }}" data-name="{{ category_name }}" data-group="{{ category.category_group }}">Edit</button>
+                        <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#deleteModalGroup" data-group="{{ category.category_group }}" >Delete</button>
+                    </div>
+                {% endif %}
+                </th>
+            </tr>
+            {% set groupold = category.category_group %} 
+            {% endif %}
+            <tr> 
+            <th class="w-75">{{ category.category_name }}</th>
+                <th class="w-25">
+                {% if framework.school_id == school_user.school_id %}
+                    <div class="pull-right">
+                        <button class="btn btn-primary btn-sm" type="button" data-toggle="modal" data-target="#editModalCategory" data-desc="{{ category.category_description }}" data-id="{{ category.category_id }}" data-name="{{ category.category_name }}" data-group="{{ category.category_group }}">Edit</button>
+                        <button class="btn btn-danger btn-sm" type="button" data-toggle="modal" data-target="#deleteModalCategory"  data-id="{{ category.category_id }}">Delete</button>
+                    </div>
+                {% endif %}
+                </th>
+            </tr>
+            <tr> 
+                    <th class="w-75">{{ category.category_description }}</th>
+                        <th class="w-25">
+                       
+                        </th>
+            </tr>
+            {% for goal in category.goals %}
+                <tr>
+                    <td id="{{ goal.goal_id }}" class="{{ goal.category_id }}">{{ goal.goal_description }}</td>
+                    <td>
+                      
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+
+
+         <!-- ___________________________DELETE GOAL_____________________________________ -->
+    {% if framework.school_id == school_user.school_id %}
+        <form action="{{ path_for('schoolGoalDelete') }}" method="post">
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Goal</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>If you delete this milestone it cannot be undone. Select the delete button to confirm.</p>
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">I understand that this cannot be undone</span>
+                            </label>
+                            <input type="hidden" id="delete_id" name="goal_id" value="">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+            <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        </form>
+        <script>
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+
+                $(this).find('#delete_id').val(id);
+            });
+        </script>
+    {% endif %}
+   
+         <!-- ___________________________EDIT CATEGORY_____________________________________ -->
+
+    {% if framework.school_id == school_user.school_id %}
+    <form action="{{ path_for('schoolCategoryEdit') }}" method="post" id="modal-form">
+        <div class="modal fade" id="editModalCategory" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">            
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Group/Category/Goals</h5>
+                            <button type="button" class="close"  data-dismiss="modal"  aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <div class="modal-body" >
+                            <p>We recommend that you do only change the wording without affecting the purpose of this milestone as each milestone is directly associated with your teacher’s observation.</p>
+                       
+                                <div class="form-group">
+                                    <label>Category Name</label>
+                                    <input class="form-control" type="text" id="edit_name" value="" name="category_name" maxlength="64" required>
+                                </div>
+                                <div class="form-group">
+                                        <label>Category Description</label>
+                                        <input class="form-control" type="text" id="edit_description" value="" name="category_description" maxlength="64" required>
+                                    </div>
+                                <div id="goalsDivEdit" class="form-group">
+                                    
+                                    <label>Goal</label>
+
+                                    <input id="count" value="" name="count" type="hidden">
+
+                                    {% for category_name, category in categories %}  
+                                    <div id = "{{ category.category_id }}" class="categoryEdit" style="display:none;" >
+                                    <input id="catName" value="{{ category_name }}" type="hidden">
+                                    <input name="category_id" id="category_id" value="{{ category.category_id }}" type="hidden">    
+                                    {% for goal in category.goals %}
+                                    <br/>
+                                    <input class="form-control goal-description" type="text" value="{{ goal.goal_description }}" maxlength="64" >
+                                    <button type="button" class="close rmgoal" style="margin-right: 5px;margin-top: -30px;" aria-label="Close">
+                                        <span aria-hidden="true" style="font-size: x-large;">X</span>
+                                    </button>
+                                    {% endfor %}
+                                    </div>
+                                    {% endfor %}
+
+                                    
+                                </div>
+                                    <div class="col-12 text-right">
+                                                <a href="" onclick="addGoal();return false;" id="addgoalEdit" title="Add Goal">
+                                                <span class="fa-stack fa-lg">
+                                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                                    <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
+                                                </span>
+                                        </a>
+                                    </div> 
+                                    <input type="hidden" id="edit_id" name="category_id" value="">
+                                    <input type="hidden" id="framework_id"  value="{{ framework.framework_id }}">
+                                </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-id ="{{ category.category_id }}" data-dismiss="modal">Cancel</button>
+                            <button type="button" onclick="Save()" class="btn btn-primary" id="modal-submit-btn">Save</button>
+                        </div>
+                    </div>
+                </div>
+            
+</div>
+       
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    <script>
+         var id = "";
+         $('.rmgoal').click(function(){
+      
+          $(this).closest('button').prev().remove();
+          $(this).remove();
+        });
+
+
+        $('#editModalCategory').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            id = button.data('id');
+            var name = button.data('name');
+            var desc = button.data('desc');
+            
+            $(this).find('#edit_id').val(id);
+            $(this).find('#'+id).show();
+            $(this).find('#'+id).addClass("selected-category");
+            $(this).find('#edit_name').val(name);       
+            $(this).find('#edit_description').val(desc); 
+            counter = $(this).find("#"+id).find("input[type=text]").length;
+            $(this).find('#count').val(counter);
+
+        });
+
+        $('#editModalCategory').on('hide.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+
+                $(this).find('.categoryEdit:visible').hide();
+                counter=0;
+                $(this).find('#'+id).removeClass("selected-category");
+    
+        });
+
+        // $("#modal-submit-btn").on("click touchstart", function () {
+        //     var counter=0;
+        //     $('.selected-category').first().find('.goal-description').each(function(){
+        //         if($(this).val() != "" && $(this).val() != null && $(this).val() != undefined)
+        //             $("#modal-form").append("<input type='hidden' value='"+this.value+"' name='goal"+(counter++)+"'>");
+        //     });
+        //     $("#modal-form").append("<input type='hidden' value='"+counter+"' name='count'>");
+        // });
+        var vurl = "";
+        var formData = "";
+        function Save(){
+            
+         
+            vurl = $('#modal-form').attr("action");
+            var counter=0;
+            var goals = [];
+          
+            $('.selected-category').first().find('.goal-description').each(function(){
+                if($(this).val() != "" && $(this).val() != null && $(this).val() != undefined)
+                {
+                   
+                    goals[counter] =this.value;
+                    counter++;
+                } 
+                   
+            });
+          
+
+            formData = {
+                'category_name'       : $('#edit_name').val(),
+                'category_description': $('#edit_description').val(),
+                'category_id'         : id, 
+                'framework_id'         : $('#framework_id').val() ,
+                'goals'               :  goals
+               
+            };
+            $("#modal-submit-btn").attr("disabled","disabled");
+             var request = $.ajax({
+                            url: vurl,
+                            method: "POST",
+                            data: formData,
+                            timeout: 3000,
+                            datatype:'json'
+                        });
+            request.done(function(data) { 
+             
+                if(data == "success"){
+              
+                 location.reload();
+
+                }
+                $("#modal-submit-btn").removeAttr("disabled");
+                $('#editModalCategory').modal('hide');
+              
+            });
+       
+            request.fail(function( jqXHR, textStatus ) {   
+                $("#modal-submit-btn").removeAttr("disabled");
+                $('#editModalCategory').modal('hide');
+            });
+        }
+
+      
+    </script>
+      <!-- ___________________________EDIT Group_____________________________________ -->
+      {% if framework.school_id == school_user.school_id %}
+    
+      <form action="{{ path_for('schoolGroupEdit') }}" method="post" id="grpform" >
+          <div class="modal fade" id="editModalGroup" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">Edit Group</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                      <div class="modal-body">
+                          <p>We recommend that you do only change the wording without affecting the purpose of this category as each category is directly associated with your teacher’s observation.</p>
+                          <div class="form-group">
+                             <div id="goalsDiv" class="form-group">
+                             
+                                  <label>Group</label>
+                                  
+                                  <input class="form-control" type="text" id="edit_group" value=""  maxlength="64" required>
+                              </div>
+                              <input type="hidden" id="edit_id" name="framework_id" value="">
+                          </div>
+                      </div>
+                    
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                          <button id="sgroup" type="button" onclick="SaveGroup()" class="btn btn-primary">Save</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+          <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+      </form>
+      <script>
+          var groupname = "";
+          var groupbox = null;
+             $('#editModalGroup').on('show.bs.modal', function (event)
+              {
+                                  var button = $(event.relatedTarget);
+                                  groupname = button.data('group');
+                                  $('#edit_group').val(groupname);
+                                  var category = button.data('category');
+                                  groupbox = button.parents("tr").find(".w-75 > H4");               
+                              });
+
+            function SaveGroup()
+            {
+      
+                vurl = $('#grpform').attr("action");
+        
+                formData = {
+                    'group_newname'       : $('#edit_group').val(),
+                    'group_name'         : groupname, 
+                    'framework_id'         : $('#framework_id').val()
+                
+                };
+                $("#sgroup").attr("disabled","disabled");
+
+                var request = $.ajax({
+                                url: vurl,
+                                method: "POST",
+                                data: formData,
+                                timeout: 3000,
+                                datatype:'json'
+                            });
+                request.done(function(data) { 
+                
+                    if(data == "success"){
+                        groupbox.text($('#edit_group').val());
+                    //location.reload();
+
+                    }
+                    $("#sgroup").removeAttr("disabled");
+                    $('#editModalGroup').modal('hide');
+                
+                });
+        
+                request.fail(function( jqXHR, textStatus ) {   
+                    $("#sgroup").removeAttr("disabled");
+                    $('#editModalGroup').modal('hide');
+                });
+        }
+
+       
+
+          
+      
+      </script>
+  {% endif %}
+ <!-- ___________________________DELETE CATEGORY_____________________________________ -->
+    <form action="{{ path_for('schoolCategoryDelete') }}" method="post">
+        <div class="modal fade" id="deleteModalCategory" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Category</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Delete your categories with care. </p>
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">I understand that this cannot be undone</span>
+                        </label>
+                        <input type="hidden" id="delete_id" name="category_id" value="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    <script>
+        $('#deleteModalCategory').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+
+            $(this).find('#delete_id').val(id);
+        });
+    </script>
+ <!-- ___________________________DELETE GROUP_____________________________________ -->
+<form action="{{ path_for('schoolGroupDelete') }}" method="post" id="grpformdel" >
+        <div class="modal fade" id="deleteModalGroup" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Group</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Delete your group with care. </p>
+                        <label class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" name="confirm" value="1" required>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">I understand that this cannot be undone</span>
+                        </label>
+                        <input type="hidden" id="delete_id" name="category_id" value="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" onclick="DeleteGroup()" id="dgroup" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+    </form>
+    <script>
+        var gname = "";
+        $('#deleteModalGroup').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            gname = button.data('group');
+
+            $(this).find('#delete_id').val(id);
+        });
+        function DeleteGroup()
+            {
+      
+                vurl = $('#grpformdel').attr("action");
+        
+                formData = {
+                    'group_name'         : gname, 
+                    'framework_id'         : $('#framework_id').val()
+                
+                };
+                $("#dgroup").attr("disabled","disabled");
+
+                var request = $.ajax({
+                                url: vurl,
+                                method: "POST",
+                                data: formData,
+                                timeout: 3000,
+                                datatype:'json'
+                            });
+                request.done(function(data) { 
+                
+                    if(data == "success"){
+                      
+                    location.reload();
+
+                    }
+                    $("#dgroup").removeAttr("disabled");
+                    $('#deleteModalGroup').modal('hide');
+                
+                });
+        
+                request.fail(function( jqXHR, textStatus ) {   
+                    $("#dgroup").removeAttr("disabled");
+                    $('#deleteModalGroup').modal('hide');
+                });
+        }
+    </script>
+{% endif %}
+</div>
+{% endblock %}
