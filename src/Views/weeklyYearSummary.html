@@ -1,0 +1,65 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>
+                        <a href="{{ path_for('weeklyYearSummary', {'year': year-1}) }}"> &larr; </a>
+                        {{ year }}
+                        <a href="{{ path_for('weeklyYearSummary', {'year': year+1}) }}"> &rarr; </a>
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="mb-4">Weeks</h4>
+<div class="card">
+    <div class="card-header">
+        Click on any week to create or edit your weekly plan(s)
+    </div>
+
+    <div class="card-block">
+        <div class="row">
+        {% for week_num, week in weeks %}
+        <div class="card-block col-6 col-lg-3 text-center">
+            <a {% if weeks_completed[week_num] is defined %}
+                href="{{ path_for('weeklyPlanSummary', {'week': week_num, 'year': year}) }}">
+                <button class="btn btn-primary" data-toggle="tooltip" data-html="true" 
+                    title="{% if weeks_completed[week_num].school_count %}
+                            School plans: {{ weeks_completed[week_num].school_count }} <br>
+                            {% endif %}
+                            {% if weeks_completed[week_num].room_count %}
+                            Room plans: {{ weeks_completed[week_num].room_count}} <br>
+                            {% endif %}
+                            {% if weeks_completed[week_num].child_count %}
+                            Child plans: {{ weeks_completed[week_num].child_count}}
+                            {% endif %}"
+                {% elseif weeks_drafts[week_num] is defined and weeks_drafts[week_num].plan_count > 0 %}        
+                href="{{ path_for('weeklyPlanSummary', {'week': week_num, 'year': year}) }}">
+                <button class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="Create new plan or edit a draft"
+                {% else %}
+                href="{{ path_for('createWeeklyPlan', {'week': week_num, 'year': year}) }}">
+                <button class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="Create new plan"
+                {% endif %}
+                    style="width: 150px; height: 100px; cursor: pointer; text-align: center;">
+                    <strong>Week {{week_num}}</strong><br />
+                    {{week.start_date}} - {{week.end_date}}
+                    {% if weeks_drafts[week_num].plan_count  %}
+                    <br><span class="badge badge-pill badge-danger">Draft</span> 
+                    {% endif %}
+                </button>
+            </a>
+            
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

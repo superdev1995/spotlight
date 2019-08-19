@@ -1,0 +1,64 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>
+                        <a href="{{ path_for('weeklyYearInvoice', {'year': year-1}) }}"> &larr; </a>
+                        {{ year }}
+                        <a href="{{ path_for('weeklyYearInvoice', {'year': year+1}) }}"> &rarr; </a>
+                    </h4>
+                    Click on any week to view your Weekly Invoice
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Weeks
+    </div>
+
+
+    <div class="card-block">
+        <div class="row">
+        {% for week_num, week in weeks %}
+        <div class="col-3 text-center mt-3">
+                {# dump(week)#}
+                {# dump(id_user)#}
+
+            <a {% if week.plan_id %}
+               {% if week.school_count %}
+                    data-toggle="tooltip" data-html="true" title="
+
+                        School invoice: {{ week.school_count }}<br />
+                    {% endif %}"
+               {% endif %}
+
+                    class="btn btn-week-summary m-1
+                {% if week.in_session == id_user %}
+                btn-primary
+                {% else %}
+                btn-secondary
+                {% endif %}"
+
+               href="{{ path_for('weeklyPlanInvoice', {'week': week_num, 'year': year}) }}">
+
+                <strong>Week {{week_num}}</strong><br />
+                {{week.start_date}} <br />-<br /> {{week.end_date}}
+                <!--In session: {% if week.in_session == 1 %}Yes{% else %}No{% endif %}<br />-->
+            </a>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
