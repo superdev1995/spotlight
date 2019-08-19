@@ -1,0 +1,98 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4>
+                        <!-- <a href="{{ path_for('wordcloudchoice')}}"> &larr; </a> -->
+                        {{ year }}
+                        <!-- <a href="{{ path_for('wordcloudchoice', {'year': year+1}) }}"> &rarr; </a> -->
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form action="{{path_for('wordcloud')}}" method="POST">
+<div class="card">
+    <div class="card-header">
+        Weeks
+    </div>
+    <div class="card-block">
+        <div class="row">
+        {% for week_num, week in weeks %}
+        <div class="col-6 col-sm-3 text-center mt-3">
+            <button  type="button"  class="btn btn-week-summary m-1 btn-secondary"
+                value="{{week_num}}">
+                <strong>Week {{week_num}}</strong><br />
+                <span class="{{week.start_date_complet}}">{{week.start_date}}</span> <br />-<br /><span class="{{week.end_date_complet}}">{{week.end_date}}</span> 
+                <!--In session: {% if week.in_session == 1 %}Yes{% else %}No{% endif %}<br />-->
+            </button >
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+    <div class="card-block">
+    <h4>Select Room(s)</h4>
+        {% for room in rooms %}
+            <h5 class="mb-0">{{ room.room_name }}</h5>
+            <h6 class="mb-0 text-muted">{{ room.room_description }}</h6>
+            <label class="custom-control custom-radio mb-4">
+            <input type="radio" class="custom-control-input" name="room"
+                    value="{{ room.room_id }}" required>
+            <span class="custom-control-indicator" style="margin-top: 0.5rem;"></span>
+            </label>
+        {% endfor %}
+    </div>
+    <div class="modal-footer">
+        <input id="date_1" name="date_1" type="hidden">
+        <input id="date_2" name="date_2" type="hidden">
+        <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+        <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+        <button type="submit" class="btn btn-primary">Validate</button>
+        
+        <button type="button" class="btn btn-secondary" id="reset">Reset</button>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+var test=[]
+var date1
+var date2
+
+$(".btn-week-summary").click(function(){
+    if(!date2 && date1){
+        date2=$(this).children().next().next().next().next().next().attr('class')
+        $("#date_2").val(date2)
+    }
+    if (!date1){
+        date1=$(this).children().next().next().attr('class')
+        $("#date_1").val(date1)
+    }
+    test[$(this).val()]=!test[$(this).val()]
+    $(this).toggleClass("btn-secondary");
+    $(this).toggleClass("btn-primary");
+});
+
+$("#reset").click(function(){
+    $(".btn-week-summary").each(function(){
+        if(test[$(this).val()]==true){
+            $(this).toggleClass("btn-secondary");
+            $(this).toggleClass("btn-primary");
+            test[$(this).val()]=false
+        }
+    })
+    delete date1
+    delete date2
+});
+
+</script>
+</form>
+
+
+{% endblock %}

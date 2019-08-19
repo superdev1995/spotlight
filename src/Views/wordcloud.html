@@ -1,0 +1,66 @@
+{% extends 'master.dashboard.html' %}
+
+{% block body %}
+<script src="/javascripts/wordcloud2.js"></script>
+
+
+<h4 class="mb-5">{{ title }}</h4>
+<div class="card mb-4">
+    <div class="card-block">
+        <div class="row">
+            <div class="col-12">
+                <form action="{{path_for('wordcloud')}}" method="POST">
+                    <input type="hidden" name="{{ csrf.keys.name }}" value="{{ csrf.name }}">
+                    <input type="hidden" name="{{ csrf.keys.value }}" value="{{ csrf.value }}">
+                    <input type="hidden" value="{{room}}" name=room>
+                    <div class="row">
+                        <div class="col">
+                            <div class="row form-group">
+                                <div class="col-12 col-lg-auto">
+                                    <label>Start date:&nbsp;&nbsp;</label>
+                                </div>
+                                <div class="col-9 col-lg-6">
+                                    <input class="form-control" type="date" name="date_1" value="{{ request_date_1|default(date) }}" placeholder="{{ date }}" required>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-12 col-lg-auto">
+                                    <label>End date:   &nbsp;&nbsp;</label>
+                                </div>
+                                <div class="col-9 col-lg-6">
+                                    <input class="form-control" type="date" name="date_2" value="{{ request_date_2|default(date) }}" placeholder="{{ date }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col align-self-center">
+                            <div class="row align-items-center">
+                            <div class="d-lg-none d-block col-5 col-lg-4 text-right">
+                                <button class="btn btn-secondary" value="test" >Show</button>
+                            </div>
+                            <div class="d-lg-block d-none col-5 col-lg-2">
+                                <button class="btn btn-secondary" value="test">Show</button>
+                            </div>
+                        </div>
+                        </div>   
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+              <canvas id="my_canvas" height= 760px width="750"></canvas></div>
+<script type="text/javascript">
+
+var list={{wordcount|json_encode|raw}}
+
+    WordCloud("my_canvas", { list:list, 
+        gridSize: Math.round(16 * $('#my_canvas').width() / 1024),
+        weightFactor: 50,
+        fontFamily: 'Times, serif',
+        color:"random-light",
+        rotateRatio: 0.5,
+        rotationSteps: 2
+    });
+</script>
+{% endblock %}
