@@ -6,7 +6,7 @@
         "slim/twig-view": "^1.2.0",
         "slim/flash": "^0.2.0",
         "slim/csrf": "^0.8.1",
-        "phpmailer/phpmailer": "^5.2",
+        "phpmailer/phpmailer": "^6.1",
         "uploadcare/uploadcare-php": ">=v2.0,<3.0",
         "stripe/stripe-php": "^5.0",
         "dompdf/dompdf": "^0.8.2",
